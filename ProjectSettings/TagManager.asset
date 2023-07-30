@@ -11,10 +11,10 @@ TagManager:
   - Walkable
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - Ground
+  - climbable
+  - player
+  - cursor
   - 
   - 
   - 
@@ -40,4 +40,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Character
+    uniqueID: 1888885309
+    locked: 0
+  - name: Cursor
+    uniqueID: 1996616663
     locked: 0
