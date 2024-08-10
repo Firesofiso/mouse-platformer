@@ -35,9 +35,9 @@ public class CursorAnimator : MonoBehaviour
     private void HandleSpriteFlipping() {
         _renderer.flipX = _cursor.flipX;
         if (_cursor.flipX) {
-            _visual.transform.localPosition = new Vector3(0.3f, 0, 0);
+            _visual.transform.localPosition = new Vector3(-0, 0, 0);
         } else {
-            _visual.transform.localPosition = new Vector3(-0.3f, 0, 0);
+            _visual.transform.localPosition = new Vector3(0, 0, 0);
         }
     }
 

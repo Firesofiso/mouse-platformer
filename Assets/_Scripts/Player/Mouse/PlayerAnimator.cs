@@ -16,6 +16,7 @@ namespace TarodevController {
         }
 
         private void Start() {
+            // define animator functions for unit controller to call
             _player.GroundedChanged += OnGroundedChanged;
             _player.WallGrabChanged += OnWallGrabChanged;
             _player.DashingChanged += OnDashingChanged;
@@ -61,7 +62,7 @@ namespace TarodevController {
         private void HandleGroundEffects() {
             // Move particles get bigger as you gain momentum
             var speedPoint = Mathf.InverseLerp(0, _player.PlayerStats.MaxSpeed, Mathf.Abs(_player.Speed.x));
-            _moveParticles.transform.localScale = Vector3.MoveTowards(_moveParticles.transform.localScale, Vector3.one * speedPoint, 2 * Time.deltaTime);
+            _moveParticles.transform.localScale = Vector3.MoveTowards(_moveParticles.transform.localScale, Vector3.one * (speedPoint + 5), 2 * Time.deltaTime);
 
             // Tilt with slopes
             var withinAngle = Vector2.Angle(Vector2.up, _player.GroundNormal) <= _maxTiltAngle;
@@ -88,7 +89,7 @@ namespace TarodevController {
         [SerializeField] private ParticleSystem _wallClimbParticles;
         [SerializeField] private float _maxWallSlideVolume = 0.2f;
         [SerializeField] private float _wallSlideVolumeSpeed = 0.6f;
-        [SerializeField] private float _wallSlideParticleOffset = 0.3f;
+        [SerializeField] private float _wallSlideParticleOffset = 10f;
 
         private bool _hitWall, _isOnWall, _isClimbing, _isSliding, _dismountedWall;
 
@@ -117,7 +118,7 @@ namespace TarodevController {
             // }
 
             SetParticleColor(new Vector2(_player.WallDirection, 0), _wallSlideParticles);
-            _wallSlideParticles.transform.localPosition = new Vector3(_wallSlideParticleOffset * _player.WallDirection, 0, 0);
+            _wallSlideParticles.transform.localPosition = new Vector3(5 * _player.WallDirection, 0, 0);
 
             _wallSlideSource.volume = _isSliding || _player.ClimbingLadder && _player.Speed.y < 0
                 ? Mathf.MoveTowards(_wallSlideSource.volume, _maxWallSlideVolume, _wallSlideVolumeSpeed * Time.deltaTime)
@@ -127,10 +128,10 @@ namespace TarodevController {
         public void TriggerWallClimbParticles() {
             ParticleSystem.MainModule _wallClimbMain = _wallClimbParticles.main;
             if (_renderer.flipX) {
-                _wallClimbParticles.transform.localPosition = new Vector3(0.27f, 0.34f, 0);
+                _wallClimbParticles.transform.localPosition = new Vector3(7, 3, 0);
                 _wallClimbMain.startSpeed = new ParticleSystem.MinMaxCurve(-0.5f, 1.0f);
             } else {
-                _wallClimbParticles.transform.localPosition = new Vector3(-0.17f, 0.34f, 0);
+                _wallClimbParticles.transform.localPosition = new Vector3(-5, 3, 0);
                 _wallClimbMain.startSpeed = new ParticleSystem.MinMaxCurve(0.5f, 1.0f);
             }
             _wallClimbParticles.Play();
@@ -167,6 +168,10 @@ namespace TarodevController {
         public void FinishLedgeClimbing() {
             _grounded = true;
             if (_player is PlayerController player) player.FinishClimbingLedge();
+        }
+
+        public void ShimmyComplete() {
+            GetComponentInParent<PlayerController>().shimmying = false;
         }
 
         #endregion
@@ -249,7 +254,7 @@ namespace TarodevController {
             if (impactForce >= _minImpactForce) {
                 var p = Mathf.InverseLerp(_minImpactForce, _maxImpactForce, impactForce);
                 _landed = true;
-                _landParticles.transform.localScale = p * Vector3.one;
+                _landParticles.transform.localScale = new Vector3(p*8,p*4,1);
                 _landParticles.Play();
                 SetColor(_landParticles);
                 PlaySound(_landClip, p * 0.1f);
@@ -284,7 +289,6 @@ namespace TarodevController {
             var state = GetState();
             ResetFlags();
             if (state == _currentState) return;
-            
             _anim.Play(state, 0); //_anim.CrossFade(state, 0, 0);
             _currentState = state;
 
@@ -297,7 +301,7 @@ namespace TarodevController {
                 if (!_grounded) {
                     if (_hitWall) return LockState(WallHit, _wallHitAnimTime);
                     if (_isOnWall) {
-                        if (_player.Input.y < 0) return WallSlide;
+                        if (_player.Input.y < 0 && _player.Velocity.y > Mathf.Abs(0.5f)) return WallSlide;
                         if (_player.GrabbingLedge) return LedgeGrab; // does this priority order give the right feel/look?
                         if (_player.Speed.y > 0) {
                             float normalizedSpeed = Mathf.Clamp((float)(_player.Speed.y / 2.25), 0, 1);
@@ -337,8 +341,8 @@ namespace TarodevController {
                         _isIdle = 0;
                         double xSpeedAbs = Mathf.Abs(_player.Speed.x);
                         if (xSpeedAbs > 3.5) {
-                            float normalizedSpeed = Mathf.Clamp((float)(xSpeedAbs / 3.5) - 1, 0, 1); // max speed of 7, 1x speed up to 3.5
-                            float runSpeed = Mathf.Lerp(1, 3, normalizedSpeed); // 1x @ 3.5 speed, 3x at 7 speed
+                            float normalizedSpeed = Mathf.Clamp((float)(xSpeedAbs / 45) - 1, 0, 1); // max speed of 90, 1x speed up to 45
+                            float runSpeed = Mathf.Lerp(1, 3, normalizedSpeed); // 1x @ 45 speed, 3x at 90 speed
                             _anim.SetFloat("RunSpeed", runSpeed);
                         } else {
                             _anim.SetFloat("RunSpeed", 1);

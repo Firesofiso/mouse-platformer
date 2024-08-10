@@ -10,16 +10,16 @@ public class ClickableElement : MonoBehaviour
     }
 
     [SerializeField]
-    private Interactions interactionType;
+    private readonly Interactions interactionType;
 
     public Transform objectTransform;
 
     [SerializeField]
-    CapsuleCollider2D _thisCollider;
+    Collider2D _thisCollider;
 
-    public float moveSpeed = 5f;
+    public float moveSpeed = 5000f;
 
-    private bool isBeingClicked = false;
+    public bool isBeingClicked = false;
     private Vector3 offset;
 
     // Start is called before the first frame update
@@ -50,22 +50,22 @@ public class ClickableElement : MonoBehaviour
 
     void OnClicked() {
         isBeingClicked = true;
-        Debug.Log("clicked!");
+        // Debug.Log("clicked!");
 
 
         // Calculate the offset between the object and the cursor only once
         Transform cursorTransform = GameManager.Instance.cursorTransform;
-        offset = transform.position - cursorTransform.position;
+        offset = objectTransform.position - cursorTransform.position;
     }
 
     void WhileClicked() {
-        Debug.Log("holding!");
+        // Debug.Log("holding!");
         switch (interactionType)
         {
             case Interactions.Drag:
                 // Move the object along with the cursor
                 Transform cursorTransform = GameManager.Instance.cursorTransform;
-                transform.position = cursorTransform.position + offset;
+                objectTransform.position = cursorTransform.position + offset;
                 break;
             default:
                 break;
@@ -74,7 +74,7 @@ public class ClickableElement : MonoBehaviour
 
     void OnClickReleased() {
         isBeingClicked = false;
-        Debug.Log("released!");
+        objectTransform.position = ExtensionMethods.Round(objectTransform.position,0);
         offset = Vector3.zero;
     }
 }

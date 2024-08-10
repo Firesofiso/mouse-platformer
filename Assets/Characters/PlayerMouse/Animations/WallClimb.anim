@@ -30,7 +30,7 @@ AnimationClip:
     - time: 0.33333334
       value: {fileID: -1305117501, guid: 8729ac60aa317bd45b735b5abf1b74de, type: 3}
     - time: 0.4
-      value: {fileID: 446718909, guid: 8729ac60aa317bd45b735b5abf1b74de, type: 3}
+      value: {fileID: 1426566774, guid: 8729ac60aa317bd45b735b5abf1b74de, type: 3}
     - time: 0.46666667
       value: {fileID: 528651896, guid: 8729ac60aa317bd45b735b5abf1b74de, type: 3}
     attribute: m_Sprite
@@ -57,7 +57,7 @@ AnimationClip:
     - {fileID: -1640353505, guid: 8729ac60aa317bd45b735b5abf1b74de, type: 3}
     - {fileID: 1784016977, guid: 8729ac60aa317bd45b735b5abf1b74de, type: 3}
     - {fileID: -1305117501, guid: 8729ac60aa317bd45b735b5abf1b74de, type: 3}
-    - {fileID: 446718909, guid: 8729ac60aa317bd45b735b5abf1b74de, type: 3}
+    - {fileID: 1426566774, guid: 8729ac60aa317bd45b735b5abf1b74de, type: 3}
     - {fileID: 528651896, guid: 8729ac60aa317bd45b735b5abf1b74de, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
@@ -86,6 +86,13 @@ AnimationClip:
   m_Events:
   - time: 0
     functionName: TriggerWallClimbParticles
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.46666667
+    functionName: ShimmyComplete
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

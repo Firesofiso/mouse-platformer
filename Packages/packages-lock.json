@@ -1,5 +1,21 @@
 {
   "dependencies": {
+    "com.aarthificial.pixelgraphics": {
+      "version": "1.0.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.render-pipelines.universal": "10.4.0"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "com.aarthificial.reanimation": {
+      "version": "0.0.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
     "com.unity.2d.animation": {
       "version": "7.0.9",
       "depth": 1,
@@ -95,7 +111,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.collab-proxy": {
-      "version": "2.0.0",
+      "version": "2.1.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
@@ -132,7 +148,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.17",
+      "version": "2.0.22",
       "depth": 0,
       "source": "registry",
       "dependencies": {

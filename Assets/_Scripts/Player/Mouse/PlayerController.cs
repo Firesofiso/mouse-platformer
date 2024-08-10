@@ -91,7 +91,9 @@ namespace TarodevController {
                 _frameInput.Move.y = Mathf.Abs(_frameInput.Move.y) < _stats.VerticalDeadzoneThreshold ? 0 : Mathf.Sign(_frameInput.Move.y);
             }
 
-            if (_frameInput.JumpDown) {
+            if (_frameInput.DropDown && _col.IsTouchingLayers(LayerMask.GetMask("one-way"))) {
+                _droppingDown = true;
+            } else if (!_droppingDown && _frameInput.JumpDown) {
                 _jumpToConsume = true;
                 _frameJumpWasPressed = _fixedFrame;
             }
@@ -212,7 +214,7 @@ namespace TarodevController {
         private int _lastWallDirection; // for coyote wall jumps
         private int _frameLeftWall; // for coyote wall jumps
         private bool _isLeavingWall; // prevents immediate re-sticking to wall
-        private bool _isOnWall;
+        public bool IsOnWall { get; private set; }
 
         protected virtual void HandleWalls() {
             if (!_stats.AllowWalls) return;
@@ -224,8 +226,8 @@ namespace TarodevController {
             WallDirection = _wallHitCount > 0 ? (int)Mathf.Sign(_wallContact[0].point.x - transform.position.x) : 0;
             if (WallDirection != 0) _lastWallDirection = WallDirection;
 
-            if (!_isOnWall && ShouldStickToWall()) ToggleOnWall(true);// && _speed.y <= 0
-            else if (_isOnWall && !ShouldStickToWall()) ToggleOnWall(false);
+            if (!IsOnWall && ShouldStickToWall()) ToggleOnWall(true);// && _speed.y <= 0
+            else if (IsOnWall && !ShouldStickToWall()) ToggleOnWall(false);
 
             bool ShouldStickToWall() {
                 if (WallDirection == 0 || _grounded) return false;
@@ -234,7 +236,7 @@ namespace TarodevController {
         }
 
         private void ToggleOnWall(bool on) {
-            _isOnWall = on;
+            IsOnWall = on;
             if (on) {
                 _speed = Vector2.zero;
                 _currentExternalVelocity = Vector2.zero;
@@ -245,6 +247,7 @@ namespace TarodevController {
                 _frameLeftWall = _fixedFrame;
                 _isLeavingWall = false; // after we've left the wall
                 ResetAirJumps(); // so that we can air jump even if we didn't leave via a wall jump
+                ResetWallShimmy();
             }
 
             WallGrabChanged?.Invoke(on);
@@ -261,7 +264,7 @@ namespace TarodevController {
 
         protected virtual void HandleLedges() {
             if (!_stats.AllowLedges) return;
-            if (ClimbingLedge || !_isOnWall) return;
+            if (ClimbingLedge || !IsOnWall) return;
 
             GrabbingLedge = TryGetLedgeCorner(out _ledgeCornerPos);
 
@@ -403,6 +406,7 @@ namespace TarodevController {
         #region Jumping
 
         private bool _jumpToConsume;
+        private bool _droppingDown;
         private bool _bufferedJumpUsable;
         private bool _endedJumpEarly;
         private bool _coyoteUsable;
@@ -412,11 +416,16 @@ namespace TarodevController {
 
         private bool HasBufferedJump => _bufferedJumpUsable && _fixedFrame < _frameJumpWasPressed + _stats.JumpBufferFrames;
         private bool CanUseCoyote => _coyoteUsable && !_grounded && _fixedFrame < _frameLeftGrounded + _stats.CoyoteFrames;
-        private bool CanWallJump => (_isOnWall && !_isLeavingWall) || (_wallJumpCoyoteUsable && _fixedFrame < _frameLeftWall + _stats.WallJumpCoyoteFrames);
+        private bool CanWallJump => (IsOnWall && !_isLeavingWall) || (_wallJumpCoyoteUsable && _fixedFrame < _frameLeftWall + _stats.WallJumpCoyoteFrames);
         private bool CanAirJump => !_grounded && _airJumpsRemaining > 0;
 
         protected virtual void HandleJump() {
             if (!_endedJumpEarly && !_grounded && !_frameInput.JumpHeld && _rb.velocity.y > 0) _endedJumpEarly = true; // Early end detection
+
+            if (_droppingDown) {
+                Physics2D.IgnoreLayerCollision(8, 10, true);
+                Invoke("DropDown", 0.5f);
+            }
 
             if (!_jumpToConsume && !HasBufferedJump) return;
 
@@ -425,6 +434,11 @@ namespace TarodevController {
             else if (_jumpToConsume && CanAirJump) AirJump();
 
             _jumpToConsume = false; // Always consume the flag
+        }
+
+        protected virtual void DropDown() {
+            Physics2D.IgnoreLayerCollision(8, 10, false);
+            _droppingDown = false;
         }
 
         // Includes Ladder Jumps
@@ -442,7 +456,10 @@ namespace TarodevController {
         protected virtual void WallJump() {
             _endedJumpEarly = false;
             _bufferedJumpUsable = false;
-            if (_isOnWall) _isLeavingWall = true; // only toggle if it's a real WallJump, not CoyoteWallJump
+            if (IsOnWall) {
+                _isLeavingWall = true; // only toggle if it's a real WallJump, not CoyoteWallJump
+                ResetWallShimmy();
+            }
             _wallJumpCoyoteUsable = false;
             _currentWallJumpMoveMultiplier = 0;
             _speed = Vector2.Scale(_stats.WallJumpPower, new(-_lastWallDirection, 1));
@@ -558,7 +575,7 @@ namespace TarodevController {
         private bool _stickyFeet;
 
         protected virtual void HandleHorizontal() {
-            if (_dashing) return;
+            if (_dashing || (shimmying && (_frameInput.Move.x > 0 && WallDirection > 0) || (_frameInput.Move.x < 0 && WallDirection < 0))) return;
 
             // Deceleration
             if (!HorizontalInputPressed) {
@@ -574,7 +591,7 @@ namespace TarodevController {
             // Regular Horizontal Movement
             else {
                 // Prevent useless horizontal speed buildup when against a wall
-                if (_hittingWall.collider && Mathf.Abs(_rb.velocity.x) < 0.01f && !_isLeavingWall) _speed.x = 0;
+                if (_hittingWall.collider && Mathf.Abs(_rb.velocity.x) < 0.02f && !_isLeavingWall) _speed.x = 0;
 
                 var xInput = _frameInput.Move.x * (ClimbingLadder ? _stats.LadderShimmySpeedMultiplier : 1);
                 _speed.x = Mathf.MoveTowards(_speed.x, xInput * _stats.MaxSpeed, _currentWallJumpMoveMultiplier * _stats.Acceleration * Time.fixedDeltaTime);
@@ -584,6 +601,14 @@ namespace TarodevController {
         #endregion
 
         #region Vertical
+
+        private bool canShimmy = true;
+        public bool shimmying = false;
+
+        private void ResetWallShimmy() {
+            canShimmy = true;
+            shimmying = false;
+        }
 
         protected virtual void HandleVertical() {
             if (_dashing) return;
@@ -607,9 +632,22 @@ namespace TarodevController {
                 }
             }
             // Wall Climbing & Sliding
-            else if (_isOnWall && !_isLeavingWall) {
-                if (_frameInput.Move.y > 0) _speed.y = _stats.WallClimbSpeed;
-                else if (_frameInput.Move.y < 0) _speed.y = -_stats.MaxWallFallSpeed;
+            else if (shimmying) {
+                _speed.y = _stats.WallClimbSpeed;
+            } else if (IsOnWall && !_isLeavingWall) {
+                if (_frameInput.Move.x > 0 && WallDirection > 0 || _frameInput.Move.x < 0 && WallDirection < 0) {
+                    _speed.x = 0;
+                }
+                if (_frameInput.Move.y > 0) {
+                    if (canShimmy) {
+                        _speed.y = _stats.WallClimbSpeed;
+                        shimmying = true;
+                        canShimmy = false;
+                    } else {
+                        _speed.y = -1;
+                    }
+                    
+                } else if (_frameInput.Move.y < 0) _speed.y = -_stats.MaxWallFallSpeed;
                 else if (GrabbingLedge) _speed.y = Mathf.MoveTowards(_speed.y, 0, _stats.LedgeGrabDeceleration * Time.fixedDeltaTime);
                 else _speed.y = Mathf.MoveTowards(Mathf.Min(_speed.y, 0), -_stats.MaxWallFallSpeed, _stats.WallFallAcceleration * Time.fixedDeltaTime);
             }
