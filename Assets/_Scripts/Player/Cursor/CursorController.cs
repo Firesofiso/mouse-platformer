@@ -58,7 +58,7 @@ public class CursorController : MonoBehaviour
 
         // update cursor position
         transform.position = nextPosition;
-        // cursorVisual.transform.position = nextPosition; // if needed, update cursor visual separately
+        // cursorVisual.transform.localPosition = new Vector3(0, (nextPosition.y - targetPosition.y) - offset.y, 0); // if needed, update cursor visual separately
     }
 
 }

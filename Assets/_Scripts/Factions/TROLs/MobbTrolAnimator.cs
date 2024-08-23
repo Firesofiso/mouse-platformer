@@ -20,6 +20,8 @@ namespace TarodevController {
             _mobbTrol.GroundedChanged += OnGroundedChanged;
             _mobbTrol.Jumped += OnJumped;
             _mobbTrol.HandleAiming += HandleAiming;
+            _mobbTrol.HandleThrowing += HandleThrowing;
+            _mobbTrol.HandleRecovery += HandleRecovery;
         }
 
         private void Update() {
@@ -39,9 +41,10 @@ namespace TarodevController {
             // if (_mobbTrol.ClimbingLedge) return;
             // if (_isOnWall & _mobbTrol.WallDirection != 0) _renderer.flipX = _mobbTrol.WallDirection == -1;
             // else if (_wallJumped) _renderer.flipX = _mobbTrol.Speed.x < 0;
-            if (Mathf.Abs(_mobbTrol.Input.x) > 0.1f) _renderer.flipX = _mobbTrol.Input.x < 0;
+            if (_aiming) _renderer.flipX = _mobbTrol.target.position.x < _mobbTrol._rb.position.x;
+                else if (_mobbTrol.Input.x != 0) _renderer.flipX = _mobbTrol.Input.x < 0;
 
-            // offset spear collider
+            // offset spear collider depending on faced direction
             if (_renderer.flipX) newSpearOffsetX = 4.5f + spearOffsetXHalf;
                 else newSpearOffsetX = 4.5f - spearOffsetXHalf;
             _spearCol.offset = new Vector2(newSpearOffsetX, spearColOffsetY);
@@ -293,6 +296,20 @@ namespace TarodevController {
             }
         }
 
+        private bool _recoveringFromThrow;
+        private bool _tripped;
+        private void HandleThrowing(bool tripped) {
+            _aiming = false;
+            _recoveringFromThrow = true;
+            _tripped = tripped;
+            _spearCol.enabled = false;
+        }
+
+        private void HandleRecovery() {
+            _recoveringFromThrow = false;
+            UnlockAnimationLock();
+        }
+
         // private void OnAttacked() => _attacked = true;
 
         // // Called from AnimationEvent
@@ -305,6 +322,9 @@ namespace TarodevController {
         private float _lockedTill, _isIdle;
         // private int _wagInterval, _scritchInterval;
 
+        private bool _spearless = false;
+        float runSpeed = 1;
+
         private void HandleAnimations() {
             var state = GetState();
             ResetFlags();
@@ -315,7 +335,16 @@ namespace TarodevController {
             int GetState() {
                 if (Time.time < _lockedTill) return _currentState;
             //     if (_isLedgeClimbing) return LockState(_climbIntoCrawl ? LedgeClimbIntoCrawl : LedgeClimb, _mobbTrol.PlayerStats.LedgeClimbDuration);
-                if (_aiming) return Aim;
+                if (_aiming) {
+                    return Aim;
+                } else if (_recoveringFromThrow) {
+                    _spearless = true;
+                    if (_tripped) {
+                        return LockState(ThrowTrip, 10);
+                    } else {
+                        return LockState(Throw, 10);
+                    }
+                }
             //     if (_attacked) return LockState(Attack, _attackAnimTime);
             //     if (_mobbTrol.ClimbingLadder) return _mobbTrol.Speed.y == 0 || _grounded ? ClimbIdle : Climb;
 
@@ -334,7 +363,7 @@ namespace TarodevController {
 
             //     if (_mobbTrol.Crouching) return _mobbTrol.Input.x == 0 || !_grounded ? Crouch : Crawl;
                 if (_landed) {
-                    return LockState(Land, _landAnimDuration);
+                    return LockState(_spearless ? SpearlessLand : Land, _landAnimDuration);
                 }
                 if (_jumpTriggered) return Jump;
 
@@ -356,10 +385,10 @@ namespace TarodevController {
                         // } else {
                         //     return Idle;
                         // }
-                        return Idle;
+                        return _spearless ? SpearlessIdle : Idle; // oops lol Idle
                     } else if ((_mobbTrol.Input.x == 0 && _mobbTrol.Speed.x != 0) | (_mobbTrol.Input.x > 0) != (_mobbTrol.Speed.x > 0)) { // changing direction or stopping
                         // _isIdle = 0;
-                        return Skid;
+                        return _spearless ? SpearlessSkid : Skid;
                     } else {
                         // _isIdle = 0;
                         // double xSpeedAbs = Mathf.Abs(_mobbTrol.Speed.x);
@@ -370,11 +399,14 @@ namespace TarodevController {
                         // } else {
                         //     _anim.SetFloat("RunSpeed", 1);
                         // }
-                        return Run;
+
+                        // _anim.SetFloat("RunSpeed", (_spearless ? 1.25f : 1)); // todo figure this out
+                        // else float run
+                        return _spearless ? SpearlessRun : Run;
                     }
                 }
                 if (_mobbTrol.Speed.y > 0) return Jump;
-                return Fall;
+                return _spearless ? SpearlessFall : Fall;
             //     // TODO: If WallDismount looks/feels good enough to keep, we should add clip duration (0.167f) to Stats
 
                 int LockState(int s, float t) {
@@ -393,23 +425,28 @@ namespace TarodevController {
             }
         }
 
-        // private void UnlockAnimationLock() => _lockedTill = 0f;
+        private void UnlockAnimationLock() => _lockedTill = 0f;
 
         // #region Cached Properties
 
         private int _currentState;
 
         private static readonly int Idle = Animator.StringToHash("Idle");
+        private static readonly int SpearlessIdle = Animator.StringToHash("SpearlessIdle");
         // private static readonly int IdleScritch = Animator.StringToHash("IdleScritch");
         // private static readonly int IdleWag = Animator.StringToHash("IdleWag");
         private static readonly int Run = Animator.StringToHash("Run");
+        private static readonly int SpearlessRun = Animator.StringToHash("SpearlessRun");
         private static readonly int Skid = Animator.StringToHash("Skid");
+        private static readonly int SpearlessSkid = Animator.StringToHash("SpearlessSkid");
         // private static readonly int Crouch = Animator.StringToHash("Crouch");
         // private static readonly int Crawl = Animator.StringToHash("Crawl");
 
         private static readonly int Jump = Animator.StringToHash("Jump");
         private static readonly int Fall = Animator.StringToHash("Fall");
+        private static readonly int SpearlessFall = Animator.StringToHash("SpearlessFall");
         private static readonly int Land = Animator.StringToHash("Land");
+        private static readonly int SpearlessLand = Animator.StringToHash("SpearlessLand");
         
         // private static readonly int ClimbIdle = Animator.StringToHash("ClimbIdle");
         // private static readonly int Climb = Animator.StringToHash("Climb");
@@ -426,6 +463,8 @@ namespace TarodevController {
         // private static readonly int LedgeClimbIntoCrawl = Animator.StringToHash("LedgeClimbIntoCrawl");
 
         private static readonly int Aim = Animator.StringToHash("Aim");
+        private static readonly int Throw = Animator.StringToHash("Throw");
+        private static readonly int ThrowTrip = Animator.StringToHash("ThrowTrip");
         // private static readonly int Attack = Animator.StringToHash("Attack");
         // #endregion
 

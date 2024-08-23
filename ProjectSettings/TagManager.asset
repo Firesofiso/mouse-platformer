@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Ground
   layers:
   - Default
   - TransparentFX
@@ -11,11 +12,21 @@ TagManager:
   - Walkable
   - Water
   - UI
-  - Ground
+  - 
   - climbable
   - player
   - cursor
   - one-way
+  - mobs
+  - projectiles
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - Ground
   - 
   - 
   - 
@@ -26,17 +37,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - post
   m_SortingLayers:
   - name: Default
     uniqueID: 0

@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEditor;
 using Pathfinding;
 
 namespace TarodevController {
@@ -13,15 +14,12 @@ namespace TarodevController {
         #region Internal
         private PlayerObject Player;
 
-        [HideInInspector] private Rigidbody2D _rb; // Hide is for serialization to avoid errors in gizmo calls
+        [HideInInspector] public Rigidbody2D _rb; // Hide is for serialization to avoid errors in gizmo calls
         [SerializeField] private CapsuleCollider2D _standingCollider;
         [SerializeField] private CapsuleCollider2D _crouchingCollider;
         private CapsuleCollider2D _col; // current active collider
         private PlayerInput _input;
         private bool _cachedTriggerSetting;
-
-        private bool aiming;
-
         private FrameInput _frameInput;
         public Vector2 _speed;
         private Vector2 _currentExternalVelocity;
@@ -39,6 +37,8 @@ namespace TarodevController {
         public event Action<bool> Jumped;
         public event Action AirJumped;
         public event Action<bool> HandleAiming;
+        public event Action<bool> HandleThrowing;
+        public event Action HandleRecovery;
         public event Action Attacked;
         public event Action Clicked;
         public ScriptableStats PlayerStats => _stats;
@@ -78,15 +78,17 @@ namespace TarodevController {
         // 2D PATHFINDING - Enemy AI in Unity by Brackeys
         // https://www.youtube.com/watch?v=jvtFUfJ6CP8
         public Transform target; // player default
+        public AIPath ai; // unit brain
         private Path path; // current path
-        private int currentWaypoint = 0;
-        private float nextWaypointDistanceThreshold = 2f; // waypoint proximity to activate next waypoint
+        [SerializeField] int currentWaypoint = 0;
+        [SerializeField] float nextWaypointDistanceThresholdMax = 10f; // max waypoint proximity to activate next waypoint
+        [SerializeField] float targetDistanceThresholdMin = 0.1f; // min target distance to continue pathing
         private Seeker seeker; // A*
         private Vector2 directionToTarget; // direction for sightline raycast
 
         #endregion
 
-        protected virtual void Awake() {
+        protected virtual void Start() {
             _rb = GetComponent<Rigidbody2D>();
             _input = GetComponent<PlayerInput>();
             _cachedTriggerSetting = Physics2D.queriesHitTriggers;
@@ -104,25 +106,64 @@ namespace TarodevController {
         // updates path periodically
         void UpdatePath() {
             if (seeker.IsDone()) {
-                if (ConfirmSightline())
-                    seeker.StartPath(_rb.position, target.position, OnPathComplete);
+                if (ConfirmSightline()) { // seeker has processed most recent path & target is still in sight
+                    ai.canSearch = true;
+                    seeker.StartPath(_rb.position, target.position, OnPathProcessed); // update path
+                } else {
+                    ai.canSearch = false;
+                    path = seeker.GetCurrentPath(); // continue path
+                }
             }
         }
 
-        float distanceToTarget;
+        void UpdateTarget(Transform newTarget) {
+            CancelInvoke();
+            GetComponent<AIDestinationSetter>().target = newTarget;
+            target = newTarget;
+            InvokeRepeating("UpdatePath", 0.5f, 0.5f);
+        }
 
-        bool ConfirmSightline() {
-            // evaluate target
-            Vector2 directionToTarget = ((Vector2)target.position - _rb.position).normalized;
-            distanceToTarget = Vector2.Distance(_rb.position, target.position);
 
-            RaycastHit2D hit = Physics2D.Raycast(_rb.position, directionToTarget);
-            return hit.transform == target.transform;
+        private float distanceToTarget;
+        [SerializeField] float sightRange = 100f; 
+        [SerializeField] float spearRange = 50f;
+
+        /* ConfirmSightline */
+        // takes a Vector2 representing what the character is seeking, by default the target
+        // when a Vector2 parameter is provided, it is treated as a point i
+        public bool ConfirmSightline(Vector2? tar = null) {
+            bool isSeekingTarget; // as opposed to seeking a point in space where target was last seen
+
+            if (isSeekingTarget = (tar == null)) tar = target.position;
+
+            if (isSeekingTarget) {
+                Vector2 directionToTarget = ((Vector2)tar - _rb.position).normalized;
+                RaycastHit2D[] hits = Physics2D.RaycastAll(_rb.position, directionToTarget, sightRange, LayerMask.GetMask("player", "Ground", "projectiles", "climbable"));
+                for (int i = 0; i < hits.Length; i++) {
+                    RaycastHit2D hit = hits[i];
+                    if (hit.transform == target) {
+                        // evaluate target
+                        distanceToTarget = Vector2.Distance(_rb.position, (Vector2)tar);
+                        return true;
+                    } else if ((hit.collider.gameObject.layer == LayerMask.NameToLayer("Ground") || hit.collider.gameObject.layer == LayerMask.NameToLayer("climbable")) && hit.distance < distanceToTarget) {
+                        distanceToTarget = float.PositiveInfinity;
+                        return false; // hit wall
+                    } else {
+                        // return true; // TODO seeking recent path, not target - hit.distance < distanceToTarget;
+                    }
+                }
+            } else {
+                RaycastHit2D hit = Physics2D.Raycast(_rb.position, directionToTarget, distanceToTarget, LayerMask.GetMask("Ground", "climbable"));
+                if (hit && hit.distance < distanceToTarget) return false;
+                    else return true;
+
+            }
+            return false;
         }
 
         // callback for seeker.StartPath()
-        void OnPathComplete(Path p) {
-            if (!p.error) {
+        void OnPathProcessed(Path p) {
+            if (p != null && !p.error) {
                 path = p;
                 currentWaypoint = 0;
             }
@@ -155,48 +196,105 @@ namespace TarodevController {
                 if (_frameInput.ClickDown && _stats.AllowClicks) _isHoldingClick = true;
             } else { // emulate input for unit behavior
                 AssessSituation();
+                MakeMoves();
             }
         }
 
         protected virtual void TakingAim(bool isAiming) {
-            aiming = isAiming;
+            // set or reset aiming window
+            if (!isAiming) _startedAiming = 0;
+            else if (isAiming && _startedAiming == 0) _startedAiming = Time.time;
+
             HandleAiming?.Invoke(isAiming);
         }
 
+        private float _recoveryTime;
+        GameObject spear;
+        [SerializeField] GameObject spearPrefab;
+        bool _spearless = false;
+        protected virtual void ThrowSpear() {
+
+            var tripped = DidTrip(); // determines if extra recovery time is needed
+            _recoveryTime = tripped ? Time.time + 3 : Time.time; // penalize recovery window
+
+            HandleThrowing?.Invoke(tripped); // animate
+
+            // generates spear prefab to huck
+            spear = Instantiate(spearPrefab, transform);
+            spear.GetComponent<TrolSpear>().SetParent(_col); // disables interactions with parent colliders, then re-enables after 0.2s
+
+            spear.transform.up = target.position - transform.position; // point at target
+            spear.GetComponent<Rigidbody2D>().velocity = target.position - transform.position * 2; // huck
+            _spearless = true;
+
+            UpdateTarget(spear.transform);
+        }
+
+        protected virtual bool DidTrip() {
+            return UnityEngine.Random.Range(0,4) == 0;
+        }
+
+        protected virtual void Recovered() {
+            HandleRecovery?.Invoke();
+            _recoveryTime = 0;
+            _startedAiming = 0;
+        }
+
+        Vector2 directionToNextWaypoint;
+       [SerializeField] float distanceToNextWaypoint;
+        private float _startedAiming;
+
         protected virtual void AssessSituation() {
-            if (path?.vectorPath == null || currentWaypoint >= path.vectorPath.Count) {
-                // no current path
-                return;
-            }
-            // continue pathing
-            Vector2 directionToNextWaypoint = ((Vector2)path!.vectorPath[currentWaypoint] - _rb.position).normalized;
-            float distanceToNextWaypoint = Vector2.Distance(_rb.position, path.vectorPath[currentWaypoint]);
+            if (path == null || path?.vectorPath == null) return; // no current path
 
-            if (!ConfirmSightline()) {
-                // outta sight
-                if (aiming) {
-                    TakingAim(false);
-                }
+            if (currentWaypoint < path.vectorPath.Count - 1) {
+                // follow most recent path in pursuit of target
+                directionToNextWaypoint = ((Vector2)path.vectorPath[currentWaypoint] - _rb.position).normalized;
+                distanceToNextWaypoint = Vector2.Distance(_rb.position, path.vectorPath[currentWaypoint]);
             }
-            
-            // spearhead combat
-            // TODO: spearless panic D:
-            if (distanceToTarget < 25) {
-                // within aim range       
-                _frameInput.Move.x = 0;
-                if (!aiming) {
-                    // started aiming
-                    TakingAim(true);
-                } else {
-                    // still aiming
-                }
+
+            if (_recoveryTime > 0) {
+                // recovering from throw
+                if (_recoveryTime + 2 < Time.time) Recovered();
+
+            } else if (!_spearless && ConfirmSightline() && distanceToTarget < spearRange) {
+                // in sight && in range
+
+                if (_startedAiming > 0) { // & already aiming
+                    if (_startedAiming > 0 && _startedAiming + 2 < Time.time) ThrowSpear(); // throw after 2 seconds of aiming
+
+                } else TakingAim(true); // begin aiming
+
             } else {
-                // out of aim range
-                TakingAim(false);
+                // outta sight || outta range
+                if (!_spearless) TakingAim(false);
+            }
+        }
 
-                if (distanceToNextWaypoint < nextWaypointDistanceThreshold) currentWaypoint++; // reached waypoint
-                if (directionToNextWaypoint.x > 0) _frameInput.Move.x = 1; // whatever we're after, it's to the right
-                else if (directionToNextWaypoint.x < 0) _frameInput.Move.x = -1; // or the left
+        protected virtual void MakeMoves() {
+            // if (path != null && path.vectorPath != null && currentWaypoint < path.vectorPath.Count - 1) {
+            //     directionToNextWaypoint = ((Vector2)path.vectorPath[currentWaypoint] - _rb.position).normalized;
+            //     distanceToNextWaypoint = Vector2.Distance(_rb.position, path.vectorPath[currentWaypoint]);
+            // }
+
+            if (currentWaypoint == path?.vectorPath?.Count - 1 || _startedAiming > 0 || _recoveryTime > 0) {
+                _frameInput.Move.x = 0;
+                return;
+            } else if (currentWaypoint < path?.vectorPath?.Count - 1) {
+                if (!ConfirmSightline() && !ConfirmSightline(path.vectorPath[currentWaypoint])) {
+                    // can't path further
+                    // todo question marks ?????
+                    _frameInput.Move.x = 0;
+                    return;
+                }
+                // continue pathing
+                if (Mathf.Abs(_rb.position.x - target.position.x) > targetDistanceThresholdMin) {
+                    if (directionToNextWaypoint.x > 0) _frameInput.Move.x = 1; // whatever we're after, it's to the right
+                    else if (directionToNextWaypoint.x < 0) _frameInput.Move.x = -1; // or the left
+                    if (distanceToNextWaypoint < nextWaypointDistanceThresholdMax) currentWaypoint++; // reached waypoint
+                    return;
+                }
+                _frameInput.Move.x = 0; // stop twitching if next waypoint is very close
             }
         }
 
@@ -668,6 +766,7 @@ namespace TarodevController {
 
         private bool HorizontalInputPressed => Mathf.Abs(_frameInput.Move.x) > _stats.HorizontalDeadzoneThreshold;
         private bool _stickyFeet;
+        [SerializeField] float slowingDistance = 20;
 
         protected virtual void HandleHorizontal() {
             if (_dashing || (shimmying && (_frameInput.Move.x > 0 && WallDirection > 0) || (_frameInput.Move.x < 0 && WallDirection < 0))) return;
@@ -689,7 +788,10 @@ namespace TarodevController {
                 if (_hittingWall.collider && Mathf.Abs(_rb.velocity.x) < 0.02f && !_isLeavingWall) _speed.x = 0;
 
                 var xInput = _frameInput.Move.x * (ClimbingLadder ? _stats.LadderShimmySpeedMultiplier : 1);
-                _speed.x = Mathf.MoveTowards(_speed.x, xInput * _stats.MaxSpeed, _currentWallJumpMoveMultiplier * _stats.Acceleration * Time.fixedDeltaTime);
+                if (target != null) {
+                    float clampedArrivalSpeed = Mathf.Min(_stats.MaxSpeed * (distanceToTarget / slowingDistance), _stats.MaxSpeed);
+                }
+                _speed.x = Mathf.MoveTowards(_speed.x, xInput * (_spearless ? _stats.MaxSpeed * 1.25f : _stats.MaxSpeed), _currentWallJumpMoveMultiplier * _stats.Acceleration * Time.fixedDeltaTime);
             }
         }
 

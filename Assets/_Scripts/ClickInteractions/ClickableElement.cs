@@ -9,15 +9,12 @@ public class ClickableElement : MonoBehaviour
         Drag
     }
 
-    [SerializeField]
-    private readonly Interactions interactionType;
+    [SerializeField] private readonly Interactions interactionType;
 
     public Transform objectTransform;
+    public Rigidbody2D cursorRb; // using rigidbody.position because Transform was being naughty (referencing parent?)
 
-    [SerializeField]
-    Collider2D _thisCollider;
-
-    public float moveSpeed = 5000f;
+    [SerializeField] Collider2D _thisCollider;
 
     public bool isBeingClicked = false;
     private Vector3 offset;
@@ -38,7 +35,7 @@ public class ClickableElement : MonoBehaviour
                 OnClicked();
             }
         } else if (isBeingClicked) {
-            if (Input.GetKey(KeyCode.M) && isTouchingCursor) {
+            if (Input.GetKey(KeyCode.M)) {// && isTouchingCursor
                 // Click & hold
                 WhileClicked();
             } else {
@@ -54,8 +51,7 @@ public class ClickableElement : MonoBehaviour
 
 
         // Calculate the offset between the object and the cursor only once
-        Transform cursorTransform = GameManager.Instance.cursorTransform;
-        offset = objectTransform.position - cursorTransform.position;
+        offset = (Vector2)objectTransform.transform.position - cursorRb.position;
     }
 
     void WhileClicked() {
@@ -64,8 +60,7 @@ public class ClickableElement : MonoBehaviour
         {
             case Interactions.Drag:
                 // Move the object along with the cursor
-                Transform cursorTransform = GameManager.Instance.cursorTransform;
-                objectTransform.position = cursorTransform.position + offset;
+                objectTransform.position = cursorRb.position + (Vector2)offset;
                 break;
             default:
                 break;
