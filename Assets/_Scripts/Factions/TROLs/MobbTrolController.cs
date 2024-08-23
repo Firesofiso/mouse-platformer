@@ -98,6 +98,7 @@ namespace TarodevController {
             //Physics.IgnoreLayerCollision(LayerMask.GetMask("player"), LayerMask.GetMask("cursor"), true);
 
             // init pathfinding components
+            ai.canSearch = false;
             if (!_input.isInputUnit) Player = PlayerObject.Instance;
             seeker = GetComponent<Seeker>();
             InvokeRepeating("UpdatePath", 0.5f, 0.5f);
@@ -120,42 +121,50 @@ namespace TarodevController {
             CancelInvoke();
             GetComponent<AIDestinationSetter>().target = newTarget;
             target = newTarget;
+            ai.SearchPath();
             InvokeRepeating("UpdatePath", 0.5f, 0.5f);
         }
 
 
-        private float distanceToTarget;
+        private float perceivedDistanceToTarget; // this is updated when confirming sightline to target, be careful relying on this unless sightline has been confirmed
         [SerializeField] float sightRange = 100f; 
         [SerializeField] float spearRange = 50f;
 
         /* ConfirmSightline */
         // takes a Vector2 representing what the character is seeking, by default the target
-        // when a Vector2 parameter is provided, it is treated as a point i
-        public bool ConfirmSightline(Vector2? tar = null) {
+        // when a Vector2 parameter is provided, it is treated as a static point in space i.e. last seen waypoint
+        public bool ConfirmSightline(Vector2? seekingPoint = null) {
             bool isSeekingTarget; // as opposed to seeking a point in space where target was last seen
 
-            if (isSeekingTarget = (tar == null)) tar = target.position;
+            if (isSeekingTarget = (seekingPoint == null)) seekingPoint = target.position; // if no point to seek, grab target coords
+            float realDistanceToTarget = Vector2.Distance(_rb.position, (Vector2)seekingPoint); // calculate real distance, used in determining perceived distance
 
             if (isSeekingTarget) {
-                Vector2 directionToTarget = ((Vector2)tar - _rb.position).normalized;
+                Vector2 directionToTarget = ((Vector2)seekingPoint - _rb.position).normalized; // for raycasting purposes
                 RaycastHit2D[] hits = Physics2D.RaycastAll(_rb.position, directionToTarget, sightRange, LayerMask.GetMask("player", "Ground", "projectiles", "climbable"));
+
                 for (int i = 0; i < hits.Length; i++) {
                     RaycastHit2D hit = hits[i];
+
                     if (hit.transform == target) {
                         // evaluate target
-                        distanceToTarget = Vector2.Distance(_rb.position, (Vector2)tar);
+                        perceivedDistanceToTarget = realDistanceToTarget;
                         return true;
-                    } else if ((hit.collider.gameObject.layer == LayerMask.NameToLayer("Ground") || hit.collider.gameObject.layer == LayerMask.NameToLayer("climbable")) && hit.distance < distanceToTarget) {
-                        distanceToTarget = float.PositiveInfinity;
+                        
+                    } else if ((hit.collider.gameObject.layer == LayerMask.NameToLayer("Ground") || hit.collider.gameObject.layer == LayerMask.NameToLayer("climbable"))) {
+                        // hit something that is closer than our target (obstructed by something solid)
+                        perceivedDistanceToTarget = float.PositiveInfinity;
                         return false; // hit wall
+
                     } else {
-                        // return true; // TODO seeking recent path, not target - hit.distance < distanceToTarget;
+                        // return true; // TODO seeking recent path, not target - hit.distance < perceivedDistanceToTarget;
                     }
                 }
             } else {
-                RaycastHit2D hit = Physics2D.Raycast(_rb.position, directionToTarget, distanceToTarget, LayerMask.GetMask("Ground", "climbable"));
-                if (hit && hit.distance < distanceToTarget) return false;
-                    else return true;
+                // isSeekingPoint
+                RaycastHit2D hit = Physics2D.Raycast(_rb.position, directionToTarget, realDistanceToTarget, LayerMask.GetMask("Ground", "climbable"));
+                if (hit && hit.distance < perceivedDistanceToTarget) return false; // hit something before reaching the point (obstructed by something solid)
+                else return true;
 
             }
             return false;
@@ -163,7 +172,7 @@ namespace TarodevController {
 
         // callback for seeker.StartPath()
         void OnPathProcessed(Path p) {
-            if (p != null && !p.error) {
+            if (p != null && !p.error && ConfirmSightline()) {
                 path = p;
                 currentWaypoint = 0;
             }
@@ -257,7 +266,7 @@ namespace TarodevController {
                 // recovering from throw
                 if (_recoveryTime + 2 < Time.time) Recovered();
 
-            } else if (!_spearless && ConfirmSightline() && distanceToTarget < spearRange) {
+            } else if (!_spearless && ConfirmSightline() && perceivedDistanceToTarget < spearRange) {
                 // in sight && in range
 
                 if (_startedAiming > 0) { // & already aiming
@@ -789,7 +798,7 @@ namespace TarodevController {
 
                 var xInput = _frameInput.Move.x * (ClimbingLadder ? _stats.LadderShimmySpeedMultiplier : 1);
                 if (target != null) {
-                    float clampedArrivalSpeed = Mathf.Min(_stats.MaxSpeed * (distanceToTarget / slowingDistance), _stats.MaxSpeed);
+                    float clampedArrivalSpeed = Mathf.Min(_stats.MaxSpeed * (perceivedDistanceToTarget / slowingDistance), _stats.MaxSpeed);
                 }
                 _speed.x = Mathf.MoveTowards(_speed.x, xInput * (_spearless ? _stats.MaxSpeed * 1.25f : _stats.MaxSpeed), _currentWallJumpMoveMultiplier * _stats.Acceleration * Time.fixedDeltaTime);
             }
