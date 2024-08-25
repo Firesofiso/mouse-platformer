@@ -2,22 +2,27 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Pathfinding;
 
 namespace TarodevController {
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
-    public class MobbTrolController : MonoBehaviour, IPlayerController, IFactionController {
+    public class MobbTrolController : MonoBehaviour, IPlayerController, IFactionController, TrolUnit {
         [SerializeField] private ScriptableStats _stats;
 
         #region Internal
         private PlayerObject Player;
 
         [HideInInspector] public Rigidbody2D _rb; // Hide is for serialization to avoid errors in gizmo calls
-        [SerializeField] private CapsuleCollider2D _standingCollider;
-        [SerializeField] private CapsuleCollider2D _crouchingCollider;
-        private CapsuleCollider2D _col; // current active collider
+        [SerializeField] private CapsuleCollider2D _standingEnvironmentCollider;
+        [SerializeField] private CapsuleCollider2D _crouchingEnvironmentCollider;
+        [SerializeField] private CapsuleCollider2D _standingEntityCollider;
+        [SerializeField] private CapsuleCollider2D _crouchingEntityCollider;
+        private CapsuleCollider2D _environmentCol; // current active collider
+        private CapsuleCollider2D _entityCol; // current active collider
+        
         private PlayerInput _input;
         private bool _cachedTriggerSetting;
         private FrameInput _frameInput;
@@ -77,18 +82,46 @@ namespace TarodevController {
         #region Pathfinding
         // 2D PATHFINDING - Enemy AI in Unity by Brackeys
         // https://www.youtube.com/watch?v=jvtFUfJ6CP8
-        public Transform target; // player default
         public AIPath ai; // unit brain
+        public AIDestinationSetter dest;
         private Path path; // current path
         [SerializeField] int currentWaypoint = 0;
-        [SerializeField] float nextWaypointDistanceThresholdMax = 10f; // max waypoint proximity to activate next waypoint
         [SerializeField] float targetDistanceThresholdMin = 0.1f; // min target distance to continue pathing
         private Seeker seeker; // A*
         private Vector2 directionToTarget; // direction for sightline raycast
 
+        // updates path periodically
+        void UpdatePath() {
+            if (seeker.IsDone()) {
+                if (dest?.target != null && ConfirmSightline()) { // seeker has processed most recent path & target is still in sight
+                    ai.canSearch = true;
+                    seeker.StartPath(_rb.position, dest.target.position, OnPathProcessed); // update path
+                } else {
+                    ai.canSearch = false;
+                    path = seeker.GetCurrentPath(); // continue path
+                }
+            }
+        }
+
+        void UpdateTarget(Transform newTarget) {
+            if (newTarget == null) return;
+
+            CancelInvoke();
+            dest.target = newTarget;
+            ai.SearchPath();
+            InvokeRepeating("UpdatePath", 0, 0.25f);
+        }
+
+        void StopPath() {
+            ai.SetPath(null);
+            ai.canSearch = false;
+            dest.target = null;
+        }
+
         #endregion
 
         protected virtual void Start() {
+            GameManager.instance.trolManager.activeTrols.Add(this);
             _rb = GetComponent<Rigidbody2D>();
             _input = GetComponent<PlayerInput>();
             _cachedTriggerSetting = Physics2D.queriesHitTriggers;
@@ -101,30 +134,10 @@ namespace TarodevController {
             ai.canSearch = false;
             if (!_input.isInputUnit) Player = PlayerObject.Instance;
             seeker = GetComponent<Seeker>();
-            InvokeRepeating("UpdatePath", 0.5f, 0.5f);
+            InvokeRepeating("UpdatePath", 0, 0.25f);
         }
 
-        // updates path periodically
-        void UpdatePath() {
-            if (seeker.IsDone()) {
-                if (ConfirmSightline()) { // seeker has processed most recent path & target is still in sight
-                    ai.canSearch = true;
-                    seeker.StartPath(_rb.position, target.position, OnPathProcessed); // update path
-                } else {
-                    ai.canSearch = false;
-                    path = seeker.GetCurrentPath(); // continue path
-                }
-            }
-        }
-
-        void UpdateTarget(Transform newTarget) {
-            CancelInvoke();
-            GetComponent<AIDestinationSetter>().target = newTarget;
-            target = newTarget;
-            ai.SearchPath();
-            InvokeRepeating("UpdatePath", 0.5f, 0.5f);
-        }
-
+        #region AI & Behavior
 
         private float perceivedDistanceToTarget; // this is updated when confirming sightline to target, be careful relying on this unless sightline has been confirmed
         [SerializeField] float sightRange = 100f; 
@@ -134,24 +147,25 @@ namespace TarodevController {
         // takes a Vector2 representing what the character is seeking, by default the target
         // when a Vector2 parameter is provided, it is treated as a static point in space i.e. last seen waypoint
         public bool ConfirmSightline(Vector2? seekingPoint = null) {
+            if (seekingPoint == null && dest.target == null) return false;
             bool isSeekingTarget; // as opposed to seeking a point in space where target was last seen
 
-            if (isSeekingTarget = (seekingPoint == null)) seekingPoint = target.position; // if no point to seek, grab target coords
+            if (isSeekingTarget = (seekingPoint == null)) seekingPoint = dest.target.position; // if no point to seek, grab target coords
             float realDistanceToTarget = Vector2.Distance(_rb.position, (Vector2)seekingPoint); // calculate real distance, used in determining perceived distance
 
             if (isSeekingTarget) {
                 Vector2 directionToTarget = ((Vector2)seekingPoint - _rb.position).normalized; // for raycasting purposes
-                RaycastHit2D[] hits = Physics2D.RaycastAll(_rb.position, directionToTarget, sightRange, LayerMask.GetMask("player", "Ground", "projectiles", "climbable"));
+                RaycastHit2D[] hits = Physics2D.RaycastAll(_rb.position, directionToTarget, sightRange, LayerMask.GetMask("player", "Entities", "Ground", "projectiles", "climbable"));
 
                 for (int i = 0; i < hits.Length; i++) {
                     RaycastHit2D hit = hits[i];
 
-                    if (hit.transform == target) {
+                    if (hit.transform == dest.target) {
                         // evaluate target
                         perceivedDistanceToTarget = realDistanceToTarget;
                         return true;
                         
-                    } else if ((hit.collider.gameObject.layer == LayerMask.NameToLayer("Ground") || hit.collider.gameObject.layer == LayerMask.NameToLayer("climbable"))) {
+                    } else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Ground") || hit.collider.gameObject.layer == LayerMask.NameToLayer("climbable") || hit.collider.gameObject.tag == "TROL") {
                         // hit something that is closer than our target (obstructed by something solid)
                         perceivedDistanceToTarget = float.PositiveInfinity;
                         return false; // hit wall
@@ -191,7 +205,7 @@ namespace TarodevController {
                     _frameInput.Move.y = Mathf.Abs(_frameInput.Move.y) < _stats.VerticalDeadzoneThreshold ? 0 : Mathf.Sign(_frameInput.Move.y);
                 }
 
-                if (_frameInput.DropDown && _col.IsTouchingLayers(LayerMask.GetMask("one-way"))) {
+                if (_frameInput.DropDown && _environmentCol.IsTouchingLayers(LayerMask.GetMask("one-way"))) {
                     _droppingDown = true;
                 } else if (!_droppingDown && _frameInput.JumpDown) {
                     _jumpToConsume = true;
@@ -230,13 +244,33 @@ namespace TarodevController {
 
             // generates spear prefab to huck
             spear = Instantiate(spearPrefab, transform);
-            spear.GetComponent<TrolSpear>().SetParent(_col); // disables interactions with parent colliders, then re-enables after 0.2s
+            GameManager.instance.trolManager.activeSpears.Add(spear.GetComponent<TrolSpear>());
+            spear.GetComponent<TrolSpear>().SetParent([_environmentCol, _stan]); // disables interactions with parent colliders, then re-enables after 0.2s
 
-            spear.transform.up = target.position - transform.position; // point at target
-            spear.GetComponent<Rigidbody2D>().velocity = target.position - transform.position * 2; // huck
+            spear.transform.up = dest.target.position - transform.position; // point at target
+            spear.GetComponent<Rigidbody2D>().velocity = dest.target.position - transform.position * 2; // huck
             _spearless = true;
 
-            UpdateTarget(spear.transform);
+            StopPath();
+        }
+
+        Transform GetClosestSpear () {
+            List<TrolSpear> spears = GameManager.instance.trolManager.activeSpears;
+            Transform bestTarget = null;
+            float closestDistanceSqr = Mathf.Infinity;
+            Vector3 currentPosition = transform.position;
+            foreach(TrolSpear potentialTarget in spears)
+            {
+                Vector3 directionToTarget = potentialTarget.transform.position - currentPosition;
+                float dSqrToTarget = directionToTarget.sqrMagnitude;
+                if(dSqrToTarget < closestDistanceSqr && ConfirmSightline(potentialTarget.transform.position))
+                {
+                    closestDistanceSqr = dSqrToTarget;
+                    bestTarget = potentialTarget.transform;
+                }
+            }
+        
+            return bestTarget != null ? bestTarget.transform : null;
         }
 
         protected virtual bool DidTrip() {
@@ -265,6 +299,13 @@ namespace TarodevController {
             if (_recoveryTime > 0) {
                 // recovering from throw
                 if (_recoveryTime + 2 < Time.time) Recovered();
+
+            } else if (_spearless) {
+                // get spear NOW
+                if (dest.target == null) {
+                    UpdateTarget(GetClosestSpear());
+                }
+
 
             } else if (!_spearless && ConfirmSightline() && perceivedDistanceToTarget < spearRange) {
                 // in sight && in range
@@ -297,15 +338,17 @@ namespace TarodevController {
                     return;
                 }
                 // continue pathing
-                if (Mathf.Abs(_rb.position.x - target.position.x) > targetDistanceThresholdMin) {
+                if (path != null && dest.target != null && Mathf.Abs(_rb.position.x - dest.target.position.x) > targetDistanceThresholdMin) {
                     if (directionToNextWaypoint.x > 0) _frameInput.Move.x = 1; // whatever we're after, it's to the right
                     else if (directionToNextWaypoint.x < 0) _frameInput.Move.x = -1; // or the left
-                    if (distanceToNextWaypoint < nextWaypointDistanceThresholdMax) currentWaypoint++; // reached waypoint
+                    if (distanceToNextWaypoint < ai.pickNextWaypointDist) currentWaypoint++; // reached waypoint
                     return;
                 }
                 _frameInput.Move.x = 0; // stop twitching if next waypoint is very close
             }
         }
+
+        #endregion
 
         protected virtual void FixedUpdate() {
             _fixedFrame++;
@@ -346,14 +389,14 @@ namespace TarodevController {
             Physics2D.queriesHitTriggers = false;
 
             // Ground and Ceiling
-            _groundHitCount = Physics2D.CapsuleCastNonAlloc(_col.bounds.center, _col.size, _col.direction, 0, Vector2.down, _groundHits, _stats.GrounderDistance, ~_stats.PlayerLayer);
-            _ceilingHitCount = Physics2D.CapsuleCastNonAlloc(_col.bounds.center, _col.size, _col.direction, 0, Vector2.up, _ceilingHits, _stats.GrounderDistance, ~_stats.PlayerLayer);
+            _groundHitCount = Physics2D.CapsuleCastNonAlloc(_environmentCol.bounds.center, _environmentCol.size, _environmentCol.direction, 0, Vector2.down, _groundHits, _stats.GrounderDistance, ~_stats.PlayerLayer);
+            _ceilingHitCount = Physics2D.CapsuleCastNonAlloc(_environmentCol.bounds.center, _environmentCol.size, _environmentCol.direction, 0, Vector2.up, _ceilingHits, _stats.GrounderDistance, ~_stats.PlayerLayer);
 
             // Walls and Ladders
             var bounds = GetWallDetectionBounds(); // won't be able to detect a wall if we're crouching mid-air
             _wallHitCount = Physics2D.OverlapBoxNonAlloc(bounds.center, bounds.size, 0, _wallHits, _stats.ClimbableLayer);
 
-            _hittingWall = Physics2D.CapsuleCast(_col.bounds.center, _col.size, _col.direction, 0, new Vector2(_input.FrameInput.Move.x, 0), _stats.GrounderDistance, ~_stats.PlayerLayer);
+            _hittingWall = Physics2D.CapsuleCast(_environmentCol.bounds.center, _environmentCol.size, _environmentCol.direction, 0, new Vector2(_input.FrameInput.Move.x, 0), _stats.GrounderDistance, ~_stats.PlayerLayer);
 
             Physics2D.queriesHitTriggers = true; // Ladders are set to Trigger
             _ladderHitCount = Physics2D.OverlapBoxNonAlloc(bounds.center, bounds.size, 0, _ladderHits, _stats.LadderLayer);
@@ -369,7 +412,7 @@ namespace TarodevController {
         }
 
         private Bounds GetWallDetectionBounds() {
-            var colliderOrigin = _rb.position + _standingCollider.offset;
+            var colliderOrigin = _rb.position + _standingEnvironmentCollider.offset;
             return new Bounds(colliderOrigin, _stats.WallDetectorSize);
         }
 
@@ -397,8 +440,8 @@ namespace TarodevController {
             }
         }
 
-        private bool IsStandingPosClear(Vector2 pos) => CheckPos(pos, _standingCollider);
-        private bool IsCrouchingPosClear(Vector2 pos) => CheckPos(pos, _crouchingCollider);
+        private bool IsStandingPosClear(Vector2 pos) => CheckPos(pos, _standingEnvironmentCollider);
+        private bool IsCrouchingPosClear(Vector2 pos) => CheckPos(pos, _crouchingEnvironmentCollider);
 
         protected virtual bool CheckPos(Vector2 pos, CapsuleCollider2D col) {
             Physics2D.queriesHitTriggers = false;
@@ -598,7 +641,7 @@ namespace TarodevController {
         }
 
         protected virtual void ToggleColliders(bool isStanding) {
-            _col = isStanding ? _standingCollider : _crouchingCollider;
+            _environmentCol = isStanding ? _standingEnvironmentCollider : _crouchingEnvironmentCollider;
             //_standingCollider.enabled = isStanding;
             //_crouchingCollider.enabled = !isStanding;
         }
@@ -775,7 +818,6 @@ namespace TarodevController {
 
         private bool HorizontalInputPressed => Mathf.Abs(_frameInput.Move.x) > _stats.HorizontalDeadzoneThreshold;
         private bool _stickyFeet;
-        [SerializeField] float slowingDistance = 20;
 
         protected virtual void HandleHorizontal() {
             if (_dashing || (shimmying && (_frameInput.Move.x > 0 && WallDirection > 0) || (_frameInput.Move.x < 0 && WallDirection < 0))) return;
@@ -797,8 +839,8 @@ namespace TarodevController {
                 if (_hittingWall.collider && Mathf.Abs(_rb.velocity.x) < 0.02f && !_isLeavingWall) _speed.x = 0;
 
                 var xInput = _frameInput.Move.x * (ClimbingLadder ? _stats.LadderShimmySpeedMultiplier : 1);
-                if (target != null) {
-                    float clampedArrivalSpeed = Mathf.Min(_stats.MaxSpeed * (perceivedDistanceToTarget / slowingDistance), _stats.MaxSpeed);
+                if (dest.target != null) {
+                    float clampedArrivalSpeed = Mathf.Min(_stats.MaxSpeed * (perceivedDistanceToTarget / ai.slowdownDistance), _stats.MaxSpeed);
                 }
                 _speed.x = Mathf.MoveTowards(_speed.x, xInput * (_spearless ? _stats.MaxSpeed * 1.25f : _stats.MaxSpeed), _currentWallJumpMoveMultiplier * _stats.Acceleration * Time.fixedDeltaTime);
             }

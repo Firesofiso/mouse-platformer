@@ -41,7 +41,7 @@ namespace TarodevController {
             // if (_mobbTrol.ClimbingLedge) return;
             // if (_isOnWall & _mobbTrol.WallDirection != 0) _renderer.flipX = _mobbTrol.WallDirection == -1;
             // else if (_wallJumped) _renderer.flipX = _mobbTrol.Speed.x < 0;
-            if (_aiming) _renderer.flipX = _mobbTrol.target.position.x < _mobbTrol._rb.position.x;
+            if (_aiming) _renderer.flipX = _mobbTrol.dest?.target.position.x < _mobbTrol._rb.position.x;
                 else if (_mobbTrol.Input.x != 0) _renderer.flipX = _mobbTrol.Input.x < 0;
 
             // offset spear collider depending on faced direction
@@ -50,8 +50,9 @@ namespace TarodevController {
             _spearCol.offset = new Vector2(newSpearOffsetX, spearColOffsetY);
         }
 
-        [SerializeField] private CapsuleCollider2D _standingCollider;
-        [SerializeField] private PolygonCollider2D _spearCol;
+        [SerializeField] CapsuleCollider2D _standingCollider;
+        [SerializeField] PolygonCollider2D _spearCol;
+        [SerializeField] PlatformEffector2D _spearEffector;
 
         // private void HandleColliderFlipping() {
         //     _standingCollider.offset = new Vector2((_renderer.flipX ? -1 : 1) * -0.03039861f, -0.001882311f);
@@ -289,17 +290,17 @@ namespace TarodevController {
             // offset spear angle
             if (_aiming) {
                 spearOffsetXHalf = -1f;
-                GetComponentInParent<PlatformEffector2D>().rotationalOffset = _renderer.flipX ? 45 : -45;
+                _spearEffector.rotationalOffset = _renderer.flipX ? 45 : -45;
             } else {
                 spearOffsetXHalf = 4.5f;
-                GetComponentInParent<PlatformEffector2D>().rotationalOffset = 0;
+                _spearEffector.rotationalOffset = 0;
             }
         }
 
         private bool _recoveringFromThrow;
         private bool _tripped;
         private void HandleThrowing(bool tripped) {
-            _aiming = false;
+            HandleAiming(false);
             _recoveringFromThrow = true;
             _tripped = tripped;
             _spearCol.enabled = false;

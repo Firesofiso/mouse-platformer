@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
+  - TROL
   layers:
   - Default
   - TransparentFX
@@ -17,9 +18,9 @@ TagManager:
   - player
   - cursor
   - one-way
-  - mobs
+  - Entities
   - projectiles
-  - 
+  - EntityCollisions
   - 
   - 
   - 
@@ -27,7 +28,7 @@ TagManager:
   - 
   - 
   - Ground
-  - 
+  - Solid
   - 
   - 
   - 

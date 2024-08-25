@@ -6,6 +6,7 @@ public class TrolSpear : MonoBehaviour
 {
     [SerializeField] PolygonCollider2D _spearTip;
     [SerializeField] CapsuleCollider2D _spearShaft;
+    [SerializeField] CapsuleCollider2D _spearDetection;
     [SerializeField] Rigidbody2D _rb;
     // [SerializeField] Rigidbody2D _rb;
     public Sprite spear;

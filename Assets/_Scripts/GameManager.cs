@@ -4,9 +4,10 @@ public class GameManager : MonoBehaviour
 {
     public Transform playerTransform;
     public Transform cursorTransform;
+    public TrolManager trolManager;
 
     // Singleton pattern to access the GameManager from other scripts
-    private static GameManager instance;
+    public static GameManager instance;
     public static GameManager Instance { get { return instance; } }
 
     private void Awake()
