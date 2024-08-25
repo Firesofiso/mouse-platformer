@@ -19,9 +19,10 @@ namespace TarodevController {
         [SerializeField] private CapsuleCollider2D _standingEnvironmentCollider;
         [SerializeField] private CapsuleCollider2D _crouchingEnvironmentCollider;
         [SerializeField] private CapsuleCollider2D _standingEntityCollider;
-        [SerializeField] private CapsuleCollider2D _crouchingEntityCollider;
-        private CapsuleCollider2D _environmentCol; // current active collider
-        private CapsuleCollider2D _entityCol; // current active collider
+        [SerializeField] private CapsuleCollider2D _crouchingEntityCollider; 
+        [SerializeField] private PolygonCollider2D _spearTipCollider; 
+        private CapsuleCollider2D _environmentCol; // current active collider for environmental (ground, wall, platform) collisions
+        private CapsuleCollider2D _entityCol; // current active collider for entity (player, enemy) collisions
         
         private PlayerInput _input;
         private bool _cachedTriggerSetting;
@@ -165,7 +166,7 @@ namespace TarodevController {
                         perceivedDistanceToTarget = realDistanceToTarget;
                         return true;
                         
-                    } else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Ground") || hit.collider.gameObject.layer == LayerMask.NameToLayer("climbable") || hit.collider.gameObject.tag == "TROL") {
+                    } else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Ground") || hit.collider.gameObject.layer == LayerMask.NameToLayer("climbable") ){//|| hit.collider.gameObject.tag == "TROL") {
                         // hit something that is closer than our target (obstructed by something solid)
                         perceivedDistanceToTarget = float.PositiveInfinity;
                         return false; // hit wall
@@ -245,7 +246,7 @@ namespace TarodevController {
             // generates spear prefab to huck
             spear = Instantiate(spearPrefab, transform);
             GameManager.instance.trolManager.activeSpears.Add(spear.GetComponent<TrolSpear>());
-            spear.GetComponent<TrolSpear>().SetParent([_environmentCol, _stan]); // disables interactions with parent colliders, then re-enables after 0.2s
+            StartCoroutine(spear.GetComponent<TrolSpear>().TemporarilyIgnoreColliders(new Collider2D[] {_environmentCol, _entityCol, _spearTipCollider})); // disables interactions with parent colliders, then re-enables after 0.25s
 
             spear.transform.up = dest.target.position - transform.position; // point at target
             spear.GetComponent<Rigidbody2D>().velocity = dest.target.position - transform.position * 2; // huck
@@ -642,8 +643,9 @@ namespace TarodevController {
 
         protected virtual void ToggleColliders(bool isStanding) {
             _environmentCol = isStanding ? _standingEnvironmentCollider : _crouchingEnvironmentCollider;
-            //_standingCollider.enabled = isStanding;
-            //_crouchingCollider.enabled = !isStanding;
+            _entityCol = isStanding ? _standingEntityCollider : _crouchingEntityCollider;
+            //_standingEnvironmentCollider.enabled = isStanding;
+            //_crouchingEnvironmentCollider.enabled = !isStanding;
         }
 
         #endregion
@@ -920,7 +922,7 @@ namespace TarodevController {
         private void OnDrawGizmos() {
             if (_stats == null) return;
 
-            if (_stats.ShowWallDetection && _standingCollider != null) {
+            if (_stats.ShowWallDetection && _standingEnvironmentCollider != null) {
                 Gizmos.color = Color.white;
                 var bounds = GetWallDetectionBounds();
                 Gizmos.DrawWireCube(bounds.center, bounds.size);
@@ -947,8 +949,8 @@ namespace TarodevController {
 
         private void OnValidate() {
             if (_stats == null) Debug.LogWarning("Please assign a ScriptableStats asset to the Player Controller's Stats slot", this);
-            if (_standingCollider == null) Debug.LogWarning("Please assign a Capsule Collider to the Standing Collider slot", this);
-            if (_crouchingCollider == null) Debug.LogWarning("Please assign a Capsule Collider to the Crouching Collider slot", this);
+            if (_standingEnvironmentCollider == null) Debug.LogWarning("Please assign a Capsule Collider to the Standing Environment Collider slot", this);
+            if (_crouchingEnvironmentCollider == null) Debug.LogWarning("Please assign a Capsule Collider to the Crouching Environment Collider slot", this);
             if (_rb == null && !TryGetComponent(out _rb)) Debug.LogWarning("Ensure the GameObject with the Player Controller has a Rigidbody2D", this);
         }
 #endif

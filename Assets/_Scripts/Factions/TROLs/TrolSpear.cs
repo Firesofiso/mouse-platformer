@@ -14,28 +14,22 @@ public class TrolSpear : MonoBehaviour
     public GameObject visual;
     public SpriteRenderer renderer;
     private Collider2D anchorCollider = null;
-    private Collider2D parentCollider = null;
 
-    private void SetParent() {
-        SetParent(null);
-    }
-
-    public void SetParent(Collider2D parent = null)
+    public IEnumerator TemporarilyIgnoreColliders(Collider2D[] other, bool ignore = true)
     // when spear is instantiated, ignore the thrower's colliders
     // recursively disable after some time
     {
-        if (parent != null) {
-            parentCollider = parent;
-            IgnoreColliders(parent);
-            Invoke("SetParent", 0.2f);
-        } else if (parentCollider != null) {
-            IgnoreColliders(parentCollider, false);
+        foreach (Collider2D c in other)
+        {
+            Debug.Log(c);
+            Physics2D.IgnoreCollision(_spearTip, c, ignore);
+            Physics2D.IgnoreCollision(_spearShaft, c, ignore); 
         }
-    }
-
-    private void IgnoreColliders(Collider2D other, bool ignore = true) {
-        Physics2D.IgnoreCollision(_spearTip, other, ignore);
-        Physics2D.IgnoreCollision(_spearShaft, other, ignore);
+        if (!ignore)
+        {
+            yield return new WaitForSeconds(0.25f);
+            StartCoroutine(TemporarilyIgnoreColliders(other, false));
+        }
     }
 
     // Update is called once per frame

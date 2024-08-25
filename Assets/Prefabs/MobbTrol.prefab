@@ -19984,8 +19984,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _stats: {fileID: 11400000, guid: 136372a32c52b46068a37da4f99ac41e, type: 2}
   _rb: {fileID: 4921389185877112261}
-  _standingCollider: {fileID: 7160046612077624218}
-  _crouchingCollider: {fileID: 0}
+  _standingEnvironmentCollider: {fileID: 7160046612077624218}
+  _crouchingEnvironmentCollider: {fileID: 0}
+  _standingEntityCollider: {fileID: 5871792321954590724}
+  _crouchingEntityCollider: {fileID: 0}
+  _spearTipCollider: {fileID: 2830349378979895444}
   _speed: {x: 0, y: 0}
   ai: {fileID: 2729813448744194245}
   dest: {fileID: 5298518793093821390}
