@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-static class ExtensionMethods
+public static class ExtensionMethods
 {
 	/// <summary>
 	/// Rounds Vector3.
@@ -21,5 +21,10 @@ static class ExtensionMethods
 			Mathf.Round(vector3.x * multiplier) / multiplier,
 			Mathf.Round(vector3.y * multiplier) / multiplier,
 			Mathf.Round(vector3.z * multiplier) / multiplier);
+	}
+
+	public static bool IsInLayerMask(this int layer, LayerMask layermask)
+	{
+		return layermask == (layermask | (1 << layer));
 	}
 }

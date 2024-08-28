@@ -341,9 +341,7 @@ namespace TarodevController {
                 } else if (_recoveringFromThrow) {
                     _spearless = true;
                     if (_tripped) {
-                        return LockState(ThrowTrip, 10);
-                    } else {
-                        return LockState(Throw, 10);
+                        return LockState((_tripped ? ThrowTrip : Throw), 10);
                     }
                 }
             //     if (_attacked) return LockState(Attack, _attackAnimTime);

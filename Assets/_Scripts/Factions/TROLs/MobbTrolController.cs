@@ -87,13 +87,17 @@ namespace TarodevController {
         public AIDestinationSetter dest;
         private Path path; // current path
         [SerializeField] int currentWaypoint = 0;
-        [SerializeField] float targetDistanceThresholdMin = 0.1f; // min target distance to continue pathing
         private Seeker seeker; // A*
         private Vector2 directionToTarget; // direction for sightline raycast
 
         // updates path periodically
         void UpdatePath() {
-            if (seeker.IsDone()) {
+            if (_spearless) {
+                Transform s = GetClosestSpear();
+                if (s != dest.target) {
+                    UpdateTarget(s);
+                }
+            } else if (seeker.IsDone()) {
                 if (dest?.target != null && ConfirmSightline()) { // seeker has processed most recent path & target is still in sight
                     ai.canSearch = true;
                     seeker.StartPath(_rb.position, dest.target.position, OnPathProcessed); // update path
@@ -105,15 +109,15 @@ namespace TarodevController {
         }
 
         void UpdateTarget(Transform newTarget) {
-            if (newTarget == null) return;
+            StopPath();
 
-            CancelInvoke();
             dest.target = newTarget;
             ai.SearchPath();
             InvokeRepeating("UpdatePath", 0, 0.25f);
         }
 
         void StopPath() {
+            CancelInvoke();
             ai.SetPath(null);
             ai.canSearch = false;
             dest.target = null;
@@ -149,10 +153,11 @@ namespace TarodevController {
         // when a Vector2 parameter is provided, it is treated as a static point in space i.e. last seen waypoint
         public bool ConfirmSightline(Vector2? seekingPoint = null) {
             if (seekingPoint == null && dest.target == null) return false;
-            bool isSeekingTarget; // as opposed to seeking a point in space where target was last seen
-
-            if (isSeekingTarget = (seekingPoint == null)) seekingPoint = dest.target.position; // if no point to seek, grab target coords
+            bool isSeekingTarget = seekingPoint == null; // as opposed to seeking a point in space where target was last seen
+            if (isSeekingTarget) seekingPoint = dest.target.position; // if no point to seek, grab target coords
             float realDistanceToTarget = Vector2.Distance(_rb.position, (Vector2)seekingPoint); // calculate real distance, used in determining perceived distance
+
+            if (realDistanceToTarget > sightRange) return false; 
 
             if (isSeekingTarget) {
                 Vector2 directionToTarget = ((Vector2)seekingPoint - _rb.position).normalized; // for raycasting purposes
@@ -166,7 +171,7 @@ namespace TarodevController {
                         perceivedDistanceToTarget = realDistanceToTarget;
                         return true;
                         
-                    } else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Ground") || hit.collider.gameObject.layer == LayerMask.NameToLayer("climbable") ){//|| hit.collider.gameObject.tag == "TROL") {
+                    } else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Ground") || hit.collider.gameObject.layer == LayerMask.NameToLayer("climbable") ){// || hit.collider.gameObject.tag == "TROL") {
                         // hit something that is closer than our target (obstructed by something solid)
                         perceivedDistanceToTarget = float.PositiveInfinity;
                         return false; // hit wall
@@ -178,8 +183,10 @@ namespace TarodevController {
             } else {
                 // isSeekingPoint
                 RaycastHit2D hit = Physics2D.Raycast(_rb.position, directionToTarget, realDistanceToTarget, LayerMask.GetMask("Ground", "climbable"));
-                if (hit && hit.distance < perceivedDistanceToTarget) return false; // hit something before reaching the point (obstructed by something solid)
-                else return true;
+                if (hit && hit.distance < realDistanceToTarget) {
+                    perceivedDistanceToTarget = float.PositiveInfinity;
+                    return false; // hit something before reaching the point (obstructed by something solid)
+                } else return true;
 
             }
             return false;
@@ -226,20 +233,20 @@ namespace TarodevController {
 
         protected virtual void TakingAim(bool isAiming) {
             // set or reset aiming window
-            if (!isAiming) _startedAiming = 0;
-            else if (isAiming && _startedAiming == 0) _startedAiming = Time.time;
+            if (!isAiming) _aimingTill = 0;
+            else if (isAiming && _aimingTill == 0) _aimingTill = Time.time + 2;
 
             HandleAiming?.Invoke(isAiming);
         }
 
-        private float _recoveryTime;
+        private float _recoveringTill;
         GameObject spear;
         [SerializeField] GameObject spearPrefab;
         bool _spearless = false;
         protected virtual void ThrowSpear() {
 
             var tripped = DidTrip(); // determines if extra recovery time is needed
-            _recoveryTime = tripped ? Time.time + 3 : Time.time; // penalize recovery window
+            _recoveringTill = tripped ? Time.time + 3 : Time.time; // penalize recovery window
 
             HandleThrowing?.Invoke(tripped); // animate
 
@@ -274,51 +281,72 @@ namespace TarodevController {
             return bestTarget != null ? bestTarget.transform : null;
         }
 
+        void GrabSpear(Transform s) {
+            // Debug.Log("yoink!");
+        }
+
         protected virtual bool DidTrip() {
             return UnityEngine.Random.Range(0,4) == 0;
         }
 
         protected virtual void Recovered() {
             HandleRecovery?.Invoke();
-            _recoveryTime = 0;
-            _startedAiming = 0;
+            _recoveringTill = 0;
+            _aimingTill = 0;
         }
 
         Vector2 directionToNextWaypoint;
-       [SerializeField] float distanceToNextWaypoint;
-        private float _startedAiming;
+        [SerializeField] float distanceToNextWaypoint;
+        private float _aimingTill;
+        [SerializeField] float withinReachDistance = 10f;
+        [SerializeField] bool showBehaviorDebugging = false;
 
         protected virtual void AssessSituation() {
+
+            if (_recoveringTill > 0 && _recoveringTill < Time.time) { // recovering from throw
+                if (showBehaviorDebugging) Debug.Log("recovered...");
+                Recovered();
+            }
+
+            if (_spearless) {
+                // get spear NOW
+                if (dest.target == null) {
+                    if (showBehaviorDebugging) Debug.Log("need target spear...");
+                    UpdateTarget(GetClosestSpear());
+                }
+
+                if (perceivedDistanceToTarget < withinReachDistance) {
+                    if (showBehaviorDebugging) Debug.Log("grabbing spear...");
+                    GrabSpear(dest.target);
+                }
+
+            } else if (!_spearless && ConfirmSightline() && perceivedDistanceToTarget < spearRange) {
+                // in sight && in range
+                if (showBehaviorDebugging) Debug.Log("in sight & range...");
+                if (_aimingTill > 0 && _aimingTill < Time.time) {
+                    if (showBehaviorDebugging) Debug.Log("throwing...");
+                    ThrowSpear(); // if aiming, throw after 2 seconds of aiming
+                }
+                else {
+                    if (showBehaviorDebugging) Debug.Log("aiming...");
+                    TakingAim(true); // begin aiming
+                }
+
+            } else {
+                if (showBehaviorDebugging) Debug.Log("outta sight & range...");
+                // outta sight || outta range
+                if (!_spearless) {
+                    if (showBehaviorDebugging) Debug.Log("stop aiming...");
+                    TakingAim(false);
+                }
+            }
+
             if (path == null || path?.vectorPath == null) return; // no current path
 
             if (currentWaypoint < path.vectorPath.Count - 1) {
                 // follow most recent path in pursuit of target
                 directionToNextWaypoint = ((Vector2)path.vectorPath[currentWaypoint] - _rb.position).normalized;
                 distanceToNextWaypoint = Vector2.Distance(_rb.position, path.vectorPath[currentWaypoint]);
-            }
-
-            if (_recoveryTime > 0) {
-                // recovering from throw
-                if (_recoveryTime + 2 < Time.time) Recovered();
-
-            } else if (_spearless) {
-                // get spear NOW
-                if (dest.target == null) {
-                    UpdateTarget(GetClosestSpear());
-                }
-
-
-            } else if (!_spearless && ConfirmSightline() && perceivedDistanceToTarget < spearRange) {
-                // in sight && in range
-
-                if (_startedAiming > 0) { // & already aiming
-                    if (_startedAiming > 0 && _startedAiming + 2 < Time.time) ThrowSpear(); // throw after 2 seconds of aiming
-
-                } else TakingAim(true); // begin aiming
-
-            } else {
-                // outta sight || outta range
-                if (!_spearless) TakingAim(false);
             }
         }
 
@@ -328,7 +356,7 @@ namespace TarodevController {
             //     distanceToNextWaypoint = Vector2.Distance(_rb.position, path.vectorPath[currentWaypoint]);
             // }
 
-            if (currentWaypoint == path?.vectorPath?.Count - 1 || _startedAiming > 0 || _recoveryTime > 0) {
+            if (currentWaypoint == path?.vectorPath?.Count - 1 || _aimingTill > 0 || _recoveringTill > 0) {
                 _frameInput.Move.x = 0;
                 return;
             } else if (currentWaypoint < path?.vectorPath?.Count - 1) {
@@ -339,7 +367,7 @@ namespace TarodevController {
                     return;
                 }
                 // continue pathing
-                if (path != null && dest.target != null && Mathf.Abs(_rb.position.x - dest.target.position.x) > targetDistanceThresholdMin) {
+                if (path != null && dest.target != null) {
                     if (directionToNextWaypoint.x > 0) _frameInput.Move.x = 1; // whatever we're after, it's to the right
                     else if (directionToNextWaypoint.x < 0) _frameInput.Move.x = -1; // or the left
                     if (distanceToNextWaypoint < ai.pickNextWaypointDist) currentWaypoint++; // reached waypoint

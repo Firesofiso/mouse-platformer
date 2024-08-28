@@ -21,7 +21,6 @@ public class TrolSpear : MonoBehaviour
     {
         foreach (Collider2D c in other)
         {
-            Debug.Log(c);
             Physics2D.IgnoreCollision(_spearTip, c, ignore);
             Physics2D.IgnoreCollision(_spearShaft, c, ignore); 
         }
@@ -53,15 +52,15 @@ public class TrolSpear : MonoBehaviour
     //todo spear tip collides with ground layer & spear velocity vector is within some threshold of inverse contact normal : stick into ground
     //todo spear velocity vector falls below some threshold : disable collisions
 
-    private void OnCollisionEnter2D(Collision2D other) 
+    private void OnCollisionEnter2D(Collision2D coll) 
     { 
-        if (_spearTip.IsTouchingLayers(LayerMask.GetMask("Ground", "one-way", "climbable")))
+        if (coll.otherCollider == _spearTip && coll.gameObject.layer.IsInLayerMask(LayerMask.GetMask("Ground", "one-way", "climbable")))
         { 
             _rb.bodyType = RigidbodyType2D.Static;
-            transform.SetParent(other.transform);
+            transform.SetParent(coll.transform);
             transform.position = new Vector3(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.y), 0);
             disableCollisions(true);
-            anchorCollider = other.collider;
+            anchorCollider = coll.collider;
         } 
     }
 
