@@ -92,12 +92,7 @@ namespace TarodevController {
 
         // updates path periodically
         void UpdatePath() {
-            if (_spearless) {
-                Transform s = GetClosestSpear();
-                if (s != dest.target) {
-                    UpdateTarget(s);
-                }
-            } else if (seeker.IsDone()) {
+            if (seeker.IsDone()) {
                 if (dest?.target != null && ConfirmSightline()) { // seeker has processed most recent path & target is still in sight
                     ai.canSearch = true;
                     seeker.StartPath(_rb.position, dest.target.position, OnPathProcessed); // update path
@@ -109,9 +104,12 @@ namespace TarodevController {
         }
 
         void UpdateTarget(Transform newTarget) {
+            if (showBehaviorDebugging) Debug.Log("Setting new target: " + newTarget);
             StopPath();
 
             dest.target = newTarget;
+            if (newTarget == null) return;
+            
             ai.SearchPath();
             InvokeRepeating("UpdatePath", 0, 0.25f);
         }
@@ -121,6 +119,17 @@ namespace TarodevController {
             ai.SetPath(null);
             ai.canSearch = false;
             dest.target = null;
+        }
+
+        // callback for seeker.StartPath()
+        void OnPathProcessed(Path p) {
+            if (p != null && !p.error && ConfirmSightline()) {
+                path = p;
+                currentWaypoint = 0;
+            } else {
+                ai.canSearch = false;
+                path = null;
+            }
         }
 
         #endregion
@@ -186,18 +195,14 @@ namespace TarodevController {
                 if (hit && hit.distance < realDistanceToTarget) {
                     perceivedDistanceToTarget = float.PositiveInfinity;
                     return false; // hit something before reaching the point (obstructed by something solid)
-                } else return true;
+                } else {
+                    perceivedDistanceToTarget = realDistanceToTarget;
+                    return true;
+                }
 
             }
+            perceivedDistanceToTarget = float.PositiveInfinity;
             return false;
-        }
-
-        // callback for seeker.StartPath()
-        void OnPathProcessed(Path p) {
-            if (p != null && !p.error && ConfirmSightline()) {
-                path = p;
-                currentWaypoint = 0;
-            }
         }
 
         protected virtual void Update() {
@@ -278,6 +283,7 @@ namespace TarodevController {
                 }
             }
         
+            // if (showBehaviorDebugging) Debug.Log("Closest spear found: " + (bestTarget != null ? bestTarget : "none..."));
             return bestTarget != null ? bestTarget.transform : null;
         }
 
@@ -310,9 +316,10 @@ namespace TarodevController {
 
             if (_spearless) {
                 // get spear NOW
-                if (dest.target == null) {
-                    if (showBehaviorDebugging) Debug.Log("need target spear...");
-                    UpdateTarget(GetClosestSpear());
+                Transform s = GetClosestSpear();
+                if (dest.target != s) {
+                    if (showBehaviorDebugging) Debug.Log("targeting new spear...");
+                    UpdateTarget(s);
                 }
 
                 if (perceivedDistanceToTarget < withinReachDistance) {
@@ -356,13 +363,15 @@ namespace TarodevController {
             //     distanceToNextWaypoint = Vector2.Distance(_rb.position, path.vectorPath[currentWaypoint]);
             // }
 
-            if (currentWaypoint == path?.vectorPath?.Count - 1 || _aimingTill > 0 || _recoveringTill > 0) {
+            if (_aimingTill > 0 || _recoveringTill > 0) {
+                if (showBehaviorDebugging) Debug.Log("preoccupied...");
                 _frameInput.Move.x = 0;
                 return;
             } else if (currentWaypoint < path?.vectorPath?.Count - 1) {
                 if (!ConfirmSightline() && !ConfirmSightline(path.vectorPath[currentWaypoint])) {
                     // can't path further
                     // todo question marks ?????
+                    if (showBehaviorDebugging) Debug.Log("lacking direction...");
                     _frameInput.Move.x = 0;
                     return;
                 }
@@ -370,9 +379,13 @@ namespace TarodevController {
                 if (path != null && dest.target != null) {
                     if (directionToNextWaypoint.x > 0) _frameInput.Move.x = 1; // whatever we're after, it's to the right
                     else if (directionToNextWaypoint.x < 0) _frameInput.Move.x = -1; // or the left
-                    if (distanceToNextWaypoint < ai.pickNextWaypointDist) currentWaypoint++; // reached waypoint
+                    if (distanceToNextWaypoint < ai.pickNextWaypointDist) {
+                        currentWaypoint++; // reached waypoint
+                        if (showBehaviorDebugging) Debug.Log("next waypoint...");
+                    }
                     return;
                 }
+                if (showBehaviorDebugging) Debug.Log("out of options....");
                 _frameInput.Move.x = 0; // stop twitching if next waypoint is very close
             }
         }
@@ -872,8 +885,22 @@ namespace TarodevController {
                 if (dest.target != null) {
                     float clampedArrivalSpeed = Mathf.Min(_stats.MaxSpeed * (perceivedDistanceToTarget / ai.slowdownDistance), _stats.MaxSpeed);
                 }
-                _speed.x = Mathf.MoveTowards(_speed.x, xInput * (_spearless ? _stats.MaxSpeed * 1.25f : _stats.MaxSpeed), _currentWallJumpMoveMultiplier * _stats.Acceleration * Time.fixedDeltaTime);
+                _speed.x = Mathf.MoveTowards(_speed.x, xInput * TrolSpeedAfterModifiers(), _currentWallJumpMoveMultiplier * _stats.Acceleration * Time.fixedDeltaTime);
             }
+        }
+
+        protected virtual float TrolSpeedAfterModifiers() {
+            float modifiedMaxSpeed = _stats.MaxSpeed;
+            if (dest.target != null) {
+                modifiedMaxSpeed = Mathf.Min(_stats.MaxSpeed * (perceivedDistanceToTarget / ai.slowdownDistance), _stats.MaxSpeed); // clamp based on proximity
+            }
+            if (_spearless) {
+                modifiedMaxSpeed *= 1.25f;
+            } 
+
+            // todo increase based on onscreen trol count
+
+            return modifiedMaxSpeed;
         }
 
         #endregion
