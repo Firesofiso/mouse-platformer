@@ -575,7 +575,7 @@ namespace TarodevController {
         private bool _stickyFeet;
 
         protected virtual void HandleHorizontal() {
-            if (_dashing || (shimmying && (_frameInput.Move.x > 0 && WallDirection > 0) || (_frameInput.Move.x < 0 && WallDirection < 0))) return;
+            if (_dashing || shimmying && _frameInput.Move.x > 0 && WallDirection > 0 || (_frameInput.Move.x < 0 && WallDirection < 0)) return;
 
             // Deceleration
             if (!HorizontalInputPressed) {

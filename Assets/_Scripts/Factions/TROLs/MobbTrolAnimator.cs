@@ -22,6 +22,7 @@ namespace TarodevController {
             _mobbTrol.HandleAiming += HandleAiming;
             _mobbTrol.HandleThrowing += HandleThrowing;
             _mobbTrol.HandleRecovery += HandleRecovery;
+            _mobbTrol.HandleReclaim += HandleReclaim;
         }
 
         private void Update() {
@@ -41,8 +42,8 @@ namespace TarodevController {
             // if (_mobbTrol.ClimbingLedge) return;
             // if (_isOnWall & _mobbTrol.WallDirection != 0) _renderer.flipX = _mobbTrol.WallDirection == -1;
             // else if (_wallJumped) _renderer.flipX = _mobbTrol.Speed.x < 0;
-            if (_aiming) _renderer.flipX = _mobbTrol.dest?.target.position.x < _mobbTrol._rb.position.x;
-                else if (_mobbTrol.Input.x != 0) _renderer.flipX = _mobbTrol.Input.x < 0;
+            // if (_aiming) _renderer.flipX = _mobbTrol.dest?.target.position.x < _mobbTrol._rb.position.x;
+            if (_mobbTrol.Input.x != 0) _renderer.flipX = _mobbTrol.Input.x < 0;
 
             // offset spear collider depending on faced direction
             if (_renderer.flipX) newSpearOffsetX = 4.5f + spearOffsetXHalf;
@@ -304,11 +305,16 @@ namespace TarodevController {
             _recoveringFromThrow = true;
             _tripped = tripped;
             _spearCol.enabled = false;
+            _spearless = true;
         }
 
         private void HandleRecovery() {
             _recoveringFromThrow = false;
             UnlockAnimationLock();
+        }
+
+        private void HandleReclaim() {
+            
         }
 
         // private void OnAttacked() => _attacked = true;
@@ -339,11 +345,8 @@ namespace TarodevController {
                 if (_aiming) {
                     return Aim;
                 } else if (_recoveringFromThrow) {
-                    _spearless = true;
-                    if (_tripped) {
-                        return LockState((_tripped ? ThrowTrip : Throw), 10);
-                    }
-                }
+                    return LockState(_tripped ? ThrowTrip : Throw, 10);
+                } //else if (_reclaimDance)
             //     if (_attacked) return LockState(Attack, _attackAnimTime);
             //     if (_mobbTrol.ClimbingLadder) return _mobbTrol.Speed.y == 0 || _grounded ? ClimbIdle : Climb;
 
@@ -364,7 +367,7 @@ namespace TarodevController {
                 if (_landed) {
                     return LockState(_spearless ? SpearlessLand : Land, _landAnimDuration);
                 }
-                if (_jumpTriggered) return Jump;
+                if (_jumpTriggered) return _spearless ? SpearlessJump : Jump;
 
                 if (_grounded) {
                     if (_mobbTrol.Input.x == 0 && _mobbTrol.Speed.x == 0) { // stationary
@@ -404,7 +407,7 @@ namespace TarodevController {
                         return _spearless ? SpearlessRun : Run;
                     }
                 }
-                if (_mobbTrol.Speed.y > 0) return Jump;
+                if (_mobbTrol.Speed.y > 0) return _spearless ? SpearlessJump : Jump;
                 return _spearless ? SpearlessFall : Fall;
             //     // TODO: If WallDismount looks/feels good enough to keep, we should add clip duration (0.167f) to Stats
 
@@ -442,10 +445,12 @@ namespace TarodevController {
         // private static readonly int Crawl = Animator.StringToHash("Crawl");
 
         private static readonly int Jump = Animator.StringToHash("Jump");
+        private static readonly int SpearlessJump = Animator.StringToHash("SpearlessJump");
         private static readonly int Fall = Animator.StringToHash("Fall");
         private static readonly int SpearlessFall = Animator.StringToHash("SpearlessFall");
         private static readonly int Land = Animator.StringToHash("Land");
         private static readonly int SpearlessLand = Animator.StringToHash("SpearlessLand");
+        private static readonly int ReclaimSpear = Animator.StringToHash("ReclaimSpear");
         
         // private static readonly int ClimbIdle = Animator.StringToHash("ClimbIdle");
         // private static readonly int Climb = Animator.StringToHash("Climb");

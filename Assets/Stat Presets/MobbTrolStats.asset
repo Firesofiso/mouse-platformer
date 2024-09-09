@@ -30,7 +30,9 @@ MonoBehaviour:
   AirDeceleration: 50
   GroundingForce: -3.24
   StickyFeetMultiplier: 2
-  GrounderDistance: 0.05
+  GrounderDistance: 0.117
+  AfraidOfHeight: 10
+  MinSpeed: 5
   AllowCrouching: 0
   CrouchSpeedPenalty: 0.5
   CrouchSlowdownFrames: 50
@@ -75,5 +77,5 @@ MonoBehaviour:
   AllowClicks: 1
   ClickFrameCooldown: 0
   ExternalVelocityDecay: 100
-  ShowWallDetection: 1
-  ShowLedgeDetection: 1
+  ShowWallDetection: 0
+  ShowLedgeDetection: 0

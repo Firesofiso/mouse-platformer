@@ -24,7 +24,7 @@ public class TrolSpear : MonoBehaviour
             Physics2D.IgnoreCollision(_spearTip, c, ignore);
             Physics2D.IgnoreCollision(_spearShaft, c, ignore); 
         }
-        if (!ignore)
+        if (ignore)
         {
             yield return new WaitForSeconds(0.25f);
             StartCoroutine(TemporarilyIgnoreColliders(other, false));

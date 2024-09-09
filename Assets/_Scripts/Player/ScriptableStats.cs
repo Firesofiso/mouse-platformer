@@ -45,6 +45,13 @@ namespace TarodevController {
         [Tooltip("The detection distance for grounding and roof detection"), Range(0f, 0.5f)]
         public float GrounderDistance = 0.05f;
 
+        [Header("AI")]
+        [Tooltip("The distance at which ledges become scary")]
+        public float AfraidOfHeight = 10f;
+
+        [Tooltip("A constant floor for the normalized speed value when approaching a pathfinding target")]
+        public float MinSpeed = 5;
+
         [Header("CROUCHING")]
         [Tooltip("Allows crouching")]
         public bool AllowCrouching = true;
