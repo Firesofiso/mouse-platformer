@@ -10,31 +10,32 @@ using Pathfinding;
 namespace TarodevController {
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
     public class MobbTrolController : MonoBehaviour, IPlayerController, IFactionController, TrolUnit {
-        [SerializeField] private ScriptableStats _stats;
+        [SerializeField] private ScriptableStats _stats; // Scriptable object containing stats for the unit
 
         #region Internal
 
-        [HideInInspector] public Rigidbody2D _rb; // Hide is for serialization to avoid errors in gizmo calls
-        [SerializeField] private CapsuleCollider2D _standingEnvironmentCollider;
-        [SerializeField] private CapsuleCollider2D _crouchingEnvironmentCollider;
-        [SerializeField] private CapsuleCollider2D _standingEntityCollider;
-        [SerializeField] private CapsuleCollider2D _crouchingEntityCollider; 
-        [SerializeField] private PolygonCollider2D _spearTipCollider; 
-        private CapsuleCollider2D _environmentCol; // current active collider for environmental (ground, wall, platform) collisions
-        private CapsuleCollider2D _entityCol; // current active collider for entity (player, enemy) collisions
+        [HideInInspector] public Rigidbody2D _rb; // Rigidbody2D component for physics interactions
+        [SerializeField] private CapsuleCollider2D _standingEnvironmentCollider; // Collider for standing state
+        [SerializeField] private CapsuleCollider2D _crouchingEnvironmentCollider; // Collider for crouching state
+        [SerializeField] private CapsuleCollider2D _standingEntityCollider; // Collider for standing state (entity collisions)
+        [SerializeField] private CapsuleCollider2D _crouchingEntityCollider; // Collider for crouching state (entity collisions)
+        [SerializeField] private PolygonCollider2D _spearTipCollider; // Collider for the spear tip
+        private CapsuleCollider2D _environmentCol; // Current active collider for environmental collisions
+        private CapsuleCollider2D _entityCol; // Current active collider for entity collisions
         
-        private PlayerInput _input;
-        private bool _cachedTriggerSetting;
-        private FrameInput _frameInput;
-        public Vector2 _speed;
-        private Vector2 _currentExternalVelocity;
-        private int _fixedFrame;
-        private bool _hasControl = true;
+        private PlayerInput _input; // Player input component
+        private bool _cachedTriggerSetting; // Cached trigger setting for physics queries
+        private FrameInput _frameInput; // Frame-specific input data
+        public Vector2 _speed; // Current speed of the unit
+        private Vector2 _currentExternalVelocity; // Current external velocity affecting the unit
+        private int _fixedFrame; // Fixed frame counter
+        private bool _hasControl = true; // Flag indicating if the unit has control
 
         #endregion
 
         #region External
 
+        // Events for various state changes and actions
         public event Action<bool, float> GroundedChanged;
         public event Action<bool, Vector2> DashingChanged;
         public event Action<bool> WallGrabChanged;
@@ -45,8 +46,11 @@ namespace TarodevController {
         public event Action<bool> HandleThrowing;
         public event Action HandleRecovery;
         public event Action HandleReclaim;
+        public event Action<int> BustAMove;
         public event Action Attacked;
         public event Action Clicked;
+
+        // Properties for accessing stats and input data
         public ScriptableStats PlayerStats => _stats;
         public Vector2 Input => _frameInput.Move;
         public Vector2 Velocity => _rb.velocity;
@@ -58,6 +62,7 @@ namespace TarodevController {
         public bool GrabbingLedge { get; private set; }
         public bool ClimbingLedge { get; private set; }
 
+        // Methods for applying and setting velocity
         public virtual void ApplyVelocity(Vector2 vel, PlayerForce forceType) {
             if (forceType == PlayerForce.Burst) _speed += vel;
             else _currentExternalVelocity += vel;
@@ -68,6 +73,7 @@ namespace TarodevController {
             else _currentExternalVelocity = vel;
         }
 
+        // Methods for controlling the unit
         public virtual void TakeAwayControl(bool resetVelocity = true) {
             if (resetVelocity) _rb.velocity = Vector2.zero;
             _hasControl = false;
@@ -88,7 +94,16 @@ namespace TarodevController {
         [SerializeField] string movementStatusDebug;
         [SerializeField] string pathingStatusDebug;
 
+        // Cached layer masks
+        private int _groundLayerMask;
+        private int _oneWayLayerMask;
+        private int _obstacleLayerMask;
+
         protected virtual void Start() {
+            _obstacleLayerMask = LayerMask.GetMask("Ground", "climbable");
+            _groundLayerMask = LayerMask.GetMask("Ground", "one-way", "climbable");
+            _oneWayLayerMask = LayerMask.GetMask("one-way");
+
             GameManager.instance.trolManager.activeTrols.Add(this);
             _rb = GetComponent<Rigidbody2D>();
             _input = GetComponent<PlayerInput>();
@@ -128,12 +143,18 @@ namespace TarodevController {
         
         private void GatherAIInput() {
             bool hasSightline = AssessSituation();
-            AssessPathing(hasSightline);
+            if (!_stateLocked) {
+                AssessPathing(hasSightline);
+            } else {
+                _frameInput.Move.x = 0;
+                movementStatusDebug = "path locked atm";
+            }
         }
 
         private Vector2 _directionToNextWaypoint;
         private float _distanceToNextWaypoint;
-        private float _aimingTill;
+        [SerializeField] float _aimingTill = -1;
+        private bool _mustDance;
         [SerializeField] private float _withinReachDistance = 10f;
         [SerializeField] private bool _showBehaviorDebugging = false;
 
@@ -160,8 +181,7 @@ namespace TarodevController {
                 return false;
             }
         
-            int obstacleLayerMask = LayerMask.GetMask("Ground", "climbable");
-            RaycastHit2D hit = Physics2D.Linecast(_rb.position, targetPoint, obstacleLayerMask);
+            RaycastHit2D hit = Physics2D.Linecast(_rb.position, targetPoint, _obstacleLayerMask);
         
             if (hit.collider != null) {
                 if (seekingPoint == null) _perceivedDistanceToTarget = float.PositiveInfinity;
@@ -178,8 +198,12 @@ namespace TarodevController {
             bool hasSightline = ConfirmSightline();
 
             if (_stateLocked) return hasSightline;
-        
-            if (_spearless) {
+
+            if (_mustDance && _grounded) {
+                LockState(3);
+                _mustDance = false;
+                return hasSightline;
+            } else if (_spearless) {
                 HandleSpearlessState();
             } else {
                 HandleArmedState(hasSightline);
@@ -190,7 +214,7 @@ namespace TarodevController {
         private void HandleSpearlessState() {
             if (_dest.target == null) {
                 behaviorStatusDebug = "targeting new spear...";
-                Transform s = GetClosestSpear();
+                Transform s = GetClosestSpear()?.transform;
                 if (s != null) UpdateTarget(s);
             }
         
@@ -204,10 +228,10 @@ namespace TarodevController {
         private void HandleArmedState(bool hasSightline) {
             if (hasSightline && _perceivedDistanceToTarget < _spearRange) {
                 behaviorStatusDebug = "in sight & range...";
-                if (_aimingTill > 0 && _aimingTill < Time.time) {
+                if (_aimingTill > -1 && _aimingTill < Time.time) {
                     behaviorStatusDebug = "throwing...";
                     ThrowSpear();
-                } else if (_grounded) {
+                } else if (_grounded && !_mustDance) {
                     behaviorStatusDebug = "aiming...";
                     TakingAim(true);
                 }
@@ -221,7 +245,7 @@ namespace TarodevController {
         [SerializeField] private float _ObstacleDetectionDistance;
 
         protected virtual void AssessPathing(bool hasSightline) {
-            if (_path?.vectorPath == null || _aimingTill > 0 || _perceivedDistanceToTarget < _ai.endReachedDistance) {
+            if (_path?.vectorPath == null || _aimingTill > -1 || _perceivedDistanceToTarget < _ai.endReachedDistance) {
                 _frameInput.Move.x = 0;
                 movementStatusDebug = "...";
                 return;
@@ -246,7 +270,7 @@ namespace TarodevController {
             float rayLength = _stats.AfraidOfHeight;
 
             // Cast the ray downward
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, rayLength, LayerMask.GetMask("Ground", "one-way", "climbable"));
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, rayLength, _groundLayerMask);
 
             // Draw the ray in the editor for debugging purposes
             Debug.DrawRay(rayOrigin, Vector2.down * rayLength, Color.red);
@@ -262,7 +286,7 @@ namespace TarodevController {
             float rayLength = _ObstacleDetectionDistance;
 
             // Cast the ray forward
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, new Vector2(_frameInput.Move.x, 0), rayLength, LayerMask.GetMask("Ground", "one-way", "climbable"));
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, new Vector2(_frameInput.Move.x, 0), rayLength, _groundLayerMask);
 
             // Draw the ray in the editor for debugging purposes
             Debug.DrawRay(rayOrigin, new Vector2(_frameInput.Move.x, 0) * rayLength, Color.blue);
@@ -283,7 +307,7 @@ namespace TarodevController {
         }
         
         private void HandleUnitControllerProperties() {
-            if (_frameInput.DropDown && _environmentCol.IsTouchingLayers(LayerMask.GetMask("one-way"))) {
+            if (_frameInput.DropDown && _environmentCol.IsTouchingLayers(_oneWayLayerMask)) {
                 _droppingDown = true;
             } else if (!_droppingDown && _frameInput.JumpDown) {
                 _jumpToConsume = true;
@@ -299,49 +323,68 @@ namespace TarodevController {
 
         protected virtual void TakingAim(bool isAiming) {
             // set or reset aiming window
-            if (!isAiming) _aimingTill = 0;
-            else if (isAiming && _aimingTill == 0) _aimingTill = Time.time + 2;
+            if (!isAiming) _aimingTill = -1;
+            else if (isAiming && _aimingTill == -1) _aimingTill = Time.time + 2;
 
             HandleAiming?.Invoke(isAiming);
         }
-        private bool _stateLocked = false;
+        [SerializeField] bool _stateLocked = false;
+        private Coroutine _lockStateCoroutine;
         void LockState(int t = 0) {
+            if (_lockStateCoroutine != null) {
+                StopCoroutine(_lockStateCoroutine);
+            }
+            _lockStateCoroutine = StartCoroutine(LockStateCoroutine(t));
+        }
+        private IEnumerator LockStateCoroutine(int t = 0) {
             _stateLocked = true;
-            if (t > 0) Invoke("UnlockState", t);
+            if (t > 0) {
+                yield return new WaitForSeconds(t);
+                UnlockState();
+            }
         }
         void UnlockState() {
             _stateLocked = false;
+            _lockStateCoroutine = null;
         }
-        [SerializeField] private GameObject spearPrefab;
-        private bool _spearless = false;
+        [SerializeField] private TrolSpear _spear;
+        internal bool _spearless = false;
+        private Coroutine _throwSpearCoroutine;
         protected virtual void ThrowSpear() {
+            if (_throwSpearCoroutine != null) {
+                StopCoroutine(_throwSpearCoroutine);
+            }
+            _spear.gameObject.SetActive(true);
+            _throwSpearCoroutine = StartCoroutine(ThrowSpearCoroutine());
+        }
+
+        private IEnumerator ThrowSpearCoroutine() {
             bool tripped = DidTrip(); // determines if extra recovery time is needed
             int recoveryTime = tripped ? 5 : 3; // penalize recovery window
-        
+
             HandleThrowing?.Invoke(tripped); // animate
-            LockState();
-            Invoke("Recovered", recoveryTime);
-        
+
             // generates spear prefab to huck
-            GameObject spearInstance = Instantiate(spearPrefab, transform);
-            TrolSpear spearComponent = spearInstance.GetComponent<TrolSpear>();
-            GameManager.instance.trolManager.activeSpears.Add(spearComponent);
-        
+            GameManager.instance.trolManager.activeSpears.Add(_spear);
+
             // disables interactions with parent colliders, then re-enables after 0.25s
-            StartCoroutine(spearComponent.TemporarilyIgnoreColliders(new Collider2D[] { _environmentCol, _entityCol, _spearTipCollider }));
-        
+            StartCoroutine(_spear.TemporarilyIgnoreColliders(new Collider2D[] { _environmentCol, _entityCol, _spearTipCollider }));
+
             Vector3 directionToTarget = _dest.target.position - transform.position;
-            spearInstance.transform.up = directionToTarget; // point at target
-            spearInstance.GetComponent<Rigidbody2D>().velocity = directionToTarget * 2; // huck
-        
+            _spear.transform.up = directionToTarget; // point at target
+            _spear.GetComponent<Rigidbody2D>().velocity = directionToTarget * 2; // huck
+
             _spearless = true;
 
+            LockState();
+            yield return new WaitForSeconds(recoveryTime);
             UpdateTarget(null);
+            Recovered();
         }
 
-        Transform GetClosestSpear() {
+        TrolSpear GetClosestSpear() {
             List<TrolSpear> spears = GameManager.instance.trolManager.activeSpears;
-            Transform bestTarget = null;
+            TrolSpear bestTarget = null;
             float closestDistanceSqr = Mathf.Infinity;
             Vector3 currentPosition = transform.position;
         
@@ -350,7 +393,7 @@ namespace TarodevController {
                 float dSqrToTarget = directionToTarget.sqrMagnitude;
                 if (dSqrToTarget < closestDistanceSqr && ConfirmSightline(potentialTarget.transform.position)) {
                     closestDistanceSqr = dSqrToTarget;
-                    bestTarget = potentialTarget.transform;
+                    bestTarget = potentialTarget;
                 }
             }
         
@@ -359,8 +402,23 @@ namespace TarodevController {
         }
 
         void GrabSpear(Transform s) {
+            TriggerReclaim();
+
+            _spear = s.GetComponent<TrolSpear>();
+            GameManager.instance.trolManager.activeSpears.Remove(_spear);
+            s.transform.SetParent(transform); // Reparent the spear to the MobbTrol
+            s.transform.localPosition = Vector3.zero; // Reset the spear's position
+            s.GetComponent<Rigidbody2D>().velocity = Vector2.zero; // Reset the spear's velocity
+            s.gameObject.SetActive(false);
+
+            UpdateTarget(PlayerObject.Instance.transform);
+        }
+
+        void TriggerReclaim() {
             HandleReclaim?.Invoke();
-            LockState(2);
+            LockState(1);
+            _spearless = false;
+            _mustDance = true;
         }
 
         protected virtual bool DidTrip() {
@@ -369,14 +427,14 @@ namespace TarodevController {
 
         protected virtual void Recovered() {
             HandleRecovery?.Invoke();
-            _aimingTill = 0;
+            _aimingTill = -1;
             UnlockState();
         }
 
         #endregion
 
         #region Pathfinding
-        [SerializeField] private AIDestinationSetter _dest;
+        [SerializeField] internal AIDestinationSetter _dest;
         [SerializeField] private AIPath _ai; // unit brain
         [SerializeField] private Seeker _seeker; // A*
         private Path _path; // current path
@@ -761,7 +819,9 @@ namespace TarodevController {
                 Invoke("DropDown", 0.5f);
             }
 
-            if (!_jumpToConsume && !HasBufferedJump) return;
+            if ((!_jumpToConsume && !HasBufferedJump) || _aimingTill > -1) return;
+
+            TakingAim(false);
 
             if (CanWallJump) WallJump();
             else if (_grounded || ClimbingLadder || CanUseCoyote) NormalJump();

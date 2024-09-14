@@ -42,7 +42,7 @@ namespace TarodevController {
             // if (_mobbTrol.ClimbingLedge) return;
             // if (_isOnWall & _mobbTrol.WallDirection != 0) _renderer.flipX = _mobbTrol.WallDirection == -1;
             // else if (_wallJumped) _renderer.flipX = _mobbTrol.Speed.x < 0;
-            // if (_aiming) _renderer.flipX = _mobbTrol.dest?.target.position.x < _mobbTrol._rb.position.x;
+            if (_aiming) _renderer.flipX = _mobbTrol._dest?.target.position.x < _mobbTrol._rb.position.x;
             if (_mobbTrol.Input.x != 0) _renderer.flipX = _mobbTrol.Input.x < 0;
 
             // offset spear collider depending on faced direction
@@ -300,6 +300,7 @@ namespace TarodevController {
 
         private bool _recoveringFromThrow;
         private bool _tripped;
+        private bool _mustDance;
         private void HandleThrowing(bool tripped) {
             HandleAiming(false);
             _recoveringFromThrow = true;
@@ -314,7 +315,7 @@ namespace TarodevController {
         }
 
         private void HandleReclaim() {
-            
+            _mustDance = true;
         }
 
         // private void OnAttacked() => _attacked = true;
@@ -326,7 +327,7 @@ namespace TarodevController {
 
         #region Animation
 
-        private float _lockedTill, _isIdle;
+        private float _lockedTill, _isIdle, _danceTill = -1;
         // private int _wagInterval, _scritchInterval;
 
         private bool _spearless = false;
@@ -341,80 +342,63 @@ namespace TarodevController {
 
             int GetState() {
                 if (Time.time < _lockedTill) return _currentState;
-            //     if (_isLedgeClimbing) return LockState(_climbIntoCrawl ? LedgeClimbIntoCrawl : LedgeClimb, _mobbTrol.PlayerStats.LedgeClimbDuration);
-                if (_aiming) {
-                    return Aim;
-                } else if (_recoveringFromThrow) {
-                    return LockState(_tripped ? ThrowTrip : Throw, 10);
-                } //else if (_reclaimDance)
-            //     if (_attacked) return LockState(Attack, _attackAnimTime);
-            //     if (_mobbTrol.ClimbingLadder) return _mobbTrol.Speed.y == 0 || _grounded ? ClimbIdle : Climb;
-
-                // if (!_grounded) {
-                //     if (_hitWall) return LockState(WallHit, _wallHitAnimTime);
-                //     if (_isOnWall) {
-                //         if (_mobbTrol.Input.y < 0 && _mobbTrol.Velocity.y > Mathf.Abs(0.5f)) return WallSlide;
-                //         if (_mobbTrol.GrabbingLedge) return LedgeGrab; // does this priority order give the right feel/look?
-                //         if (_mobbTrol.Speed.y > 0) {
-                //             float normalizedSpeed = Mathf.Clamp((float)(_mobbTrol.Speed.y / 2.25), 0, 1);
-                //             _anim.SetFloat("ClimbSpeed", normalizedSpeed);
-                //             return WallClimb;
-                //         } else return WallIdle;
-                //     }
-                // }
-
-            //     if (_mobbTrol.Crouching) return _mobbTrol.Input.x == 0 || !_grounded ? Crouch : Crawl;
-                if (_landed) {
-                    return LockState(_spearless ? SpearlessLand : Land, _landAnimDuration);
+            
+                if (_mustDance) {
+                    return HandleDanceState();
                 }
+            
+                if (_aiming) return Aim;
+                if (_recoveringFromThrow) return LockState(_tripped ? ThrowTrip : Throw, 10);
+                if (_landed) return LockState(_spearless ? SpearlessLand : Land, _landAnimDuration);
                 if (_jumpTriggered) return _spearless ? SpearlessJump : Jump;
-
+            
                 if (_grounded) {
-                    if (_mobbTrol.Input.x == 0 && _mobbTrol.Speed.x == 0) { // stationary
-                        // if (_isIdle == 0) {
-                        //     _isIdle = Time.time;
-                            // _wagInterval = Random.Range(3, 5);
-                            // _scritchInterval = Random.Range(10, 20);
-                        // } else if (_isIdle + _scritchInterval < Time.time || _isIdle > Time.time) {
-                        //     if (_isIdle + _scritchInterval < Time.time) {
-                        //         _isIdle = Time.time + 1;
-                        //         _scritchInterval += Random.Range(10, 20);
-                        //         _wagInterval = 0;
-                        //     }
-                        //     return IdleScritch;
-                        // } else if (_isIdle + _wagInterval < Time.time) {
-                        //     return IdleWag;
-                        // } else {
-                        //     return Idle;
-                        // }
-                        return _spearless ? SpearlessIdle : Idle; // oops lol Idle
-                    } else if ((_mobbTrol.Input.x == 0 && _mobbTrol.Speed.x != 0) | (_mobbTrol.Input.x > 0) != (_mobbTrol.Speed.x > 0)) { // changing direction or stopping
-                        // _isIdle = 0;
-                        return _spearless ? SpearlessSkid : Skid;
-                    } else {
-                        // _isIdle = 0;
-                        // double xSpeedAbs = Mathf.Abs(_mobbTrol.Speed.x);
-                        // if (xSpeedAbs > 3.5) {
-                        //     float normalizedSpeed = Mathf.Clamp((float)(xSpeedAbs / 45) - 1, 0, 1); // max speed of 90, 1x speed up to 45
-                        //     float runSpeed = Mathf.Lerp(1, 3, normalizedSpeed); // 1x @ 45 speed, 3x at 90 speed
-                        //     _anim.SetFloat("RunSpeed", runSpeed);
-                        // } else {
-                        //     _anim.SetFloat("RunSpeed", 1);
-                        // }
-
-                        // _anim.SetFloat("RunSpeed", (_spearless ? 1.25f : 1)); // todo figure this out
-                        // else float run
-                        return _spearless ? SpearlessRun : Run;
-                    }
+                    return GetGroundedState();
                 }
+            
+                return GetAirborneState();
+            }
+            
+            int HandleDanceState() {
+                if (_spearless) {
+                    _spearless = false;
+                    return LockState(ReclaimSpear, 1);
+                }
+            
+                if (Time.time < _danceTill && _danceTill > 0) {
+                    return Dance;
+                }
+            
+                if (_danceTill < 0) {
+                    _danceTill = Time.time + 3;
+                } else {
+                    _danceTill = -1;
+                    _mustDance = false;
+                }
+            
+                return _currentState;
+            }
+            
+            int GetGroundedState() {
+                if (_mobbTrol.Input.x == 0 && _mobbTrol.Speed.x == 0) {
+                    return _spearless ? SpearlessIdle : Idle;
+                }
+            
+                if ((_mobbTrol.Input.x == 0 && _mobbTrol.Speed.x != 0) || (_mobbTrol.Input.x > 0) != (_mobbTrol.Speed.x > 0)) {
+                    return _spearless ? SpearlessSkid : Skid;
+                }
+            
+                return _spearless ? SpearlessRun : Run;
+            }
+            
+            int GetAirborneState() {
                 if (_mobbTrol.Speed.y > 0) return _spearless ? SpearlessJump : Jump;
                 return _spearless ? SpearlessFall : Fall;
-            //     // TODO: If WallDismount looks/feels good enough to keep, we should add clip duration (0.167f) to Stats
-
-                int LockState(int s, float t) {
-                    _lockedTill = Time.time + t;
-                    return s;
-                }
+            }
+            
+            int LockState(int s, float t) {
+                _lockedTill = Time.time + t;
+                return s;
             }
 
             void ResetFlags() {
@@ -451,6 +435,7 @@ namespace TarodevController {
         private static readonly int Land = Animator.StringToHash("Land");
         private static readonly int SpearlessLand = Animator.StringToHash("SpearlessLand");
         private static readonly int ReclaimSpear = Animator.StringToHash("ReclaimSpear");
+        private static readonly int Dance = Animator.StringToHash("Dance");
         
         // private static readonly int ClimbIdle = Animator.StringToHash("ClimbIdle");
         // private static readonly int Climb = Animator.StringToHash("Climb");

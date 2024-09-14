@@ -1,13 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("MobbTrol")]
 
 public class TrolSpear : MonoBehaviour
 {
     [SerializeField] PolygonCollider2D _spearTip;
     [SerializeField] CapsuleCollider2D _spearShaft;
     [SerializeField] CapsuleCollider2D _spearDetection;
-    [SerializeField] Rigidbody2D _rb;
+    [SerializeField] internal Rigidbody2D _rb;
     // [SerializeField] Rigidbody2D _rb;
     public Sprite spear;
     public Sprite spear45deg;
@@ -29,6 +32,11 @@ public class TrolSpear : MonoBehaviour
             yield return new WaitForSeconds(0.25f);
             StartCoroutine(TemporarilyIgnoreColliders(other, false));
         }
+    }
+
+    void OnEnable() {
+        _rb.bodyType = RigidbodyType2D.Dynamic;
+        disableCollisions(false);
     }
 
     // Update is called once per frame

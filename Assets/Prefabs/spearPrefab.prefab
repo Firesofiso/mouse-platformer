@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7952771119733837246}
   m_Layer: 12
   m_Name: Visual
-  m_TagString: Untagged
+  m_TagString: spear
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -203,7 +203,7 @@ GameObject:
   - component: {fileID: 1599995805737482804}
   m_Layer: 12
   m_Name: spearPrefab
-  m_TagString: Untagged
+  m_TagString: spear
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

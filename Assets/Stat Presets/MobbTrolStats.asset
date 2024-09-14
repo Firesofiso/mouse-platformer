@@ -30,7 +30,7 @@ MonoBehaviour:
   AirDeceleration: 50
   GroundingForce: -3.24
   StickyFeetMultiplier: 2
-  GrounderDistance: 0.117
+  GrounderDistance: 0.01
   AfraidOfHeight: 10
   MinSpeed: 5
   AllowCrouching: 0
