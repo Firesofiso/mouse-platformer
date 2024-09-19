@@ -1,0 +1,16 @@
+{
+    "name": "MouseButton.packages",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0c0833e90457f4fc8aa92d6c1d1a50f9"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -58,3 +58,7 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+UserSettings/Layouts/default-2022.dwlt
+UserSettings/EditorUserSettings.asset
+ProjectSettings/Packages/com.unity.services.core/Settings.json
+Packages/manifest.json
