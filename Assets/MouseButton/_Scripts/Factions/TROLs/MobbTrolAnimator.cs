@@ -1,8 +1,10 @@
 using UnityEngine;
 
-namespace TarodevController.Trol.MobbTrol {
+namespace TarodevController.Trol.MobbTrol
+{
     [RequireComponent(typeof(Animator), typeof(SpriteRenderer))]
-    public class MobbTrolAnimator : MonoBehaviour {
+    public class MobbTrolAnimator : MonoBehaviour
+    {
         // Serialized Fields
         [SerializeField]
         private CapsuleCollider2D _standingCollider;
@@ -40,14 +42,16 @@ namespace TarodevController.Trol.MobbTrol {
         // Public Fields
         public int spearColOffsetY = 0;
 
-        private void Awake() {
+        private void Awake()
+        {
             _controller = GetComponentInParent<MobbTrolController>();
             _anim = GetComponent<Animator>();
             _renderer = GetComponent<SpriteRenderer>();
             _source = GetComponent<AudioSource>();
         }
 
-        private void Start() {
+        private void Start()
+        {
             _controller.GroundedChanged += OnGroundedChanged;
             _controller.Jumped += OnJumped;
             _controller.HandleAiming += HandleAiming;
@@ -55,14 +59,17 @@ namespace TarodevController.Trol.MobbTrol {
             _controller.HandleRecovery += HandleRecovery;
         }
 
-        private void Update() {
+        private void Update()
+        {
             HandleSpriteFlipping();
             HandleAnimations();
         }
 
-        private void HandleSpriteFlipping() {
+        private void HandleSpriteFlipping()
+        {
             if (_controller.IsAiming)
-                _renderer.flipX = _controller._dest?.target.position.x < _controller._rb.position.x;
+                _renderer.flipX =
+                    _controller._dest?.target?.position.x < _controller._rb.position.x;
             if (_controller.Input.x != 0)
                 _renderer.flipX = _controller.Input.x < 0;
 
@@ -75,12 +82,15 @@ namespace TarodevController.Trol.MobbTrol {
 
         #region Jumping and Landing
 
-        private void OnJumped(bool wallJumped) {
+        private void OnJumped(bool wallJumped)
+        {
             _jumpTriggered = true;
         }
 
-        private void OnGroundedChanged(bool grounded, float impactForce) {
-            if (impactForce >= _minImpactForce) {
+        private void OnGroundedChanged(bool grounded, float impactForce)
+        {
+            if (impactForce >= _minImpactForce)
+            {
                 _landed = true;
             }
         }
@@ -89,24 +99,30 @@ namespace TarodevController.Trol.MobbTrol {
 
         #region Attack
 
-        private void HandleAiming(bool isAiming) {
-            if (isAiming) {
+        private void HandleAiming(bool isAiming)
+        {
+            if (isAiming)
+            {
                 spearOffsetXHalf = -1f;
                 _spearEffector.rotationalOffset = _renderer.flipX ? 45 : -45;
-            } else {
+            }
+            else
+            {
                 spearOffsetXHalf = 4.5f;
                 _spearEffector.rotationalOffset = 0;
             }
         }
 
-        private void HandleThrowing(bool tripped) {
+        private void HandleThrowing(bool tripped)
+        {
             HandleAiming(false);
             _recoveringFromThrow = true;
             _tripped = tripped;
             _spearCol.enabled = false;
         }
 
-        private void HandleRecovery() {
+        private void HandleRecovery()
+        {
             _recoveringFromThrow = false;
             UnlockAnimationLock();
         }
@@ -115,7 +131,8 @@ namespace TarodevController.Trol.MobbTrol {
 
         #region Animation
 
-        private void HandleAnimations() {
+        private void HandleAnimations()
+        {
             var state = GetState();
             ResetFlags();
             if (state == _currentState)
@@ -123,11 +140,13 @@ namespace TarodevController.Trol.MobbTrol {
             _anim.Play(state, 0);
             _currentState = state;
 
-            int GetState() {
+            int GetState()
+            {
                 if (Time.time < _lockedTill)
                     return _currentState;
 
-                if ((_controller.MustCelebrate || _controller.IsDancing) && _controller.Grounded) {
+                if ((_controller.MustCelebrate || _controller.IsDancing) && _controller.IsGrounded)
+                {
                     return _controller.IsDancing ? Dance : Celebrate;
                 }
                 if (_controller.IsAiming)
@@ -135,43 +154,53 @@ namespace TarodevController.Trol.MobbTrol {
                 if (_recoveringFromThrow)
                     return LockState(_tripped ? ThrowTrip : Throw, 10);
                 if (_landed)
-                    return LockState(_controller.Spearless ? SpearlessLand : Land, _landAnimDuration);
+                    return LockState(
+                        _controller.Spearless ? SpearlessLand : Land,
+                        _landAnimDuration
+                    );
                 if (_jumpTriggered)
                     return _controller.Spearless ? SpearlessJump : Jump;
 
-                if (_controller.Grounded) {
+                if (_controller.IsGrounded)
+                {
                     return GetGroundedState();
                 }
 
                 return GetAirborneState();
             }
-            int GetGroundedState() {
-                if (_controller.Input.x == 0 && _controller.Speed.x == 0) {
+            int GetGroundedState()
+            {
+                if (_controller.Input.x == 0 && _controller.Speed.x == 0)
+                {
                     return _controller.Spearless ? SpearlessIdle : Idle;
                 }
 
                 if (
                     (_controller.Input.x == 0 && _controller.Speed.x != 0)
                     || (_controller.Input.x > 0) != (_controller.Speed.x > 0)
-                ) {
+                )
+                {
                     return _controller.Spearless ? SpearlessSkid : Skid;
                 }
 
                 return _controller.Spearless ? SpearlessRun : Run;
             }
 
-            int GetAirborneState() {
+            int GetAirborneState()
+            {
                 if (_controller.Speed.y > 0)
                     return _controller.Spearless ? SpearlessJump : Jump;
                 return _controller.Spearless ? SpearlessFall : Fall;
             }
 
-            int LockState(int s, float t) {
+            int LockState(int s, float t)
+            {
                 _lockedTill = Time.time + t;
                 return s;
             }
 
-            void ResetFlags() {
+            void ResetFlags()
+            {
                 _jumpTriggered = false;
                 _landed = false;
             }

@@ -10107,7 +10107,7 @@ Transform:
   m_GameObject: {fileID: 148083436}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -46.499996, y: -1.4000015, z: 0}
+  m_LocalPosition: {x: -46.499996, y: -61.100006, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -20613,7 +20613,7 @@ Transform:
   m_GameObject: {fileID: 679634548}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -23.6, y: -21.6, z: 0}
+  m_LocalPosition: {x: -23.6, y: -81.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -26690,6 +26690,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1c8e3dc865464351b2792bc52bceeac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _platform: {fileID: 1257298791}
+  _passThroughDetection: {fileID: 1257298788}
 --- !u!61 &1257298788
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -26697,7 +26699,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1257298783}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -26746,7 +26748,7 @@ PlatformEffector2D:
   m_UseColliderMask: 1
   m_ColliderMask:
     serializedVersion: 2
-    m_Bits: 6144
+    m_Bits: 6400
   m_RotationalOffset: 0
   m_UseOneWay: 1
   m_UseOneWayGrouping: 0
@@ -32261,7 +32263,7 @@ Transform:
   m_GameObject: {fileID: 1574634443}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -32.3, y: 9.9, z: 0}
+  m_LocalPosition: {x: -32.3, y: -49.800003, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -32584,7 +32586,7 @@ Transform:
   m_GameObject: {fileID: 1793235087}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -59.700005, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -32804,7 +32806,7 @@ Transform:
   m_GameObject: {fileID: 1872475713}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -17.103195, y: -14.037242, z: -0.5593752}
+  m_LocalPosition: {x: -17.103195, y: -73.73724, z: -0.5593752}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -37819,10 +37821,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.0005546312
-    y: 0.7175141
-    width: 0.2950638
-    height: 0.4519774
+    x: 0.0007122507
+    y: 0.49313623
+    width: 0.3988604
+    height: 0.3379092
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -37852,7 +37854,7 @@ Transform:
   m_GameObject: {fileID: 2086767449}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: -59.700005, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -38050,6 +38052,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2785771480826225935, guid: f0a1b9e5ae2244387b6917338ac82aca, type: 3}
+      propertyPath: _pathfinderJumpThreshold
+      value: 75
+      objectReference: {fileID: 0}
     - target: {fileID: 4136501505470325349, guid: f0a1b9e5ae2244387b6917338ac82aca, type: 3}
       propertyPath: m_Name
       value: MobbTrol

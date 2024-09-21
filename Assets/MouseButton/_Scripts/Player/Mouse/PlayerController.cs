@@ -592,8 +592,14 @@ namespace TarodevController {
                 _endedJumpEarly = true; // Early end detection
 
             if (_droppingDown) {
-                Physics2D.IgnoreLayerCollision(8, 10, true);
-                Invoke("DropDown", 0.5f);
+                foreach (RaycastHit2D surface in _groundHits) {
+                    if (surface.collider?.gameObject?.layer == LayerMask.NameToLayer("one-way")) {
+                        OneWayPlatformBehaviour platform = surface.collider.GetComponent<OneWayPlatformBehaviour>();
+                        platform.AllowObjectPassThrough(_col);
+                    }
+                }
+                _droppingDown = false;
+                return;
             }
 
             if (!_jumpToConsume && !HasBufferedJump)

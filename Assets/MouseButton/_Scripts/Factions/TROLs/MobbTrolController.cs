@@ -8,9 +8,11 @@ using Tarodev;
 using Tarodev.Trol;
 using UnityEngine;
 
-namespace TarodevController.Trol {
+namespace TarodevController.Trol
+{
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
-    internal class MobbTrolController : MonoBehaviour, IPlayerController, ITrolUnit {
+    internal class MobbTrolController : MonoBehaviour, IPlayerController, ITrolUnit
+    {
         #region Properties
         [SerializeField]
         private ScriptableStats _stats; // Scriptable object containing stats for the unit
@@ -37,6 +39,7 @@ namespace TarodevController.Trol {
         private PolygonCollider2D _spearTipCollider; // Collider for the spear tip
         internal CapsuleCollider2D _environmentCol; // Current active collider for environmental collisions
         private CapsuleCollider2D _entityCol; // Current active collider for entity collisions
+
         [SerializeField]
         private UnitInput _input; // Player input component
         private bool _cachedTriggerSetting; // Cached trigger setting for physics queries
@@ -45,10 +48,13 @@ namespace TarodevController.Trol {
         private Vector2 _currentExternalVelocity; // Current external velocity affecting the unit
         private int _fixedFrame; // Fixed frame counter
         private bool _hasControl = true; // Flag indicating if the unit has control
+
         [SerializeField]
         internal AIDestinationSetter _dest;
+
         [SerializeField]
         private Seeker _seeker; // A*
+
         [SerializeField]
         private MobbTrolBehaviour _behaviour;
 
@@ -84,14 +90,16 @@ namespace TarodevController.Trol {
         public bool ClimbingLedge { get; private set; }
 
         // Methods for applying and setting velocity
-        public virtual void ApplyVelocity(Vector2 vel, EntityForce forceType) {
+        public virtual void ApplyVelocity(Vector2 vel, EntityForce forceType)
+        {
             if (forceType == EntityForce.Burst)
                 _speed += vel;
             else
                 _currentExternalVelocity += vel;
         }
 
-        public virtual void SetVelocity(Vector2 vel, EntityForce velocityType) {
+        public virtual void SetVelocity(Vector2 vel, EntityForce velocityType)
+        {
             if (velocityType == EntityForce.Burst)
                 _speed = vel;
             else
@@ -99,13 +107,15 @@ namespace TarodevController.Trol {
         }
 
         // Methods for controlling the unit
-        public virtual void TakeAwayControl(bool resetVelocity = true) {
+        public virtual void TakeAwayControl(bool resetVelocity = true)
+        {
             if (resetVelocity)
                 _rb.velocity = Vector2.zero;
             _hasControl = false;
         }
 
-        public virtual void ReturnControl() {
+        public virtual void ReturnControl()
+        {
             _speed = Vector2.zero;
             _hasControl = true;
         }
@@ -117,7 +127,8 @@ namespace TarodevController.Trol {
         private int _oneWayLayerMask;
         private int _obstacleLayerMask;
 
-        protected virtual void Start() {
+        protected virtual void Start()
+        {
             _obstacleLayerMask = LayerMask.GetMask("Ground", "climbable");
             _groundLayerMask = LayerMask.GetMask("Ground", "one-way", "climbable");
             _oneWayLayerMask = LayerMask.GetMask("one-way");
@@ -135,24 +146,31 @@ namespace TarodevController.Trol {
             ToggleColliders(isStanding: true);
         }
 
-        protected virtual void Update() {
+        protected virtual void Update()
+        {
             GatherInput(); // also updates sightline
         }
 
-        protected virtual void GatherInput() {
+        protected virtual void GatherInput()
+        {
             _frameInput = _input.FrameInput;
 
-            if (_input.isPlayerUnit) {
+            if (_input.isPlayerUnit)
+            {
                 GatherPlayerInput();
-            } else {
+            }
+            else
+            {
                 _frameInput = GatherAIInput();
             }
 
             HandleInput();
         }
 
-        private void GatherPlayerInput() {
-            if (_stats.SnapInput) {
+        private void GatherPlayerInput()
+        {
+            if (_stats.SnapInput)
+            {
                 _frameInput.Move.x =
                     Mathf.Abs(_frameInput.Move.x) < _stats.HorizontalDeadzoneThreshold
                         ? 0
@@ -164,10 +182,14 @@ namespace TarodevController.Trol {
             }
         }
 
-        private void HandleInput() {
-            if (_frameInput.DropDown && _environmentCol.IsTouchingLayers(_oneWayLayerMask)) {
+        private void HandleInput()
+        {
+            if (_frameInput.DropDown && _environmentCol.IsTouchingLayers(_oneWayLayerMask))
+            {
                 _droppingDown = true;
-            } else if (!_droppingDown && _frameInput.JumpDown) {
+            }
+            else if (!_droppingDown && _frameInput.JumpDown)
+            {
                 _jumpToConsume = true;
                 _frameJumpWasPressed = _fixedFrame;
             }
@@ -183,7 +205,8 @@ namespace TarodevController.Trol {
                 _isHoldingClick = true;
         }
 
-        protected virtual void FixedUpdate() {
+        protected virtual void FixedUpdate()
+        {
             _fixedFrame++;
 
             CheckCollisions();
@@ -205,27 +228,33 @@ namespace TarodevController.Trol {
 
         [SerializeField]
         internal bool _stateLocked = false;
-        public bool StateLocked {
+        public bool StateLocked
+        {
             get => _stateLocked;
         }
         internal Coroutine _lockStateCoroutine;
 
-        internal void LockState(int t = 0) {
-            if (_lockStateCoroutine != null) {
+        internal void LockState(int t = 0)
+        {
+            if (_lockStateCoroutine != null)
+            {
                 StopCoroutine(_lockStateCoroutine);
             }
             _lockStateCoroutine = StartCoroutine(LockStateCoroutine(t));
         }
 
-        private IEnumerator LockStateCoroutine(int t = 0) {
+        private IEnumerator LockStateCoroutine(int t = 0)
+        {
             _stateLocked = true;
-            if (t > 0) {
+            if (t > 0)
+            {
                 yield return new WaitForSeconds(t);
                 UnlockState();
             }
         }
 
-        void UnlockState() {
+        void UnlockState()
+        {
             _stateLocked = false;
             _lockStateCoroutine = null;
         }
@@ -245,14 +274,16 @@ namespace TarodevController.Trol {
         private int _ladderHitCount;
         private int _frameLeftGrounded = int.MinValue;
         private bool _grounded;
-        public bool Grounded {
+        public bool IsGrounded
+        {
             get => _grounded;
             private set => _grounded = value;
         }
         private bool _approachingLedge = false;
         private Vector2 _skinWidth = new(0.02f, 0.02f); // Expose this?
 
-        protected virtual void CheckCollisions() {
+        protected virtual void CheckCollisions()
+        {
             Physics2D.queriesHitTriggers = false;
 
             // Ground and Ceiling
@@ -319,7 +350,8 @@ namespace TarodevController.Trol {
             Physics2D.queriesHitTriggers = _cachedTriggerSetting;
         }
 
-        protected virtual bool TryGetGroundNormal(out Vector2 groundNormal) {
+        protected virtual bool TryGetGroundNormal(out Vector2 groundNormal)
+        {
             Physics2D.queriesHitTriggers = false;
             var hit = Physics2D.Raycast(
                 _rb.position,
@@ -332,28 +364,34 @@ namespace TarodevController.Trol {
             return hit.collider;
         }
 
-        private Bounds GetWallDetectionBounds() {
+        private Bounds GetWallDetectionBounds()
+        {
             var colliderOrigin = _rb.position + _standingEnvironmentCollider.offset;
             return new Bounds(colliderOrigin, _stats.WallDetectorSize);
         }
 
-        protected virtual void HandleCollisions() {
+        protected virtual void HandleCollisions()
+        {
             // Bounce!
-            if (_bounceHitCount > 0) {
+            if (_bounceHitCount > 0)
+            {
                 Vector2 bounceVector = Vector2.zero;
                 int validBounceCount = 0;
 
-                foreach (RaycastHit2D boing in _bounceHits) {
+                foreach (RaycastHit2D boing in _bounceHits)
+                {
                     if (boing.normal.y <= 0)
                         continue;
 
                     validBounceCount++;
-                    if (boing.collider.CompareTag("TROL") || boing.collider.CompareTag("MOUSE")) {
+                    if (boing.collider.CompareTag("TROL") || boing.collider.CompareTag("MOUSE"))
+                    {
                         bounceVector += boing.normal;
                     }
                 }
 
-                if (validBounceCount > 0) {
+                if (validBounceCount > 0)
+                {
                     bounceVector /= validBounceCount; // avg normal for each valid bounce
                     bounceVector *= _stats.JumpPower; // jump power applied to resulting normal
                     SetVelocity(bounceVector, EntityForce.Decay);
@@ -362,14 +400,16 @@ namespace TarodevController.Trol {
             }
 
             // Hit a Ceiling
-            if (_ceilingHitCount > 0) {
+            if (_ceilingHitCount > 0)
+            {
                 // prevent sticking to ceiling if we did an InAir jump after receiving external velocity w/ PlayerForce.Decay
                 _currentExternalVelocity.y = Mathf.Min(0f, _currentExternalVelocity.y);
                 _speed.y = Mathf.Min(0, _speed.y);
             }
 
             // Landed on the Ground
-            if (!_grounded && _groundHitCount > 0) {
+            if (!_grounded && _groundHitCount > 0)
+            {
                 _grounded = true;
                 ResetDash();
                 ResetJump();
@@ -378,7 +418,8 @@ namespace TarodevController.Trol {
                     _stickyFeet = true;
             }
             // Left the Ground
-            else if (_grounded && _groundHitCount == 0) {
+            else if (_grounded && _groundHitCount == 0)
+            {
                 _grounded = false;
                 _frameLeftGrounded = _fixedFrame;
                 GroundedChanged?.Invoke(false, 0);
@@ -390,7 +431,8 @@ namespace TarodevController.Trol {
         private bool IsCrouchingPosClear(Vector2 pos) =>
             CheckPos(pos, _crouchingEnvironmentCollider);
 
-        protected virtual bool CheckPos(Vector2 pos, CapsuleCollider2D col) {
+        protected virtual bool CheckPos(Vector2 pos, CapsuleCollider2D col)
+        {
             Physics2D.queriesHitTriggers = false;
             var hit = Physics2D.OverlapCapsule(
                 pos + col.offset,
@@ -414,7 +456,8 @@ namespace TarodevController.Trol {
         private bool _isLeavingWall; // prevents immediate re-sticking to wall
         public bool IsOnWall { get; private set; }
 
-        protected virtual void HandleWalls() {
+        protected virtual void HandleWalls()
+        {
             if (!_stats.AllowWalls)
                 return;
 
@@ -439,7 +482,8 @@ namespace TarodevController.Trol {
             else if (IsOnWall && !ShouldStickToWall())
                 ToggleOnWall(false);
 
-            bool ShouldStickToWall() {
+            bool ShouldStickToWall()
+            {
                 if (WallDirection == 0 || _grounded)
                     return false;
                 return !_stats.RequireInputPush
@@ -447,14 +491,18 @@ namespace TarodevController.Trol {
             }
         }
 
-        private void ToggleOnWall(bool on) {
+        private void ToggleOnWall(bool on)
+        {
             IsOnWall = on;
-            if (on) {
+            if (on)
+            {
                 _speed = Vector2.zero;
                 _currentExternalVelocity = Vector2.zero;
                 _bufferedJumpUsable = true;
                 _wallJumpCoyoteUsable = true;
-            } else {
+            }
+            else
+            {
                 _frameLeftWall = _fixedFrame;
                 _isLeavingWall = false; // after we've left the wall
                 ResetAirJumps(); // so that we can air jump even if we didn't leave via a wall jump
@@ -474,7 +522,8 @@ namespace TarodevController.Trol {
         private bool LedgeClimbInputDetected =>
             Input.y > _stats.VerticalDeadzoneThreshold || Input.x == WallDirection;
 
-        protected virtual void HandleLedges() {
+        protected virtual void HandleLedges()
+        {
             if (!_stats.AllowLedges)
                 return;
             if (ClimbingLedge || !IsOnWall)
@@ -486,7 +535,8 @@ namespace TarodevController.Trol {
                 HandleLedgeGrabbing();
         }
 
-        protected virtual bool TryGetLedgeCorner(out Vector2 cornerPos) {
+        protected virtual bool TryGetLedgeCorner(out Vector2 cornerPos)
+        {
             cornerPos = Vector2.zero;
             var grabHeight = _rb.position + _stats.LedgeGrabPoint.y * Vector2.up;
 
@@ -521,9 +571,11 @@ namespace TarodevController.Trol {
             return true;
         }
 
-        protected virtual void HandleLedgeGrabbing() {
+        protected virtual void HandleLedgeGrabbing()
+        {
             // Nudge towards better grabbing position
-            if (Input.x == 0 && _hasControl) {
+            if (Input.x == 0 && _hasControl)
+            {
                 var pos = _rb.position;
                 var targetPos =
                     _ledgeCornerPos - Vector2.Scale(_stats.LedgeGrabPoint, new(WallDirection, 1f));
@@ -534,21 +586,26 @@ namespace TarodevController.Trol {
                 );
             }
 
-            if (LedgeClimbInputDetected) {
+            if (LedgeClimbInputDetected)
+            {
                 var finalPos =
                     _ledgeCornerPos + Vector2.Scale(_stats.StandUpOffset, new(WallDirection, 1f));
 
-                if (IsStandingPosClear(finalPos)) {
+                if (IsStandingPosClear(finalPos))
+                {
                     _climbIntoCrawl = false;
                     StartLedgeClimb();
-                } else if (_stats.AllowCrouching && IsCrouchingPosClear(finalPos)) {
+                }
+                else if (_stats.AllowCrouching && IsCrouchingPosClear(finalPos))
+                {
                     _climbIntoCrawl = true;
                     StartLedgeClimb(intoCrawl: true);
                 }
             }
         }
 
-        protected virtual void StartLedgeClimb(bool intoCrawl = false) {
+        protected virtual void StartLedgeClimb(bool intoCrawl = false)
+        {
             LedgeClimbChanged?.Invoke(intoCrawl);
             TakeAwayControl();
             ClimbingLedge = true;
@@ -557,7 +614,8 @@ namespace TarodevController.Trol {
                 _ledgeCornerPos - Vector2.Scale(_stats.LedgeGrabPoint, new(WallDirection, 1f));
         }
 
-        public virtual void TeleportMidLedgeClimb() {
+        public virtual void TeleportMidLedgeClimb()
+        {
             transform.position = _rb.position =
                 _ledgeCornerPos + Vector2.Scale(_stats.StandUpOffset, new(WallDirection, 1f));
             if (_climbIntoCrawl)
@@ -565,7 +623,8 @@ namespace TarodevController.Trol {
             ToggleOnWall(false);
         }
 
-        public virtual void FinishClimbingLedge() {
+        public virtual void FinishClimbingLedge()
+        {
             ClimbingLedge = false;
             ReturnControl();
         }
@@ -590,7 +649,8 @@ namespace TarodevController.Trol {
         private bool ShouldCenterOnLadder =>
             _stats.SnapToLadders && _frameInput.Move.x == 0 && _hasControl;
 
-        protected virtual void HandleLadders() {
+        protected virtual void HandleLadders()
+        {
             if (!_stats.AllowLadders)
                 return;
 
@@ -599,7 +659,8 @@ namespace TarodevController.Trol {
             else if (ClimbingLadder && (_ladderHitCount == 0 || ShouldDismountLadder))
                 ToggleClimbingLadder(false);
 
-            if (ClimbingLadder && ShouldCenterOnLadder) {
+            if (ClimbingLadder && ShouldCenterOnLadder)
+            {
                 var pos = _rb.position;
                 var targetX = _ladderHits[0].transform.position.x;
                 _rb.position = Vector2.SmoothDamp(
@@ -611,13 +672,17 @@ namespace TarodevController.Trol {
             }
         }
 
-        private void ToggleClimbingLadder(bool on) {
+        private void ToggleClimbingLadder(bool on)
+        {
             if (ClimbingLadder == on)
                 return;
-            if (on) {
+            if (on)
+            {
                 _speed = Vector2.zero;
                 _ladderSnapVel = Vector2.zero; // reset damping velocity for consistency
-            } else {
+            }
+            else
+            {
                 if (_ladderHitCount > 0)
                     _frameLeftLadder = _fixedFrame; // to prevent immediately re-mounting ladder
                 if (_frameInput.Move.y > 0)
@@ -638,7 +703,8 @@ namespace TarodevController.Trol {
         private bool CanStand =>
             IsStandingPosClear(_rb.position + new Vector2(0, _stats.CrouchBufferCheck));
 
-        protected virtual void HandleCrouching() {
+        protected virtual void HandleCrouching()
+        {
             if (!_stats.AllowCrouching)
                 return;
 
@@ -648,7 +714,8 @@ namespace TarodevController.Trol {
                 TryToggleCrouching(false);
         }
 
-        protected virtual bool TryToggleCrouching(bool shouldCrouch) {
+        protected virtual bool TryToggleCrouching(bool shouldCrouch)
+        {
             if (Crouching && !CanStand)
                 return false;
 
@@ -659,7 +726,8 @@ namespace TarodevController.Trol {
             return true;
         }
 
-        protected virtual void ToggleColliders(bool isStanding) {
+        protected virtual void ToggleColliders(bool isStanding)
+        {
             _environmentCol = isStanding
                 ? _standingEnvironmentCollider
                 : _crouchingEnvironmentCollider;
@@ -693,11 +761,13 @@ namespace TarodevController.Trol {
             );
         private bool CanAirJump => !_grounded && _airJumpsRemaining > 0;
 
-        protected virtual void HandleJump() {
+        protected virtual void HandleJump()
+        {
             if (!_endedJumpEarly && !_grounded && !_frameInput.JumpHeld && _rb.velocity.y > 0)
                 _endedJumpEarly = true; // Early end detection
 
-            if (_droppingDown) {
+            if (_droppingDown)
+            {
                 Physics2D.IgnoreLayerCollision(8, 10, true);
                 Invoke(nameof(DropDown), 0.5f);
             }
@@ -715,13 +785,15 @@ namespace TarodevController.Trol {
             _jumpToConsume = false; // Always consume the flag
         }
 
-        protected virtual void DropDown() {
+        protected virtual void DropDown()
+        {
             Physics2D.IgnoreLayerCollision(8, 10, false);
             _droppingDown = false;
         }
 
         // Includes Ladder Jumps
-        protected virtual void NormalJump() {
+        protected virtual void NormalJump()
+        {
             if (Crouching && !TryToggleCrouching(false))
                 return; // try standing up first so we don't get stuck in low ceilings
             _endedJumpEarly = false;
@@ -733,10 +805,12 @@ namespace TarodevController.Trol {
             Jumped?.Invoke(false);
         }
 
-        protected virtual void WallJump() {
+        protected virtual void WallJump()
+        {
             _endedJumpEarly = false;
             _bufferedJumpUsable = false;
-            if (IsOnWall) {
+            if (IsOnWall)
+            {
                 _isLeavingWall = true; // only toggle if it's a real WallJump, not CoyoteWallJump
                 ResetWallShimmy();
             }
@@ -746,7 +820,8 @@ namespace TarodevController.Trol {
             Jumped?.Invoke(true);
         }
 
-        protected virtual void AirJump() {
+        protected virtual void AirJump()
+        {
             _endedJumpEarly = false;
             _airJumpsRemaining--;
             _speed.y = _stats.JumpPower;
@@ -754,7 +829,8 @@ namespace TarodevController.Trol {
             AirJumped?.Invoke();
         }
 
-        protected virtual void ResetJump() {
+        protected virtual void ResetJump()
+        {
             _coyoteUsable = true;
             _bufferedJumpUsable = true;
             _endedJumpEarly = false;
@@ -776,13 +852,16 @@ namespace TarodevController.Trol {
         private bool _dashing;
         private int _startedDashing;
 
-        protected virtual void HandleDash() {
-            if (_dashToConsume && _canDash && !Crouching) {
+        protected virtual void HandleDash()
+        {
+            if (_dashToConsume && _canDash && !Crouching)
+            {
                 var dir = new Vector2(
                     _frameInput.Move.x,
                     Mathf.Max(_frameInput.Move.y, 0f)
                 ).normalized;
-                if (dir == Vector2.zero) {
+                if (dir == Vector2.zero)
+                {
                     _dashToConsume = false;
                     return;
                 }
@@ -796,10 +875,12 @@ namespace TarodevController.Trol {
                 _currentExternalVelocity = Vector2.zero; // Strip external buildup
             }
 
-            if (_dashing) {
+            if (_dashing)
+            {
                 _speed = _dashVel;
                 // Cancel when the time is out or we've reached our max safety distance
-                if (_fixedFrame > _startedDashing + _stats.DashDurationFrames) {
+                if (_fixedFrame > _startedDashing + _stats.DashDurationFrames)
+                {
                     _dashing = false;
                     DashingChanged?.Invoke(false, Vector2.zero);
                     _speed.y = Mathf.Min(0, _speed.y);
@@ -812,7 +893,8 @@ namespace TarodevController.Trol {
             _dashToConsume = false;
         }
 
-        protected virtual void ResetDash() {
+        protected virtual void ResetDash()
+        {
             _canDash = true;
         }
 
@@ -823,11 +905,13 @@ namespace TarodevController.Trol {
         private bool _attackToConsume;
         private int _frameLastAttacked = int.MinValue;
 
-        protected virtual void HandleAttacking() {
+        protected virtual void HandleAttacking()
+        {
             if (!_attackToConsume)
                 return;
             // note: animation looks weird if we allow attacking while crouched. consider different attack animations or not allow it while crouched
-            if (_fixedFrame > _frameLastAttacked + _stats.AttackFrameCooldown) {
+            if (_fixedFrame > _frameLastAttacked + _stats.AttackFrameCooldown)
+            {
                 _frameLastAttacked = _fixedFrame;
                 Attacked?.Invoke();
             }
@@ -840,18 +924,24 @@ namespace TarodevController.Trol {
         [SerializeField]
         private TrolSpear _spear;
         private bool _spearless;
-        public bool Spearless {
+        public bool Spearless
+        {
             get => _spearless;
             set => _spearless = value;
         }
         public event Action<bool> HandleAiming;
         private float _aimingTill = -1;
-        public bool IsAiming {
+        public bool IsAiming
+        {
             get => _aimingTill != -1;
-            set {
-                if (!value) {
+            set
+            {
+                if (!value)
+                {
                     _aimingTill = -1;
-                } else if (value && _aimingTill == -1) {
+                }
+                else if (value && _aimingTill == -1)
+                {
                     _aimingTill = Time.time + 2;
                 }
                 HandleAiming?.Invoke(value);
@@ -859,15 +949,18 @@ namespace TarodevController.Trol {
         }
         public bool ShouldThrow => IsAiming && _aimingTill < Time.time;
 
-        protected virtual void OnThrowSpear() {
-            if (_throwSpearCoroutine != null) {
+        protected virtual void OnThrowSpear()
+        {
+            if (_throwSpearCoroutine != null)
+            {
                 StopCoroutine(_throwSpearCoroutine);
             }
             _spear.gameObject.SetActive(true);
             _throwSpearCoroutine = StartCoroutine(ThrowSpearCoroutine());
         }
 
-        private IEnumerator ThrowSpearCoroutine() {
+        private IEnumerator ThrowSpearCoroutine()
+        {
             bool tripped = DidTrip();
             int recoveryTime = tripped ? 5 : 3;
 
@@ -876,9 +969,9 @@ namespace TarodevController.Trol {
             GameManager.instance.trolManager.activeSpears.Add(_spear);
 
             StartCoroutine(
-            _spear.TemporarilyIgnoreColliders(
-                new List<Collider2D>() { _environmentCol, _entityCol, _spearTipCollider }
-            )
+                _spear.TemporarilyIgnoreColliders(
+                    new List<Collider2D>() { _environmentCol, _entityCol, _spearTipCollider }
+                )
             );
 
             Vector3 directionToTarget = _dest.target.position - transform.position;
@@ -894,8 +987,10 @@ namespace TarodevController.Trol {
             UnlockState();
         }
 
-        void OnGrabSpear(Transform s) {
-            if (s == null) return;
+        void OnGrabSpear(Transform s)
+        {
+            if (s == null)
+                return;
             _spear = s.GetComponent<TrolSpear>();
             GameManager.instance.trolManager.activeSpears.Remove(_spear);
             s.SetParent(transform); // Reparent the spear to the MobbTrol
@@ -912,34 +1007,41 @@ namespace TarodevController.Trol {
 
         // Unit feels the urge to celebrate, but hasn't gotten the chance
         // Set to infinity until a celebration is underway
-        public bool MustCelebrate {
+        public bool MustCelebrate
+        {
             get => _celebratingTill == float.PositiveInfinity;
             set => _celebratingTill = value ? float.PositiveInfinity : -1;
         }
 
         // Unit has begun to dance
         // Unit is dancing when it has a finite celebration time (-1 < t < infinity)
-        public bool IsDancing {
+        public bool IsDancing
+        {
             get => _celebratingTill > -1 && !MustCelebrate && Time.time < _celebratingTill;
             set => _celebratingTill = value ? Time.time + 3 : -1;
         }
 
         // Method to set custom dance duration
-        public void SetDancing(int durationInSeconds) {
+        public void SetDancing(int durationInSeconds)
+        {
             _celebratingTill = Time.time + durationInSeconds;
         }
 
-        void OnBeginCelebrating() {
-            if (_celebrateCoroutine != null) {
+        void OnBeginCelebrating()
+        {
+            if (_celebrateCoroutine != null)
+            {
                 StopCoroutine(_celebrateCoroutine);
             }
             _celebrateCoroutine = StartCoroutine(CelebrateCoroutine());
         }
 
-        private IEnumerator CelebrateCoroutine() {
+        private IEnumerator CelebrateCoroutine()
+        {
             LockState();
             yield return new WaitForSeconds(1); // Head bob
-            if (!_input.isPlayerUnit) {
+            if (!_input.isPlayerUnit)
+            {
                 SetDancing(3); // Dance for 3 seconds
                 yield return new WaitForSeconds(3);
             }
@@ -947,7 +1049,8 @@ namespace TarodevController.Trol {
             UnlockState();
         }
 
-        protected virtual bool DidTrip() {
+        protected virtual bool DidTrip()
+        {
             return UnityEngine.Random.Range(0, 4) == 0;
         }
 
@@ -959,13 +1062,18 @@ namespace TarodevController.Trol {
         private bool _wasHoldingClick;
         private bool _clickToConsume;
 
-        protected virtual void HandleClicking() {
-            if (_isHoldingClick) {
+        protected virtual void HandleClicking()
+        {
+            if (_isHoldingClick)
+            {
                 _wasHoldingClick = true;
-            } else {
+            }
+            else
+            {
                 _wasHoldingClick = false;
             }
-            if (_wasHoldingClick && !_isHoldingClick) {
+            if (_wasHoldingClick && !_isHoldingClick)
+            {
                 _clickToConsume = true; // click released
             }
         }
@@ -978,7 +1086,8 @@ namespace TarodevController.Trol {
             Mathf.Abs(_frameInput.Move.x) > _stats.HorizontalDeadzoneThreshold;
         private bool _stickyFeet;
 
-        protected virtual void HandleHorizontal() {
+        protected virtual void HandleHorizontal()
+        {
             if (
                 _dashing
                 || (shimmying && _frameInput.Move.x > 0 && WallDirection > 0)
@@ -987,14 +1096,16 @@ namespace TarodevController.Trol {
                 return;
 
             // Deceleration
-            if (!HorizontalInputPressed) {
+            if (!HorizontalInputPressed)
+            {
                 var deceleration = _grounded
                     ? _stats.GroundDeceleration * (_stickyFeet ? _stats.StickyFeetMultiplier : 1)
                     : _stats.AirDeceleration;
                 _speed.x = Mathf.MoveTowards(_speed.x, 0, deceleration * Time.fixedDeltaTime);
             }
             // Crawling
-            else if (Crouching && _grounded) {
+            else if (Crouching && _grounded)
+            {
                 var crouchPoint = Mathf.InverseLerp(
                     0,
                     _stats.CrouchSlowdownFrames,
@@ -1009,7 +1120,8 @@ namespace TarodevController.Trol {
                 );
             }
             // Regular Horizontal Movement
-            else {
+            else
+            {
                 // Prevent useless horizontal speed buildup when against a wall
                 if (_hittingWall.collider && Mathf.Abs(_rb.velocity.x) < 0.02f && !_isLeavingWall)
                     _speed.x = 0;
@@ -1031,28 +1143,34 @@ namespace TarodevController.Trol {
         private bool canShimmy = true;
         public bool shimmying = false;
 
-        private void ResetWallShimmy() {
+        private void ResetWallShimmy()
+        {
             canShimmy = true;
             shimmying = false;
         }
 
-        protected virtual void HandleVertical() {
+        protected virtual void HandleVertical()
+        {
             if (_dashing)
                 return;
 
             // Ladder
-            if (ClimbingLadder) {
+            if (ClimbingLadder)
+            {
                 var yInput = _frameInput.Move.y;
                 _speed.y =
                     yInput * (yInput > 0 ? _stats.LadderClimbSpeed : _stats.LadderSlideSpeed);
             }
             // Grounded & Slopes
-            else if (_grounded && _speed.y <= 0f) {
+            else if (_grounded && _speed.y <= 0f)
+            {
                 _speed.y = _stats.GroundingForce;
 
-                if (TryGetGroundNormal(out var groundNormal)) {
+                if (TryGetGroundNormal(out var groundNormal))
+                {
                     GroundNormal = groundNormal;
-                    if (!Mathf.Approximately(GroundNormal.y, 1f)) {
+                    if (!Mathf.Approximately(GroundNormal.y, 1f))
+                    {
                         // on a slope
                         _speed.y = _speed.x * -GroundNormal.x / GroundNormal.y;
                         if (_speed.x != 0)
@@ -1061,24 +1179,33 @@ namespace TarodevController.Trol {
                 }
             }
             // Wall Climbing & Sliding
-            else if (shimmying) {
+            else if (shimmying)
+            {
                 _speed.y = _stats.WallClimbSpeed;
-            } else if (IsOnWall && !_isLeavingWall) {
+            }
+            else if (IsOnWall && !_isLeavingWall)
+            {
                 if (
                     (_frameInput.Move.x > 0 && WallDirection > 0)
                     || (_frameInput.Move.x < 0 && WallDirection < 0)
-                ) {
+                )
+                {
                     _speed.x = 0;
                 }
-                if (_frameInput.Move.y > 0) {
-                    if (canShimmy) {
+                if (_frameInput.Move.y > 0)
+                {
+                    if (canShimmy)
+                    {
                         _speed.y = _stats.WallClimbSpeed;
                         shimmying = true;
                         canShimmy = false;
-                    } else {
+                    }
+                    else
+                    {
                         _speed.y = -1;
                     }
-                } else if (_frameInput.Move.y < 0)
+                }
+                else if (_frameInput.Move.y < 0)
                     _speed.y = -_stats.MaxWallFallSpeed;
                 else if (GrabbingLedge)
                     _speed.y = Mathf.MoveTowards(
@@ -1093,8 +1220,9 @@ namespace TarodevController.Trol {
                         _stats.WallFallAcceleration * Time.fixedDeltaTime
                     );
             }
-              // In Air
-              else {
+            // In Air
+            else
+            {
                 var inAirGravity = _stats.FallAcceleration;
                 if (_endedJumpEarly && _speed.y > 0)
                     inAirGravity *= _stats.JumpEndEarlyGravityModifier;
@@ -1108,7 +1236,10 @@ namespace TarodevController.Trol {
 
         #endregion
 
-        protected virtual void ApplyMovement() {
+        #region Movement
+
+        protected virtual void ApplyMovement()
+        {
             if (!_hasControl)
                 return;
 
@@ -1118,20 +1249,27 @@ namespace TarodevController.Trol {
                 Vector2.zero,
                 _stats.ExternalVelocityDecay * Time.fixedDeltaTime
             );
+
+            _behaviour.HandleLocalAvoidance();
         }
 
+        #endregion
+
 #if UNITY_EDITOR
-        private void OnDrawGizmos() {
+        private void OnDrawGizmos()
+        {
             if (_stats == null)
                 return;
 
-            if (_stats.ShowWallDetection && _standingEnvironmentCollider != null) {
+            if (_stats.ShowWallDetection && _standingEnvironmentCollider != null)
+            {
                 Gizmos.color = Color.white;
                 var bounds = GetWallDetectionBounds();
                 Gizmos.DrawWireCube(bounds.center, bounds.size);
             }
 
-            if (_stats.AllowLedges && _stats.ShowLedgeDetection) {
+            if (_stats.AllowLedges && _stats.ShowLedgeDetection)
+            {
                 Gizmos.color = Color.red;
                 var facingDir = Mathf.Sign(WallDirection);
                 var grabHeight = transform.position + _stats.LedgeGrabPoint.y * Vector3.up;
@@ -1152,13 +1290,15 @@ namespace TarodevController.Trol {
             }
         }
 
-        private void OnEnable() {
+        private void OnEnable()
+        {
             _stats.PlayerLayer = LayerMask.GetMask("player");
             _stats.ClimbableLayer = LayerMask.GetMask("climbable");
             _stats.LadderLayer = LayerMask.GetMask("ladder");
         }
 
-        private void OnValidate() {
+        private void OnValidate()
+        {
             if (_stats == null)
                 Debug.LogWarning(
                     "Please assign a ScriptableStats asset to the Player Controller's Stats slot",

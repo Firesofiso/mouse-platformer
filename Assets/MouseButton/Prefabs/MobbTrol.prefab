@@ -20023,8 +20023,9 @@ MonoBehaviour:
   _perceivedDistanceToTarget: 0
   _sightRange: 200
   _spearRange: 100
-  _pathfinderJumpThreshold: 0
-  _obstacleDetectionDistance: 0
+  _pathfinderJumpThreshold: 75
+  _obstacleDetectionDistance: 10
+  _voidDetectionDistance: 25
   randomJumpChance: 3
   _dest: {fileID: 5298518793093821390}
   _ai: {fileID: 2729813448744194245}
