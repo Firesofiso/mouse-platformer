@@ -25,6 +25,9 @@ namespace TarodevController.Trol.MobbTrol
         [SerializeField]
         private float _landAnimDuration = .1f;
 
+        [SerializeField] StatefulUnit _unit;
+        private State _unitState => _unit.CurrentState;
+
         // Private Fields
         private MobbTrolController _controller;
         private Animator _anim;
@@ -142,6 +145,15 @@ namespace TarodevController.Trol.MobbTrol
 
             int GetState()
             {
+                // switch (_unitState) {
+                //     case ("Aiming") {
+                //         break;
+                //     }
+                //     default {
+                //     return;
+                //     }
+                // }
+
                 if (Time.time < _lockedTill)
                     return _currentState;
 

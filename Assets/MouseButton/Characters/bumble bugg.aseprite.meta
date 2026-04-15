@@ -8,6 +8,7 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 62a9f0aa5b59740cfbadc7e5f9823bb0, type: 3}
+  importerVersion: 2
   textureImporterSettings:
     alphaSource: 1
     mipMapMode: 0
@@ -324,13 +325,18 @@ ScriptedImporter:
   spriteSheetImportData: []
   asepriteLayers:
   - layerIndex: 0
-    guid: 1125749750
+    uuid:
+      value0: 1528252238
+      value1: 0
+      value2: 0
+      value3: 0
+    guid: 1528252238
     name: bumble bugg
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: bumble bugg_Frame_0
+    - name: Frame_0
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
@@ -339,7 +345,7 @@ ScriptedImporter:
         width: 9
         height: 8
       spriteId: cd7e758c230fa4645b1650f4af5e642f
-    - name: bumble bugg_Frame_1
+    - name: Frame_1
       frameIndex: 1
       additiveSortOrder: 0
       cellRect:
@@ -348,7 +354,7 @@ ScriptedImporter:
         width: 9
         height: 6
       spriteId: 662a12ee41bdc46019a332cd022b14ee
-    - name: bumble bugg_Frame_2
+    - name: Frame_2
       frameIndex: 2
       additiveSortOrder: 0
       cellRect:
@@ -357,7 +363,7 @@ ScriptedImporter:
         width: 9
         height: 8
       spriteId: aa3a9ab979e9b45caa78587f74fb03f6
-    - name: bumble bugg_Frame_3
+    - name: Frame_3
       frameIndex: 3
       additiveSortOrder: 0
       cellRect:
@@ -366,7 +372,7 @@ ScriptedImporter:
         width: 9
         height: 6
       spriteId: 3403fdae1e51b4d37944513eba344073
-    - name: bumble bugg_Frame_4
+    - name: Frame_4
       frameIndex: 4
       additiveSortOrder: 0
       cellRect:
@@ -375,7 +381,7 @@ ScriptedImporter:
         width: 9
         height: 8
       spriteId: 0da79bcef0ffd4af78acfe5f0b8bcf4c
-    - name: bumble bugg_Frame_5
+    - name: Frame_5
       frameIndex: 5
       additiveSortOrder: 0
       cellRect:
@@ -384,7 +390,7 @@ ScriptedImporter:
         width: 9
         height: 7
       spriteId: 858945bec54254fd78a9aa0b4ef6a951
-    - name: bumble bugg_Frame_6
+    - name: Frame_6
       frameIndex: 6
       additiveSortOrder: 0
       cellRect:
@@ -393,7 +399,7 @@ ScriptedImporter:
         width: 9
         height: 9
       spriteId: d6e7d46ba1346424ea0595f9c082e777
-    - name: bumble bugg_Frame_7
+    - name: Frame_7
       frameIndex: 7
       additiveSortOrder: 0
       cellRect:
@@ -402,7 +408,7 @@ ScriptedImporter:
         width: 9
         height: 7
       spriteId: 4e2f884b9e6ed4ea3b915cb2244bb9c2
-    - name: bumble bugg_Frame_8
+    - name: Frame_8
       frameIndex: 8
       additiveSortOrder: 0
       cellRect:
@@ -411,7 +417,7 @@ ScriptedImporter:
         width: 9
         height: 8
       spriteId: a63e821dc9d7142969dcc03ecbf5b811
-    - name: bumble bugg_Frame_9
+    - name: Frame_9
       frameIndex: 9
       additiveSortOrder: 0
       cellRect:
@@ -427,3 +433,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 16, y: 16}
+  previousTextureSize: {x: 64, y: 64}

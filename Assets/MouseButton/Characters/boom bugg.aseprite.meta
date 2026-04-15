@@ -8,6 +8,7 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 62a9f0aa5b59740cfbadc7e5f9823bb0, type: 3}
+  importerVersion: 2
   textureImporterSettings:
     alphaSource: 1
     mipMapMode: 0
@@ -464,13 +465,18 @@ ScriptedImporter:
   spriteSheetImportData: []
   asepriteLayers:
   - layerIndex: 0
-    guid: -1006502028
+    uuid:
+      value0: 2507370052
+      value1: 0
+      value2: 0
+      value3: 0
+    guid: -1787597244
     name: boom bugg
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: boom bugg_Frame_0
+    - name: Frame_0
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
@@ -479,7 +485,7 @@ ScriptedImporter:
         width: 13
         height: 10
       spriteId: 6c926df2231fa4284a89544adbd9512f
-    - name: boom bugg_Frame_1
+    - name: Frame_1
       frameIndex: 1
       additiveSortOrder: 0
       cellRect:
@@ -488,7 +494,7 @@ ScriptedImporter:
         width: 13
         height: 8
       spriteId: ffe373e3f0d5d4efeb96075a15e153c6
-    - name: boom bugg_Frame_2
+    - name: Frame_2
       frameIndex: 2
       additiveSortOrder: 0
       cellRect:
@@ -497,7 +503,7 @@ ScriptedImporter:
         width: 14
         height: 10
       spriteId: 942e514ff6c504d839d1b8f2576e3db9
-    - name: boom bugg_Frame_3
+    - name: Frame_3
       frameIndex: 3
       additiveSortOrder: 0
       cellRect:
@@ -506,7 +512,7 @@ ScriptedImporter:
         width: 13
         height: 9
       spriteId: ce5cf9f5e448046c29dc68730a0c19c1
-    - name: boom bugg_Frame_4
+    - name: Frame_4
       frameIndex: 4
       additiveSortOrder: 0
       cellRect:
@@ -515,7 +521,7 @@ ScriptedImporter:
         width: 14
         height: 10
       spriteId: 33dbdf12ab6b9443cb83d8890d66832f
-    - name: boom bugg_Frame_5
+    - name: Frame_5
       frameIndex: 5
       additiveSortOrder: 0
       cellRect:
@@ -524,7 +530,7 @@ ScriptedImporter:
         width: 14
         height: 9
       spriteId: 302b0298c23ad4ffeae25365a4a4bcfd
-    - name: boom bugg_Frame_6
+    - name: Frame_6
       frameIndex: 6
       additiveSortOrder: 0
       cellRect:
@@ -533,7 +539,7 @@ ScriptedImporter:
         width: 13
         height: 8
       spriteId: f34d154c7f3ee4a93a86da07f0332fba
-    - name: boom bugg_Frame_7
+    - name: Frame_7
       frameIndex: 7
       additiveSortOrder: 0
       cellRect:
@@ -542,7 +548,7 @@ ScriptedImporter:
         width: 14
         height: 9
       spriteId: cd2bdd8e770e345deaac998885725f2c
-    - name: boom bugg_Frame_8
+    - name: Frame_8
       frameIndex: 8
       additiveSortOrder: 0
       cellRect:
@@ -551,7 +557,7 @@ ScriptedImporter:
         width: 15
         height: 9
       spriteId: 2d078b9a072db40e5b8ae16cc0fea5fc
-    - name: boom bugg_Frame_9
+    - name: Frame_9
       frameIndex: 9
       additiveSortOrder: 0
       cellRect:
@@ -560,7 +566,7 @@ ScriptedImporter:
         width: 13
         height: 8
       spriteId: 98fecad863b1b4b2c829c091e86383f0
-    - name: boom bugg_Frame_10
+    - name: Frame_10
       frameIndex: 10
       additiveSortOrder: 0
       cellRect:
@@ -569,7 +575,7 @@ ScriptedImporter:
         width: 14
         height: 12
       spriteId: 1a940e93161514660bc322d400a6fafd
-    - name: boom bugg_Frame_11
+    - name: Frame_11
       frameIndex: 11
       additiveSortOrder: 0
       cellRect:
@@ -578,7 +584,7 @@ ScriptedImporter:
         width: 14
         height: 10
       spriteId: ec5ec2fc2ba66414b84d418b55a7d616
-    - name: boom bugg_Frame_12
+    - name: Frame_12
       frameIndex: 12
       additiveSortOrder: 0
       cellRect:
@@ -587,7 +593,7 @@ ScriptedImporter:
         width: 14
         height: 9
       spriteId: fbfcd3612ba7b44ea9285f06905ce3da
-    - name: boom bugg_Frame_13
+    - name: Frame_13
       frameIndex: 13
       additiveSortOrder: 0
       cellRect:
@@ -596,7 +602,7 @@ ScriptedImporter:
         width: 14
         height: 10
       spriteId: c165b7a33edda4f5485159049267daf6
-    - name: boom bugg_Frame_14
+    - name: Frame_14
       frameIndex: 14
       additiveSortOrder: 0
       cellRect:
@@ -605,7 +611,7 @@ ScriptedImporter:
         width: 13
         height: 9
       spriteId: d707e45260bab49b38f5b8fdb2e1d0b7
-    - name: boom bugg_Frame_15
+    - name: Frame_15
       frameIndex: 15
       additiveSortOrder: 0
       cellRect:
@@ -614,7 +620,7 @@ ScriptedImporter:
         width: 12
         height: 8
       spriteId: f5e32d0155f274a6da0268d0e3bcc5e3
-    - name: boom bugg_Frame_16
+    - name: Frame_16
       frameIndex: 16
       additiveSortOrder: 0
       cellRect:
@@ -630,3 +636,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 16, y: 16}
+  previousTextureSize: {x: 64, y: 128}

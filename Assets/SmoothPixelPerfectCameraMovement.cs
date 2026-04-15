@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using UnityEngine.U2D;
 using UnityEngine.Rendering;
 
 public class SmoothPixelPerfectCameraMovement : MonoBehaviour
 {
-    public UnityEngine.Experimental.Rendering.Universal.PixelPerfectCamera pcc;
+    [Tooltip("Match your Pixel Perfect Camera's Assets PPU.")]
+    public float assetsPPU = 16f;
     private Vector2 viewportScale;
     private RenderTexture tempRenderTexture;
     private Camera myCamera;
@@ -49,7 +49,7 @@ public class SmoothPixelPerfectCameraMovement : MonoBehaviour
     {
         myCamera.targetTexture = null; //blit directly into render buffer
         Vector2 screenWorldBounds = new Vector2(myCamera.orthographicSize * 2 * Screen.width / Screen.height, myCamera.orthographicSize * 2);
-        Vector2 direction = new Vector2(Mathf.Round(transform.position.x * pcc.assetsPPU) / pcc.assetsPPU - transform.position.x, Mathf.Round(transform.position.y * pcc.assetsPPU) / pcc.assetsPPU - transform.position.y);
+        Vector2 direction = new Vector2(Mathf.Round(transform.position.x * assetsPPU) / assetsPPU - transform.position.x, Mathf.Round(transform.position.y * assetsPPU) / assetsPPU - transform.position.y);
         Graphics.Blit(tempRenderTexture, null as RenderTexture, Vector2.one, -(direction / screenWorldBounds));
 
         RenderTexture.ReleaseTemporary(tempRenderTexture);

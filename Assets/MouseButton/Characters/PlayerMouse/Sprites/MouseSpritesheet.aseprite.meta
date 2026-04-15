@@ -8,6 +8,7 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 62a9f0aa5b59740cfbadc7e5f9823bb0, type: 3}
+  importerVersion: 2
   textureImporterSettings:
     alphaSource: 1
     mipMapMode: 0
@@ -1184,13 +1185,18 @@ ScriptedImporter:
   spriteSheetImportData: []
   asepriteLayers:
   - layerIndex: 0
-    guid: 1909615683
+    uuid:
+      value0: 491645199
+      value1: 0
+      value2: 0
+      value3: 0
+    guid: 491645199
     name: MouseSpritesheet
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: MouseSpritesheet_Frame_0
+    - name: Frame_0
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
@@ -1199,7 +1205,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: e3706a41e5d834eb99e39c28fdd70c0e
-    - name: MouseSpritesheet_Frame_1
+    - name: Frame_1
       frameIndex: 1
       additiveSortOrder: 0
       cellRect:
@@ -1208,7 +1214,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: ce7d19171a9b942b8a15f3ec5af865c3
-    - name: MouseSpritesheet_Frame_2
+    - name: Frame_2
       frameIndex: 2
       additiveSortOrder: 0
       cellRect:
@@ -1217,7 +1223,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 63fe912901dcb471aaefb846b02f56eb
-    - name: MouseSpritesheet_Frame_3
+    - name: Frame_3
       frameIndex: 3
       additiveSortOrder: 0
       cellRect:
@@ -1226,7 +1232,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 460b8ec66ef6f465aa40ec755205fb29
-    - name: MouseSpritesheet_Frame_4
+    - name: Frame_4
       frameIndex: 4
       additiveSortOrder: 0
       cellRect:
@@ -1235,7 +1241,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 7800b54bd4b944a2da0256699abc32df
-    - name: MouseSpritesheet_Frame_5
+    - name: Frame_5
       frameIndex: 5
       additiveSortOrder: 0
       cellRect:
@@ -1244,7 +1250,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: fc6421b5d27e2442a8009378599a5308
-    - name: MouseSpritesheet_Frame_6
+    - name: Frame_6
       frameIndex: 6
       additiveSortOrder: 0
       cellRect:
@@ -1253,7 +1259,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: b8310d6abdfff4dd99372723c1efe6e2
-    - name: MouseSpritesheet_Frame_7
+    - name: Frame_7
       frameIndex: 7
       additiveSortOrder: 0
       cellRect:
@@ -1262,7 +1268,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 5b64cd518a00640e9b1561409ffd3efd
-    - name: MouseSpritesheet_Frame_8
+    - name: Frame_8
       frameIndex: 8
       additiveSortOrder: 0
       cellRect:
@@ -1271,7 +1277,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: bee177be0942a4d418817c6fe71fbfc3
-    - name: MouseSpritesheet_Frame_9
+    - name: Frame_9
       frameIndex: 9
       additiveSortOrder: 0
       cellRect:
@@ -1280,7 +1286,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 443e033e39cef4c0da824fd6336d4989
-    - name: MouseSpritesheet_Frame_10
+    - name: Frame_10
       frameIndex: 10
       additiveSortOrder: 0
       cellRect:
@@ -1289,7 +1295,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 3404075abde924eb9b5ac1fee866a9d0
-    - name: MouseSpritesheet_Frame_11
+    - name: Frame_11
       frameIndex: 11
       additiveSortOrder: 0
       cellRect:
@@ -1298,7 +1304,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: f4fcfdb4b6e49440db78c2b76d631480
-    - name: MouseSpritesheet_Frame_12
+    - name: Frame_12
       frameIndex: 12
       additiveSortOrder: 0
       cellRect:
@@ -1307,7 +1313,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: b5ac68237693347a2b779a2c089ba045
-    - name: MouseSpritesheet_Frame_13
+    - name: Frame_13
       frameIndex: 13
       additiveSortOrder: 0
       cellRect:
@@ -1316,7 +1322,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 5c5b31fd8ab7946b59511887eae13035
-    - name: MouseSpritesheet_Frame_14
+    - name: Frame_14
       frameIndex: 14
       additiveSortOrder: 0
       cellRect:
@@ -1325,7 +1331,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 7d7aab0e672e54d7e96fde9a59e93360
-    - name: MouseSpritesheet_Frame_15
+    - name: Frame_15
       frameIndex: 15
       additiveSortOrder: 0
       cellRect:
@@ -1334,7 +1340,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 0d5fdeae27ec04f18916fa8476fe2f96
-    - name: MouseSpritesheet_Frame_16
+    - name: Frame_16
       frameIndex: 16
       additiveSortOrder: 0
       cellRect:
@@ -1343,7 +1349,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 666a1660cad924978bc02840ef44033d
-    - name: MouseSpritesheet_Frame_17
+    - name: Frame_17
       frameIndex: 17
       additiveSortOrder: 0
       cellRect:
@@ -1352,7 +1358,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 7d8483aeb76394338a4f7597830a2730
-    - name: MouseSpritesheet_Frame_18
+    - name: Frame_18
       frameIndex: 18
       additiveSortOrder: 0
       cellRect:
@@ -1361,7 +1367,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: ed492d63a16de45df9b1ed195e518025
-    - name: MouseSpritesheet_Frame_19
+    - name: Frame_19
       frameIndex: 19
       additiveSortOrder: 0
       cellRect:
@@ -1370,7 +1376,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 22f4f23657bca40119c104e4fbdc76ad
-    - name: MouseSpritesheet_Frame_20
+    - name: Frame_20
       frameIndex: 20
       additiveSortOrder: 0
       cellRect:
@@ -1379,7 +1385,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: ae1b0f4e0023947bf898502b009d26b6
-    - name: MouseSpritesheet_Frame_21
+    - name: Frame_21
       frameIndex: 21
       additiveSortOrder: 0
       cellRect:
@@ -1388,7 +1394,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: d63cb259eb229498fa2cd7738dfab652
-    - name: MouseSpritesheet_Frame_22
+    - name: Frame_22
       frameIndex: 22
       additiveSortOrder: 0
       cellRect:
@@ -1397,7 +1403,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: ca17f85f4085147d69396620b36f2b63
-    - name: MouseSpritesheet_Frame_23
+    - name: Frame_23
       frameIndex: 23
       additiveSortOrder: 0
       cellRect:
@@ -1406,7 +1412,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 97f626af3b7474b968317103fd587f92
-    - name: MouseSpritesheet_Frame_24
+    - name: Frame_24
       frameIndex: 24
       additiveSortOrder: 0
       cellRect:
@@ -1415,7 +1421,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 947528dbeca674f489feb622d82c03c7
-    - name: MouseSpritesheet_Frame_25
+    - name: Frame_25
       frameIndex: 25
       additiveSortOrder: 0
       cellRect:
@@ -1424,7 +1430,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 5ccc15fd7d41e44c4af972681be38e31
-    - name: MouseSpritesheet_Frame_26
+    - name: Frame_26
       frameIndex: 26
       additiveSortOrder: 0
       cellRect:
@@ -1433,7 +1439,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: d629155c1daf641c682b43d0576e6505
-    - name: MouseSpritesheet_Frame_27
+    - name: Frame_27
       frameIndex: 27
       additiveSortOrder: 0
       cellRect:
@@ -1442,7 +1448,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 6b5afdd2b6c5642219b4ef865ff155bd
-    - name: MouseSpritesheet_Frame_28
+    - name: Frame_28
       frameIndex: 28
       additiveSortOrder: 0
       cellRect:
@@ -1451,7 +1457,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 90d77097d8119454baef6aa3fdc4eef1
-    - name: MouseSpritesheet_Frame_29
+    - name: Frame_29
       frameIndex: 29
       additiveSortOrder: 0
       cellRect:
@@ -1460,7 +1466,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 7fd5bdb3edc874dd7849db5e11fd4c75
-    - name: MouseSpritesheet_Frame_30
+    - name: Frame_30
       frameIndex: 30
       additiveSortOrder: 0
       cellRect:
@@ -1469,7 +1475,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 9edb4c2f49752417287ef231f8df8348
-    - name: MouseSpritesheet_Frame_31
+    - name: Frame_31
       frameIndex: 31
       additiveSortOrder: 0
       cellRect:
@@ -1478,7 +1484,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 75e5dc6bc860f4a1b8cb572c57abd7a0
-    - name: MouseSpritesheet_Frame_32
+    - name: Frame_32
       frameIndex: 32
       additiveSortOrder: 0
       cellRect:
@@ -1487,7 +1493,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 6b756e093b9ae42fdbc19a4c8ad17dcd
-    - name: MouseSpritesheet_Frame_33
+    - name: Frame_33
       frameIndex: 33
       additiveSortOrder: 0
       cellRect:
@@ -1496,7 +1502,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 32e1cace2696f428680c92f7be91ebb0
-    - name: MouseSpritesheet_Frame_34
+    - name: Frame_34
       frameIndex: 34
       additiveSortOrder: 0
       cellRect:
@@ -1505,7 +1511,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 461c087acfd214d21ab29df0f11caeae
-    - name: MouseSpritesheet_Frame_35
+    - name: Frame_35
       frameIndex: 35
       additiveSortOrder: 0
       cellRect:
@@ -1514,7 +1520,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 1a90587e5ea174545a41c94d601d089d
-    - name: MouseSpritesheet_Frame_36
+    - name: Frame_36
       frameIndex: 36
       additiveSortOrder: 0
       cellRect:
@@ -1523,7 +1529,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 47e16a12aab5846a986d820573a41712
-    - name: MouseSpritesheet_Frame_37
+    - name: Frame_37
       frameIndex: 37
       additiveSortOrder: 0
       cellRect:
@@ -1532,7 +1538,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: b102fb1ad1b7a45aeb582b54690684b8
-    - name: MouseSpritesheet_Frame_38
+    - name: Frame_38
       frameIndex: 38
       additiveSortOrder: 0
       cellRect:
@@ -1541,7 +1547,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: b086d1ffa8ef04236ba435eb748f9063
-    - name: MouseSpritesheet_Frame_39
+    - name: Frame_39
       frameIndex: 39
       additiveSortOrder: 0
       cellRect:
@@ -1550,7 +1556,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: abce3392cb7c34894a9ec51cfa67942a
-    - name: MouseSpritesheet_Frame_40
+    - name: Frame_40
       frameIndex: 40
       additiveSortOrder: 0
       cellRect:
@@ -1559,7 +1565,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 524cb0194a81e4efaac0735b9fdd7cbf
-    - name: MouseSpritesheet_Frame_41
+    - name: Frame_41
       frameIndex: 41
       additiveSortOrder: 0
       cellRect:
@@ -1568,7 +1574,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: d02d108df71ef41929b7bdc23ecefe40
-    - name: MouseSpritesheet_Frame_42
+    - name: Frame_42
       frameIndex: 42
       additiveSortOrder: 0
       cellRect:
@@ -1577,7 +1583,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: d5b74e5ba85c648e8b13f60531ba460e
-    - name: MouseSpritesheet_Frame_43
+    - name: Frame_43
       frameIndex: 43
       additiveSortOrder: 0
       cellRect:
@@ -1586,7 +1592,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: f1744409b2f6e437ba825e4cd283a29a
-    - name: MouseSpritesheet_Frame_44
+    - name: Frame_44
       frameIndex: 44
       additiveSortOrder: 0
       cellRect:
@@ -1595,7 +1601,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 7034ce1eb5da7457bb0f8e9f4ddf533c
-    - name: MouseSpritesheet_Frame_45
+    - name: Frame_45
       frameIndex: 45
       additiveSortOrder: 0
       cellRect:
@@ -1604,7 +1610,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: ad1d915320ee04bdc829fe5a3120ddc3
-    - name: MouseSpritesheet_Frame_46
+    - name: Frame_46
       frameIndex: 46
       additiveSortOrder: 0
       cellRect:
@@ -1613,7 +1619,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 538810b29a07640e0894b822017fe27a
-    - name: MouseSpritesheet_Frame_47
+    - name: Frame_47
       frameIndex: 47
       additiveSortOrder: 0
       cellRect:
@@ -1622,7 +1628,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 613d9c911495948c4961fe0ef215316d
-    - name: MouseSpritesheet_Frame_48
+    - name: Frame_48
       frameIndex: 48
       additiveSortOrder: 0
       cellRect:
@@ -1631,7 +1637,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: b9e3af073dd50400e8492eb2741597a9
-    - name: MouseSpritesheet_Frame_49
+    - name: Frame_49
       frameIndex: 49
       additiveSortOrder: 0
       cellRect:
@@ -1640,7 +1646,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: eb0266b7a84ec469c909e19e492c23dd
-    - name: MouseSpritesheet_Frame_50
+    - name: Frame_50
       frameIndex: 50
       additiveSortOrder: 0
       cellRect:
@@ -1649,7 +1655,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: 8932f0a55a9ba452b81d707b33f1177e
-    - name: MouseSpritesheet_Frame_51
+    - name: Frame_51
       frameIndex: 51
       additiveSortOrder: 0
       cellRect:
@@ -1658,7 +1664,7 @@ ScriptedImporter:
         width: 16
         height: 16
       spriteId: e9594f195139e40d6a4b61de19db5fec
-    - name: MouseSpritesheet_Frame_52
+    - name: Frame_52
       frameIndex: 52
       additiveSortOrder: 0
       cellRect:
@@ -1674,3 +1680,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 16, y: 16}
+  previousTextureSize: {x: 128, y: 256}

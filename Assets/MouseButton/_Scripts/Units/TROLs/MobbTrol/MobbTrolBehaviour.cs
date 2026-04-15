@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace TarodevController.Trol
 {
-    internal class MobbTrolBehaviour : MonoBehaviour
+    public class MobbTrolBehaviour : MonoBehaviour
     {
         #region Fields
 
@@ -58,6 +58,8 @@ namespace TarodevController.Trol
         [SerializeField]
         private float randomJumpChance = 1f;
 
+        private StateMachine _machine;
+
         // A* pathfinding
         [SerializeField]
         internal AIDestinationSetter _dest;
@@ -74,9 +76,10 @@ namespace TarodevController.Trol
         private int _oneWayLayerMask;
         private int _obstacleLayerMask;
         private int _entityCollisionLayerMask;
-        private Vector2 _directionToNextWaypoint;
-        private float _distanceToNextWaypoint;
+
+        #region Waypoints
         private Path _path; // current path
+        private int _currentWaypointIndex = -1;
         private Path CurrentPath
         {
             get => _path;
@@ -84,12 +87,35 @@ namespace TarodevController.Trol
             {
                 if (value == null)
                 {
-                    _currentWaypoint = 0;
+                    _currentWaypointIndex = 0;
                 }
                 _path = value;
             }
         }
-        private int _currentWaypoint = -1;
+        private Vector2 CurrentWaypoint
+        {
+            get => (Vector2)_path?.vectorPath?[_currentWaypointIndex];
+        }
+        private float DistanceToNextWaypoint
+        {
+            get => Vector2.Distance(transform.position, CurrentWaypoint);
+        }
+        private Vector2 DirectionToNextWaypoint
+        {
+            get => CurrentWaypoint - (Vector2)transform.position;
+        }
+        #endregion
+
+        private float _pursueTill = -1;
+        private bool PursuingOutOfSight
+        {
+            get => _pursueTill != -1;
+            set { _pursueTill = value ? Time.time + 5 : -1; }
+        }
+        private bool GaveUpOnPursuit
+        {
+            get => PursuingOutOfSight && Time.time > _pursueTill;
+        }
 
         // Public Fields
         [HideInInspector]
@@ -177,7 +203,7 @@ namespace TarodevController.Trol
             if (_dest.target == null)
             {
                 behaviorStatusDebug = "targeting new spear...";
-                Transform s = GetClosestSpear()?.transform;
+                Transform s = GetClosestSpear().transform;
                 if (s != null)
                 {
                     UpdateTarget(s);
@@ -230,12 +256,12 @@ namespace TarodevController.Trol
 
         #region Pathing
 
-        protected virtual void AssessPathing(bool hasSightline)
+        // simulates input for the unit to follow its pathfinding target
+        internal virtual void AssessPathing(bool hasSightline)
         {
             if (
                 CurrentPath?.vectorPath == null
-                || _currentWaypoint >= CurrentPath.vectorPath.Count
-                || _controller.IsAiming
+                || _currentWaypointIndex >= CurrentPath.vectorPath.Count
                 || _perceivedDistanceToTarget < _ai.endReachedDistance
             )
             {
@@ -245,22 +271,15 @@ namespace TarodevController.Trol
             }
 
             if (
-                _currentWaypoint < CurrentPath.vectorPath.Count - 1
-                && _distanceToNextWaypoint < _ai.pickNextWaypointDist
+                _currentWaypointIndex < CurrentPath.vectorPath.Count - 1
+                && DistanceToNextWaypoint < _ai.pickNextWaypointDist
             )
             {
-                _currentWaypoint++;
+                _currentWaypointIndex++;
                 movementStatusDebug = "next waypoint...";
             }
 
-            _directionToNextWaypoint = (
-                (Vector2)CurrentPath.vectorPath?[_currentWaypoint] - _rb.position
-            ).normalized;
-            _distanceToNextWaypoint = Vector2.Distance(
-                _rb.position,
-                CurrentPath.vectorPath[_currentWaypoint]
-            );
-            _aiFrameInput.Move.x = _directionToNextWaypoint.x > 0 ? 1 : -1;
+            _aiFrameInput.Move.x = DirectionToNextWaypoint.x > 0 ? 1 : -1;
             movementStatusDebug = "omw...";
             AssessJumping();
         }
@@ -272,7 +291,7 @@ namespace TarodevController.Trol
 
             if (_controller.Spearless)
             {
-                Transform closestSpearTransform = GetClosestSpear()?.transform;
+                Transform closestSpearTransform = GetClosestSpear().transform;
                 if (closestSpearTransform != _dest.target)
                     UpdateTarget(closestSpearTransform);
             }
@@ -284,8 +303,11 @@ namespace TarodevController.Trol
             }
             else
             {
-                CurrentPath = null;
                 pathingStatusDebug = "Can't update path...";
+                if (!PursuingOutOfSight)
+                    PursuingOutOfSight = true;
+                if (GaveUpOnPursuit)
+                    ClearPath();
             }
         }
 
@@ -300,7 +322,6 @@ namespace TarodevController.Trol
             }
 
             behaviorStatusDebug = "Setting new target: " + newTarget;
-            InvokeRepeating(nameof(UpdatePath), 0.25f, 0.25f);
         }
 
         private void ClearPath()
@@ -318,15 +339,13 @@ namespace TarodevController.Trol
             }
             CurrentPath = p;
 
-            _currentWaypoint = 0;
-            _directionToNextWaypoint = (
-                (Vector2)CurrentPath.vectorPath[_currentWaypoint] - _rb.position
-            ).normalized;
-            _distanceToNextWaypoint = Vector2.Distance(
-                _rb.position,
-                CurrentPath.vectorPath[_currentWaypoint]
-            );
+            _currentWaypointIndex = 0;
             pathingStatusDebug = "Path processed!";
+
+            if (PursuingOutOfSight)
+            {
+                PursuingOutOfSight = false;
+            }
         }
 
         internal void HandleLocalAvoidance()
@@ -403,6 +422,7 @@ namespace TarodevController.Trol
                 _perceivedDistanceToTarget = realDistanceToTarget;
             sightlineStatusDebug =
                 pointInSpace == null ? "i see my target!" : "i see my next waypoint!";
+            PursuingOutOfSight = false;
             return true;
         }
 
@@ -415,20 +435,34 @@ namespace TarodevController.Trol
             float modifiedMaxSpeed = _controller.Spearless
                 ? _stats.MaxSpeed * 1.25f
                 : _stats.MaxSpeed;
-            if (_dest.target != null && ConfirmSightline())
+            if (_dest.target != null)
             {
                 modifiedMaxSpeed = Mathf.Clamp(
-                    _stats.MaxSpeed
-                        * (
-                            Mathf.Abs(_dest.target.position.x - transform.position.x)
-                            / _ai.slowdownDistance
-                        ),
+                    _stats.MaxSpeed * CompoundSlowdownFactor(),
                     _stats.MinSpeed,
                     _stats.MaxSpeed
                 );
             }
 
             return modifiedMaxSpeed;
+        }
+
+        // each slowdown factor contributes a portion of speed loss
+        // when all factors are in full effect, slowdown is maximized
+        private float CompoundSlowdownFactor()
+        {
+            // perceived proximity to target
+            float targetProximityFactor = Mathf.Min(
+                _perceivedDistanceToTarget / _ai.slowdownDistance,
+                1
+            );
+            // horizontal distance to next waypoint
+            // takes away some slipperiness when the waypoint is above or below the target
+            float horizontalOffsetFactor = Mathf.Min(
+                Mathf.Abs(DirectionToNextWaypoint.x) / _ai.slowdownDistance,
+                1
+            );
+            return (targetProximityFactor * 2 + horizontalOffsetFactor) / 3;
         }
 
         #endregion
@@ -440,7 +474,7 @@ namespace TarodevController.Trol
             Vector2 rayOrigin =
                 _rb.position
                 + new Vector2(
-                    _aiFrameInput.Move.x > 0
+                    DirectionToNextWaypoint.x > 0
                         ? _controller._environmentCol.size.x / 2
                         : -_controller._environmentCol.size.x / 2,
                     -_controller._environmentCol.size.y / 2
@@ -463,7 +497,7 @@ namespace TarodevController.Trol
             Vector2 rayOrigin =
                 _rb.position
                 + new Vector2(
-                    _aiFrameInput.Move.x > 0
+                    DirectionToNextWaypoint.x > 0
                         ? _controller._environmentCol.size.x / 2
                         : -_controller._environmentCol.size.x / 2,
                     0
@@ -472,11 +506,15 @@ namespace TarodevController.Trol
 
             RaycastHit2D hit = Physics2D.Raycast(
                 rayOrigin,
-                new Vector2(_aiFrameInput.Move.x, 0),
+                new Vector2(DirectionToNextWaypoint.x, 0),
                 rayLength,
                 _groundLayerMask
             );
-            Debug.DrawRay(rayOrigin, new Vector2(_aiFrameInput.Move.x, 0) * rayLength, Color.blue);
+            Debug.DrawRay(
+                rayOrigin,
+                new Vector2(DirectionToNextWaypoint.x, 0) * rayLength,
+                Color.blue
+            );
 
             return hit.collider != null;
         }
@@ -505,28 +543,40 @@ namespace TarodevController.Trol
         private const float DirectionThreshold = 0.75f;
         private const int RandomJumpChanceMax = 1000;
 
-        private bool AssessJumpConditions()
+        internal void AssessJumping()
+        {
+            // Default case: Do not initiate jump this frame
+            _aiFrameInput.JumpDown = false;
+
+            // Evaluate Fast Fall
+            if (_aiFrameInput.JumpHeld)
+            {
+                _aiFrameInput.JumpHeld = ShouldContinueJump();
+            }
+            else if (ShouldInitiateJump())
+            {
+                _aiFrameInput.JumpDown = true;
+                _aiFrameInput.JumpHeld = true;
+                return;
+            }
+        }
+
+        private bool ShouldInitiateJump()
+        {
+            bool jumpStrategically = IsLedgeAhead() || IsObstacleAhead() || IsVoidBelow();
+            bool jumpRandomly =
+                DirectionToNextWaypoint.normalized.y > DirectionThreshold
+                && UnityEngine.Random.Range(0, RandomJumpChanceMax) < randomJumpChance;
+
+            return _controller.IsGrounded && (jumpStrategically || jumpRandomly);
+        }
+
+        private bool ShouldContinueJump()
         {
             bool withinRangeOfTarget = _perceivedDistanceToTarget < _pathfinderJumpThreshold;
-            bool jumpStrategically = IsLedgeAhead() || IsObstacleAhead() || IsVoidBelow();
-            bool jumpRandomly = ShouldJumpRandomly();
-            bool fallInstead = withinRangeOfTarget && _directionToNextWaypoint.y < 0; // if nearby & below
+            bool shouldFall = withinRangeOfTarget && DirectionToNextWaypoint.y < 0; // if nearby & below
 
-            return (jumpStrategically || jumpRandomly) && !fallInstead;
-        }
-
-        private bool ShouldJumpRandomly()
-        {
-            return _directionToNextWaypoint.y > DirectionThreshold
-                && UnityEngine.Random.Range(0, RandomJumpChanceMax) < randomJumpChance;
-        }
-
-        private void AssessJumping()
-        {
-            bool shouldJump = AssessJumpConditions();
-
-            _aiFrameInput.JumpDown = shouldJump && !_aiFrameInput.JumpHeld;
-            _aiFrameInput.JumpHeld = shouldJump;
+            return !shouldFall;
         }
 
         #endregion
@@ -572,7 +622,7 @@ namespace TarodevController.Trol
                 for (int i = 0; i < CurrentPath.vectorPath.Count - 1; i++)
                 {
                     Gizmos.color =
-                        i == _currentWaypoint - 1
+                        i == _currentWaypointIndex - 1
                             ? new Color(0, 0, 1F, 1F)
                             : new Color(0, 1F, 0, 1F);
                     Gizmos.DrawLine(CurrentPath.vectorPath[i], CurrentPath.vectorPath[i + 1]);

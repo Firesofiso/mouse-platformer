@@ -8,6 +8,7 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 62a9f0aa5b59740cfbadc7e5f9823bb0, type: 3}
+  importerVersion: 2
   textureImporterSettings:
     alphaSource: 1
     mipMapMode: 0
@@ -884,13 +885,18 @@ ScriptedImporter:
   spriteSheetImportData: []
   asepriteLayers:
   - layerIndex: 0
-    guid: -735099945
+    uuid:
+      value0: 3319445491
+      value1: 0
+      value2: 0
+      value3: 0
+    guid: -975521805
     name: mobb trol
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: mobb trol_Frame_0
+    - name: Frame_0
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
@@ -899,7 +905,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: 561f67f8fa36e476293ae906715df16d
-    - name: mobb trol_Frame_1
+    - name: Frame_1
       frameIndex: 1
       additiveSortOrder: 0
       cellRect:
@@ -908,7 +914,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: 7b7702e31fdc44b97905dd683584ea9c
-    - name: mobb trol_Frame_2
+    - name: Frame_2
       frameIndex: 2
       additiveSortOrder: 0
       cellRect:
@@ -917,7 +923,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: dcecd1a5505f845b4b643072e0ff0b5e
-    - name: mobb trol_Frame_3
+    - name: Frame_3
       frameIndex: 3
       additiveSortOrder: 0
       cellRect:
@@ -926,7 +932,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: 006c6aafc9cb64bb09d08b4143629480
-    - name: mobb trol_Frame_4
+    - name: Frame_4
       frameIndex: 4
       additiveSortOrder: 0
       cellRect:
@@ -935,7 +941,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: 1cc87c3a7e21f4b36bc680404e770f9f
-    - name: mobb trol_Frame_5
+    - name: Frame_5
       frameIndex: 5
       additiveSortOrder: 0
       cellRect:
@@ -944,7 +950,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: 880118cb81bca44508e290f85471c98b
-    - name: mobb trol_Frame_6
+    - name: Frame_6
       frameIndex: 6
       additiveSortOrder: 0
       cellRect:
@@ -953,7 +959,7 @@ ScriptedImporter:
         width: 11
         height: 13
       spriteId: 7e297e7eb8006475aac90d5de1df928b
-    - name: mobb trol_Frame_7
+    - name: Frame_7
       frameIndex: 7
       additiveSortOrder: 0
       cellRect:
@@ -962,7 +968,7 @@ ScriptedImporter:
         width: 10
         height: 12
       spriteId: 114dd257ae797484ab6f01f8f8ad41ce
-    - name: mobb trol_Frame_8
+    - name: Frame_8
       frameIndex: 8
       additiveSortOrder: 0
       cellRect:
@@ -971,7 +977,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: 1b418d78843b34463be347156cf64117
-    - name: mobb trol_Frame_9
+    - name: Frame_9
       frameIndex: 9
       additiveSortOrder: 0
       cellRect:
@@ -980,7 +986,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: 4b14a7215d87a4cd2a06d4daca719a07
-    - name: mobb trol_Frame_10
+    - name: Frame_10
       frameIndex: 10
       additiveSortOrder: 0
       cellRect:
@@ -989,7 +995,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: 754e4e6aede3d47a4b7eed925ca3efd5
-    - name: mobb trol_Frame_11
+    - name: Frame_11
       frameIndex: 11
       additiveSortOrder: 0
       cellRect:
@@ -998,7 +1004,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: 2fcee6653caa544d78243b0fc301df28
-    - name: mobb trol_Frame_12
+    - name: Frame_12
       frameIndex: 12
       additiveSortOrder: 0
       cellRect:
@@ -1007,7 +1013,7 @@ ScriptedImporter:
         width: 12
         height: 12
       spriteId: 0cb45028b8ef04e2d9ca50e4e351fa9a
-    - name: mobb trol_Frame_13
+    - name: Frame_13
       frameIndex: 13
       additiveSortOrder: 0
       cellRect:
@@ -1016,7 +1022,7 @@ ScriptedImporter:
         width: 13
         height: 11
       spriteId: 2c1253376be7c46a994e5f1acaf5f230
-    - name: mobb trol_Frame_14
+    - name: Frame_14
       frameIndex: 14
       additiveSortOrder: 0
       cellRect:
@@ -1025,7 +1031,7 @@ ScriptedImporter:
         width: 9
         height: 8
       spriteId: 69e02267290bd4cf2a08061dbbf8f647
-    - name: mobb trol_Frame_15
+    - name: Frame_15
       frameIndex: 15
       additiveSortOrder: 0
       cellRect:
@@ -1034,7 +1040,7 @@ ScriptedImporter:
         width: 10
         height: 7
       spriteId: 2461b5e0433b44061b735cbd10599da1
-    - name: mobb trol_Frame_16
+    - name: Frame_16
       frameIndex: 16
       additiveSortOrder: 0
       cellRect:
@@ -1043,7 +1049,7 @@ ScriptedImporter:
         width: 12
         height: 5
       spriteId: 9050629cfe7574b8d891c6ccc2677e8c
-    - name: mobb trol_Frame_17
+    - name: Frame_17
       frameIndex: 17
       additiveSortOrder: 0
       cellRect:
@@ -1052,7 +1058,7 @@ ScriptedImporter:
         width: 15
         height: 13
       spriteId: 10f276a2bdedb4bcb99e8a74e46e663c
-    - name: mobb trol_Frame_18
+    - name: Frame_18
       frameIndex: 18
       additiveSortOrder: 0
       cellRect:
@@ -1061,7 +1067,7 @@ ScriptedImporter:
         width: 11
         height: 7
       spriteId: eb0796566ce8e4209a687501d2182787
-    - name: mobb trol_Frame_19
+    - name: Frame_19
       frameIndex: 19
       additiveSortOrder: 0
       cellRect:
@@ -1070,7 +1076,7 @@ ScriptedImporter:
         width: 11
         height: 6
       spriteId: 89d2723f38f4f4347954c5d0e89784b6
-    - name: mobb trol_Frame_20
+    - name: Frame_20
       frameIndex: 20
       additiveSortOrder: 0
       cellRect:
@@ -1079,7 +1085,7 @@ ScriptedImporter:
         width: 10
         height: 8
       spriteId: 862223f1e26c049f28295a199c591a11
-    - name: mobb trol_Frame_21
+    - name: Frame_21
       frameIndex: 21
       additiveSortOrder: 0
       cellRect:
@@ -1088,7 +1094,7 @@ ScriptedImporter:
         width: 10
         height: 8
       spriteId: 7bc5ce3abd88e4115af359ac2f2537d7
-    - name: mobb trol_Frame_22
+    - name: Frame_22
       frameIndex: 22
       additiveSortOrder: 0
       cellRect:
@@ -1097,7 +1103,7 @@ ScriptedImporter:
         width: 8
         height: 8
       spriteId: 52b4b9470e24b4179ad16726cc79bbbc
-    - name: mobb trol_Frame_23
+    - name: Frame_23
       frameIndex: 23
       additiveSortOrder: 0
       cellRect:
@@ -1106,7 +1112,7 @@ ScriptedImporter:
         width: 10
         height: 7
       spriteId: 10173234a34b34130bd55044c86a3bfc
-    - name: mobb trol_Frame_24
+    - name: Frame_24
       frameIndex: 24
       additiveSortOrder: 0
       cellRect:
@@ -1115,7 +1121,7 @@ ScriptedImporter:
         width: 10
         height: 8
       spriteId: 741eb237ac46046ff874e2e4b8a30f55
-    - name: mobb trol_Frame_25
+    - name: Frame_25
       frameIndex: 25
       additiveSortOrder: 0
       cellRect:
@@ -1124,7 +1130,7 @@ ScriptedImporter:
         width: 10
         height: 8
       spriteId: e9764acb34d794ed9a9fbe08991621a4
-    - name: mobb trol_Frame_26
+    - name: Frame_26
       frameIndex: 26
       additiveSortOrder: 0
       cellRect:
@@ -1133,7 +1139,7 @@ ScriptedImporter:
         width: 10
         height: 7
       spriteId: 43da6574d701342c79cb53697342dd2e
-    - name: mobb trol_Frame_27
+    - name: Frame_27
       frameIndex: 27
       additiveSortOrder: 0
       cellRect:
@@ -1142,7 +1148,7 @@ ScriptedImporter:
         width: 11
         height: 13
       spriteId: bf9f3d51156674ba188f597f3c3a357a
-    - name: mobb trol_Frame_28
+    - name: Frame_28
       frameIndex: 28
       additiveSortOrder: 0
       cellRect:
@@ -1151,7 +1157,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: c2a49b6caae184f90923f4a6f20a78b7
-    - name: mobb trol_Frame_29
+    - name: Frame_29
       frameIndex: 29
       additiveSortOrder: 0
       cellRect:
@@ -1160,7 +1166,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: a852538bff4294945a0d19948301616c
-    - name: mobb trol_Frame_30
+    - name: Frame_30
       frameIndex: 30
       additiveSortOrder: 0
       cellRect:
@@ -1169,7 +1175,7 @@ ScriptedImporter:
         width: 11
         height: 12
       spriteId: 5bbc2f2cf5670450fb05fc429b0874b7
-    - name: mobb trol_Frame_31
+    - name: Frame_31
       frameIndex: 31
       additiveSortOrder: 0
       cellRect:
@@ -1178,7 +1184,7 @@ ScriptedImporter:
         width: 12
         height: 12
       spriteId: 9bb25cd12de2741b5b9ff567b1d3a6c8
-    - name: mobb trol_Frame_32
+    - name: Frame_32
       frameIndex: 32
       additiveSortOrder: 0
       cellRect:
@@ -1187,7 +1193,7 @@ ScriptedImporter:
         width: 10
         height: 8
       spriteId: 49d0f4ddc29284d7bbddd0a9c4556439
-    - name: mobb trol_Frame_33
+    - name: Frame_33
       frameIndex: 33
       additiveSortOrder: 0
       cellRect:
@@ -1196,7 +1202,7 @@ ScriptedImporter:
         width: 10
         height: 8
       spriteId: 7fc212955c3fa474d8e4147b75e30247
-    - name: mobb trol_Frame_34
+    - name: Frame_34
       frameIndex: 34
       additiveSortOrder: 0
       cellRect:
@@ -1205,7 +1211,7 @@ ScriptedImporter:
         width: 10
         height: 7
       spriteId: db5945520111a4f5682a00f5a5465a90
-    - name: mobb trol_Frame_35
+    - name: Frame_35
       frameIndex: 35
       additiveSortOrder: 0
       cellRect:
@@ -1214,7 +1220,7 @@ ScriptedImporter:
         width: 10
         height: 7
       spriteId: a97ef2e6c9c5a4480ac7407363a5a118
-    - name: mobb trol_Frame_36
+    - name: Frame_36
       frameIndex: 36
       additiveSortOrder: 0
       cellRect:
@@ -1223,7 +1229,7 @@ ScriptedImporter:
         width: 10
         height: 8
       spriteId: bf7c1e7d0fbe34eb88de170f5e73cb84
-    - name: mobb trol_Frame_37
+    - name: Frame_37
       frameIndex: 37
       additiveSortOrder: 0
       cellRect:
@@ -1263,3 +1269,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 16, y: 16}
+  previousTextureSize: {x: 128, y: 128}

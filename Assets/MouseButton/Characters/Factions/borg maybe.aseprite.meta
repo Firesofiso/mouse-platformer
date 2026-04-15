@@ -8,6 +8,7 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 62a9f0aa5b59740cfbadc7e5f9823bb0, type: 3}
+  importerVersion: 2
   textureImporterSettings:
     alphaSource: 1
     mipMapMode: 0
@@ -284,13 +285,18 @@ ScriptedImporter:
   spriteSheetImportData: []
   asepriteLayers:
   - layerIndex: 0
-    guid: 1315880666
+    uuid:
+      value0: 803887810
+      value1: 0
+      value2: 0
+      value3: 0
+    guid: 803887810
     name: borg maybe
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: borg maybe_Frame_0
+    - name: Frame_0
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
@@ -299,7 +305,7 @@ ScriptedImporter:
         width: 9
         height: 9
       spriteId: d3f4e1fb9397a4cc5a1614bdedf0fd68
-    - name: borg maybe_Frame_1
+    - name: Frame_1
       frameIndex: 1
       additiveSortOrder: 0
       cellRect:
@@ -308,7 +314,7 @@ ScriptedImporter:
         width: 9
         height: 8
       spriteId: e8bfe536aedce41ec81bbc5202a8e581
-    - name: borg maybe_Frame_2
+    - name: Frame_2
       frameIndex: 2
       additiveSortOrder: 0
       cellRect:
@@ -317,7 +323,7 @@ ScriptedImporter:
         width: 7
         height: 9
       spriteId: b2f05f15fa26945f9a8e9c3d41480260
-    - name: borg maybe_Frame_3
+    - name: Frame_3
       frameIndex: 3
       additiveSortOrder: 0
       cellRect:
@@ -326,7 +332,7 @@ ScriptedImporter:
         width: 7
         height: 8
       spriteId: d3d8b2feced2e44fa8648f2ebe5e3070
-    - name: borg maybe_Frame_4
+    - name: Frame_4
       frameIndex: 4
       additiveSortOrder: 0
       cellRect:
@@ -335,7 +341,7 @@ ScriptedImporter:
         width: 7
         height: 7
       spriteId: 90e841b9a54b34411a9c80d96bfeb949
-    - name: borg maybe_Frame_5
+    - name: Frame_5
       frameIndex: 5
       additiveSortOrder: 0
       cellRect:
@@ -344,7 +350,7 @@ ScriptedImporter:
         width: 7
         height: 6
       spriteId: 369949741078541838b21770fa70f580
-    - name: borg maybe_Frame_6
+    - name: Frame_6
       frameIndex: 6
       additiveSortOrder: 0
       cellRect:
@@ -353,7 +359,7 @@ ScriptedImporter:
         width: 5
         height: 5
       spriteId: 244464b4902544d11be25a02230d0079
-    - name: borg maybe_Frame_7
+    - name: Frame_7
       frameIndex: 7
       additiveSortOrder: 0
       cellRect:
@@ -369,3 +375,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 16, y: 16}
+  previousTextureSize: {x: 32, y: 64}

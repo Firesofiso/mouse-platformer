@@ -28,7 +28,7 @@ MonoBehaviour:
   Acceleration: 50
   GroundDeceleration: 100
   AirDeceleration: 50
-  GroundingForce: -3.24
+  GroundingForce: -0.69
   StickyFeetMultiplier: 2
   GrounderDistance: 0.5
   AfraidOfHeight: 10

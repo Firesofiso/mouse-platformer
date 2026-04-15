@@ -11,11 +11,11 @@ using UnityEngine;
 namespace TarodevController.Trol
 {
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
-    internal class MobbTrolController : MonoBehaviour, IPlayerController, ITrolUnit
+    public class MobbTrolController : MonoBehaviour, IPlayerController, ITrolUnit
     {
         #region Properties
         [SerializeField]
-        private ScriptableStats _stats; // Scriptable object containing stats for the unit
+        public ScriptableStats _stats; // Scriptable object containing stats for the unit
         #endregion
 
         #region Internal
@@ -395,7 +395,6 @@ namespace TarodevController.Trol
                     bounceVector /= validBounceCount; // avg normal for each valid bounce
                     bounceVector *= _stats.JumpPower; // jump power applied to resulting normal
                     SetVelocity(bounceVector, EntityForce.Decay);
-                    Debug.Log(bounceVector.y);
                 }
             }
 
@@ -1250,7 +1249,7 @@ namespace TarodevController.Trol
                 _stats.ExternalVelocityDecay * Time.fixedDeltaTime
             );
 
-            _behaviour.HandleLocalAvoidance();
+            // _behaviour.HandleLocalAvoidance();
         }
 
         #endregion
