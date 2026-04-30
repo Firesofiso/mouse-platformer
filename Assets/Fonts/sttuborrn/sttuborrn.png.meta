@@ -1,0 +1,1478 @@
+fileFormatVersion: 2
+guid: d7259df0d00394b8a978d75441f6ca15
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: sttuborrn_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 118a0b222361d4d58a024dcbe538f4c1
+      internalID: -801995567
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_1
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e5e0bbc1387464f62ad994d8e64ecc37
+      internalID: -1733779799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_2
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3013dac67b45f4e77800e902e3a53ceb
+      internalID: -54820395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_3
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0602b283ca21148e5ba37af43fa068bc
+      internalID: 2077273382
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_4
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d8a5e9eac698646fabc6bcdd00fa4a36
+      internalID: -440193409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_5
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fe9f940ae92b449f3826b460f37960b4
+      internalID: 1632269933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_6
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eba78bf7b47384a80a69d7b72d71d45b
+      internalID: -1561238457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_7
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5439b0bce4d6a4718a02cd573b40a6ba
+      internalID: 1979301660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_8
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 93b7e25a5f9d545eda2194ba51ab9c67
+      internalID: -2013456052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_9
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ed4f0459154ad474cab282891af3b0d0
+      internalID: 1714914682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_10
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9a50239696eb549b3aa7622563c2c4ff
+      internalID: -1947031147
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_11
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b31440ab1b0004c61af1df9185ed5932
+      internalID: -495248589
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_12
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 079cd16f1e59849df859389d0b142356
+      internalID: 1796887898
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_13
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 75c3b707a3c744d3c8d6882887dc3eb8
+      internalID: 515106469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_14
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 81391076b949a44cabb9e8affb25ff58
+      internalID: 286189158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_15
+      rect:
+        serializedVersion: 2
+        x: 76
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c84ec3c5dc1c14a8293fdceeb6d4e6af
+      internalID: 1264449960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_16
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7489911df941d4dae9c984f4332a3cab
+      internalID: -845143791
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_17
+      rect:
+        serializedVersion: 2
+        x: 86
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d54b9f3b028404a15951a73187bcbd2c
+      internalID: 1832221800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_18
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0a11c3d4305fb4e11bba555c3b6fee99
+      internalID: 1280843981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_19
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c9d72af9b8880481bb85c4f839a16b36
+      internalID: 2116663187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_20
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c64241d94c6b4af9be0df1b9efa2aea
+      internalID: 1876053971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_21
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e396fabc06c524dd9b5adcc108c536df
+      internalID: -166677045
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_22
+      rect:
+        serializedVersion: 2
+        x: 111
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fefce5407203b4de09fb92212fde1ad6
+      internalID: 449965094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_23
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9f0928ba0319648539f5b6752af1b2c7
+      internalID: 363881656
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_24
+      rect:
+        serializedVersion: 2
+        x: 121
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2d2d01defd75346199f02a41ecea1820
+      internalID: -1494470906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_25
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 154
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a4552671b9600431e9fd6d11f603f543
+      internalID: -272563152
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_26
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a079686baf7984622a9b8f418b1482bb
+      internalID: -1131752502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_27
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 325f5f8070ffd43cf9b345fc684a9fac
+      internalID: 258776405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_28
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 27492c2723b3740c6b6aff11ab1d7ab8
+      internalID: -1994442260
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_29
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 12e4f17d961f345b68c209ef4301ed81
+      internalID: 1133310078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_30
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e8f32958892c94b4d8f92f95a5979477
+      internalID: -1879991483
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_31
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d47d8e893daad4440be6689e2ff3aaa8
+      internalID: -516774616
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_32
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 18cdc8536f160461bb434e5278944f94
+      internalID: -1417851085
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_33
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b96927a88c03d48a8b8c5d7974d76c7a
+      internalID: 256321200
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_34
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3babc4cf9b53b462593f2a3fe1011b39
+      internalID: 849180793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_35
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ef823861030ea43699e37ee2af960b62
+      internalID: 2090452449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_36
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 621fd0481322a4b2d839e4d0cad8fd7d
+      internalID: -839222422
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_37
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8d521ada24e924bdc9093bbf0450a916
+      internalID: -70312106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_38
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3f39b64702caf4df9bb082f0efb0ec77
+      internalID: 772839156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_39
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2bcd7fc4991c34c7d9757ea94fdc23ac
+      internalID: -359247210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_40
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2a577725e4bd04adeac9cb119fd6c011
+      internalID: 249790779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_41
+      rect:
+        serializedVersion: 2
+        x: 76
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 93ac61dbc99114c7ba9d4049450bff55
+      internalID: -1170523038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_42
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2b61111f974d5404b92f5c7870fd5e71
+      internalID: 1590655323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_43
+      rect:
+        serializedVersion: 2
+        x: 86
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3587cba7771374a14b41f2a4ed336702
+      internalID: -2043222470
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_44
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 535533c2624a4454eb8acd1a21e81b14
+      internalID: -1177390973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_45
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d32d3265278c141be99cec94821a1ca8
+      internalID: 1616394133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_46
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c2d23518640684b84b1e0dd690e82a55
+      internalID: 228443335
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_47
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 66b9c2c37b5da4cb292c922fbe1481d5
+      internalID: -514860672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_48
+      rect:
+        serializedVersion: 2
+        x: 111
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 73b06548092c34eb883ce9fecd36fdd6
+      internalID: 385638007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_49
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c1baf3a011c844ab980da59de2b70576
+      internalID: 1248887870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_50
+      rect:
+        serializedVersion: 2
+        x: 121
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a0f02e70510a74da4b5238b5c24c7d84
+      internalID: 79402943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_51
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 148
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 30fe42f006fde4985a846e9476572939
+      internalID: 1863704897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_52
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 142
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bf9dcefca78044090879ccf721060e26
+      internalID: -1917726177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_53
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 142
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 54977640d1194406ebd9dab6eeaa44ff
+      internalID: 378506308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_54
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 142
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 34f034cdc8aab4ae8aae5489a8396534
+      internalID: -1735892335
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_55
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 142
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2c645c992be264801b81761de782884b
+      internalID: 886911835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_56
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 142
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dfb18bea5664d4a5888a1da7750612f1
+      internalID: 258795235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_57
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 142
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7340d52e786c14404a85d049ef1bd9a6
+      internalID: -1828844954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_58
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 142
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1a1ed68f6091344ebafb651f0f1b105f
+      internalID: -584089020
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_59
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 142
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7543ad911dde44147a418573373338d6
+      internalID: 1374015650
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_60
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 142
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4827dbe398b7c4b499387c881c12732e
+      internalID: 1803171265
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sttuborrn_61
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 142
+        width: 3
+        height: 6
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6ee639a0541a747e6827706544c31da8
+      internalID: 2128261649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      sttuborrn_0: -801995567
+      sttuborrn_1: -1733779799
+      sttuborrn_10: -1947031147
+      sttuborrn_11: -495248589
+      sttuborrn_12: 1796887898
+      sttuborrn_13: 515106469
+      sttuborrn_14: 286189158
+      sttuborrn_15: 1264449960
+      sttuborrn_16: -845143791
+      sttuborrn_17: 1832221800
+      sttuborrn_18: 1280843981
+      sttuborrn_19: 2116663187
+      sttuborrn_2: -54820395
+      sttuborrn_20: 1876053971
+      sttuborrn_21: -166677045
+      sttuborrn_22: 449965094
+      sttuborrn_23: 363881656
+      sttuborrn_24: -1494470906
+      sttuborrn_25: -272563152
+      sttuborrn_26: -1131752502
+      sttuborrn_27: 258776405
+      sttuborrn_28: -1994442260
+      sttuborrn_29: 1133310078
+      sttuborrn_3: 2077273382
+      sttuborrn_30: -1879991483
+      sttuborrn_31: -516774616
+      sttuborrn_32: -1417851085
+      sttuborrn_33: 256321200
+      sttuborrn_34: 849180793
+      sttuborrn_35: 2090452449
+      sttuborrn_36: -839222422
+      sttuborrn_37: -70312106
+      sttuborrn_38: 772839156
+      sttuborrn_39: -359247210
+      sttuborrn_4: -440193409
+      sttuborrn_40: 249790779
+      sttuborrn_41: -1170523038
+      sttuborrn_42: 1590655323
+      sttuborrn_43: -2043222470
+      sttuborrn_44: -1177390973
+      sttuborrn_45: 1616394133
+      sttuborrn_46: 228443335
+      sttuborrn_47: -514860672
+      sttuborrn_48: 385638007
+      sttuborrn_49: 1248887870
+      sttuborrn_5: 1632269933
+      sttuborrn_50: 79402943
+      sttuborrn_51: 1863704897
+      sttuborrn_52: -1917726177
+      sttuborrn_53: 378506308
+      sttuborrn_54: -1735892335
+      sttuborrn_55: 886911835
+      sttuborrn_56: 258795235
+      sttuborrn_57: -1828844954
+      sttuborrn_58: -584089020
+      sttuborrn_59: 1374015650
+      sttuborrn_6: -1561238457
+      sttuborrn_60: 1803171265
+      sttuborrn_61: 2128261649
+      sttuborrn_7: 1979301660
+      sttuborrn_8: -2013456052
+      sttuborrn_9: 1714914682
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

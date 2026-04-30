@@ -31,12 +31,14 @@ MonoBehaviour:
   GroundingForce: -1.5
   StickyFeetMultiplier: 2
   GrounderDistance: 0.015
+  AfraidOfHeight: 10
+  MinSpeed: 5
   AllowCrouching: 1
   CrouchSpeedPenalty: 0.5
   CrouchSlowdownFrames: 50
   CrouchBufferCheck: 0.01
   MaxAirJumps: 0
-  JumpPower: 100
+  JumpPower: 115
   MaxFallSpeed: 200
   FallAcceleration: 200
   JumpEndEarlyGravityModifier: 3

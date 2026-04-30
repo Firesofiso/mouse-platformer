@@ -58,8 +58,6 @@ namespace TarodevController.Trol
         [SerializeField]
         private float randomJumpChance = 1f;
 
-        private StateMachine _machine;
-
         // A* pathfinding
         [SerializeField]
         internal AIDestinationSetter _dest;
@@ -237,13 +235,7 @@ namespace TarodevController.Trol
             )
             {
                 behaviorStatusDebug = "in sight & range...";
-                if (_controller.ShouldThrow) // enough aim time has elapsed
-                {
-                    behaviorStatusDebug = "throwing...";
-                    ThrowSpear.Invoke();
-                    UpdateTarget(null);
-                    return;
-                }
+                // throw is owned by state machine (Aim state → LaunchSpear)
                 _controller.IsAiming = _controller.IsGrounded;
             }
             else

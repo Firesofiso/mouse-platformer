@@ -58,6 +58,9 @@ namespace TarodevController.Trol
         [SerializeField]
         private MobbTrolBehaviour _behaviour;
 
+        [SerializeField]
+        private StatefulUnit _statefulUnit;
+
         #endregion
 
         #region External
@@ -163,6 +166,8 @@ namespace TarodevController.Trol
             {
                 _frameInput = GatherAIInput();
             }
+
+            _statefulUnit?.FilterInput(ref _frameInput);
 
             HandleInput();
         }
@@ -922,6 +927,7 @@ namespace TarodevController.Trol
 
         [SerializeField]
         private TrolSpear _spear;
+        public Transform SpearTransform => _spear?.transform;
         private bool _spearless;
         public bool Spearless
         {
@@ -947,6 +953,33 @@ namespace TarodevController.Trol
             }
         }
         public bool ShouldThrow => IsAiming && _aimingTill < Time.time;
+
+        internal void TriggerThrow() => OnThrowSpear();
+
+        // State-machine path: physics + animation only, no timing or LockState
+        private bool _lastThrowTripped;
+        public bool LastThrowTripped => _lastThrowTripped;
+
+        public void LaunchSpear()
+        {
+            if (_throwSpearCoroutine != null) StopCoroutine(_throwSpearCoroutine);
+            _spear.gameObject.SetActive(true);
+            _lastThrowTripped = DidTrip();
+            HandleThrowing?.Invoke(_lastThrowTripped);
+            GameManager.instance.trolManager.activeSpears.Add(_spear);
+            StartCoroutine(
+                _spear.TemporarilyIgnoreColliders(
+                    new List<Collider2D>() { _environmentCol, _entityCol, _spearTipCollider }
+                )
+            );
+            Vector3 directionToTarget = _dest.target.position - transform.position;
+            _spear.transform.up = directionToTarget;
+            _spear._rb.velocity = directionToTarget * 2;
+            Spearless = true;
+            IsAiming = false;
+        }
+
+        public void SetRecovering() => HandleRecovery?.Invoke();
 
         protected virtual void OnThrowSpear()
         {
@@ -986,11 +1019,13 @@ namespace TarodevController.Trol
             UnlockState();
         }
 
+        public void TriggerGrabSpear() => OnGrabSpear(_spear?.transform);
+
         void OnGrabSpear(Transform s)
         {
-            if (s == null)
-                return;
+            if (!_spearless || s == null) return; // guard against double-fire
             _spear = s.GetComponent<TrolSpear>();
+            if (_spear == null) return; // wrong target (e.g. player transform)
             GameManager.instance.trolManager.activeSpears.Remove(_spear);
             s.SetParent(transform); // Reparent the spear to the MobbTrol
             s.localPosition = Vector3.zero; // Reset the spear's position

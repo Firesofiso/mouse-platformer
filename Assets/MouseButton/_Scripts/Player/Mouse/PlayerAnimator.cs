@@ -3,13 +3,13 @@ using UnityEngine;
 namespace TarodevController {
     [RequireComponent(typeof(Animator), typeof(SpriteRenderer))]
     public class PlayerAnimator : MonoBehaviour {
-        private IPlayerController _player;
+        private PlayerController _player;
         private Animator _anim;
         private SpriteRenderer _renderer;
         private AudioSource _source;
 
         private void Awake() {
-            _player = GetComponentInParent<IPlayerController>();
+            _player = GetComponentInParent<PlayerController>();
             _anim = GetComponent<Animator>();
             _renderer = GetComponent<SpriteRenderer>();
             _source = GetComponent<AudioSource>();
@@ -292,7 +292,28 @@ namespace TarodevController {
             _anim.Play(state, 0); //_anim.CrossFade(state, 0, 0);
             _currentState = state;
 
+            int IdleCycle() {
+                if (_isIdle == 0) {
+                    _isIdle = Time.time;
+                    _wagInterval = Random.Range(3, 5);
+                    _scritchInterval = Random.Range(10, 20);
+                } else if (_isIdle + _scritchInterval < Time.time || _isIdle > Time.time) {
+                    if (_isIdle + _scritchInterval < Time.time) {
+                        _isIdle = Time.time + 1;
+                        _scritchInterval += Random.Range(10, 20);
+                        _wagInterval = 0;
+                    }
+                    return IdleScritch;
+                } else if (_isIdle + _wagInterval < Time.time) {
+                    return IdleWag;
+                } else {
+                    return Idle;
+                }
+                return _currentState;
+            }
+
             int GetState() {
+                if (_player.IsInCharacterSelect) return IdleCycle();
                 if (Time.time < _lockedTill) return _currentState;
                 if (_isLedgeClimbing) return LockState(_climbIntoCrawl ? LedgeClimbIntoCrawl : LedgeClimb, _player.PlayerStats.LedgeClimbDuration);
                 if (_attacked) return LockState(Attack, _attackAnimTime);
@@ -317,23 +338,7 @@ namespace TarodevController {
 
                 if (_grounded)
                     if (_player.Input.x == 0 && _player.Speed.x == 0) { // stationary
-                        if (_isIdle == 0) {
-                            _isIdle = Time.time;
-                            _wagInterval = Random.Range(3, 5);
-                            _scritchInterval = Random.Range(10, 20);
-                        } else if (_isIdle + _scritchInterval < Time.time || _isIdle > Time.time) {
-                            if (_isIdle + _scritchInterval < Time.time) {
-                                _isIdle = Time.time + 1;
-                                _scritchInterval += Random.Range(10, 20);
-                                _wagInterval = 0;
-                            }
-                            return IdleScritch;
-                        } else if (_isIdle + _wagInterval < Time.time) {
-                            return IdleWag;
-                        } else {
-                            return Idle;
-                        }
-                        return _currentState;
+                        return IdleCycle();
                     } else if ((_player.Input.x == 0 && _player.Speed.x != 0) | (_player.Input.x > 0) != (_player.Speed.x > 0)) { // changing direction or stopping
                         _isIdle = 0;
                         return Skid;

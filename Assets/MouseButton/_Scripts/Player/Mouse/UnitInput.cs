@@ -18,7 +18,7 @@ namespace TarodevController
                 FrameInput = Gather();
         }
 
-#if ENABLE_INPUT_SYSTEM && isPlayerUnit
+#if ENABLE_INPUT_SYSTEM
         private PlayerInputActions _actions;
         private InputAction _move,
             _jump,
@@ -35,7 +35,7 @@ namespace TarodevController
             _drop = _actions.Player.Drop;
             _dash = _actions.Player.Dash;
             _attack = _actions.Player.Attack;
-            _click = _action.Player.Click;
+            _click = _actions.Player.Click;
         }
 
         private void OnEnable() => _actions.Enable();

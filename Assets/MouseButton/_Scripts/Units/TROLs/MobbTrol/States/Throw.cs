@@ -1,4 +1,4 @@
-public class Throw : PathfinderState
+public class Throw : State
 {
     public override void Do()
     {

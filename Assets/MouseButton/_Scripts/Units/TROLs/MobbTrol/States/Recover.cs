@@ -1,11 +1,31 @@
-public class Recover : PathfinderState
+using TarodevController;
+using TarodevController.Trol;
+
+public class Recover : State, IInputFilter
 {
+    private MobbTrolController Controller => ((MobbTrolUnit)_unit).controller;
+
+    private int _recoveryTime;
+
+    public override void Enter()
+    {
+        _recoveryTime = Controller.LastThrowTripped ? 5 : 3;
+        ResetTime();
+    }
+
     public override void Do()
     {
-        // todo decide if tripped
-        // todo recover after some time
+        if (TimeElapsed > _recoveryTime)
+        {
+            Controller.SetRecovering();
+            IsComplete = true;
+        }
+    }
 
-        // todo transition to spearless
-        // Set(_unit._spearless);
+    public void FilterInput(ref FrameInput input)
+    {
+        input.Move.x = 0;
+        input.JumpDown = false;
+        input.JumpHeld = false;
     }
 }

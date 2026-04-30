@@ -1,11 +1,12 @@
 using UnityEngine;
 
-
-public class Idle : PathfinderState {
-
+public class Idle : State
+{
     public override void Do() { }
 
     public override void Enter() {
-        Brain.ClearPath();
+        _unit.Brain?.StopGenerating();
+        _unit.Brain?.StopTraversing();
+        _unit.Brain?.ClearPath();
     }
 }

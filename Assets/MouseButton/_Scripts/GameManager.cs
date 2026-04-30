@@ -11,10 +11,14 @@ public class GameManager : MonoBehaviour {
     public static GameManager Instance { get { return instance; } }
 
     private void Awake() {
-        if (instance == null)
+        if (instance == null) {
             instance = this;
-        else
+            DontDestroyOnLoad(gameObject);
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Confined;
+        } else {
             Destroy(gameObject);
+        }
     }
 
     // Implement any other game-related functionalities and interactions

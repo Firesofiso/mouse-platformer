@@ -54,6 +54,7 @@ namespace TarodevController
         public bool ClimbingLadder { get; private set; }
         public bool GrabbingLedge { get; private set; }
         public bool ClimbingLedge { get; private set; }
+        public bool IsInCharacterSelect { get; set; }
 
         public virtual void ApplyVelocity(Vector2 vel, EntityForce forceType)
         {
@@ -99,7 +100,17 @@ namespace TarodevController
 
         protected virtual void Update()
         {
+            if (IsInCharacterSelect) return;
+            
             GatherInput();
+        }
+
+        private bool IsGroundedOnOneWay()
+        {
+            for (int i = 0; i < _groundHitCount; i++)
+                if (_groundHits[i].collider?.GetComponent<OneWayPlatformBehaviour>() != null)
+                    return true;
+            return false;
         }
 
         protected virtual void GatherInput()
@@ -118,7 +129,7 @@ namespace TarodevController
                         : Mathf.Sign(_frameInput.Move.y);
             }
 
-            if (_frameInput.DropDown && _col.IsTouchingLayers(LayerMask.GetMask("one-way")))
+            if (_frameInput.DropDown && IsGroundedOnOneWay())
             {
                 _droppingDown = true;
             }
@@ -142,6 +153,7 @@ namespace TarodevController
         protected virtual void FixedUpdate()
         {
             _fixedFrame++;
+            if (IsInCharacterSelect) return;
 
             CheckCollisions();
             HandleCollisions();
@@ -161,6 +173,7 @@ namespace TarodevController
         }
 
         #region Collisions
+        private readonly Collider2D[] _standCheckBuffer = new Collider2D[4];
         private readonly RaycastHit2D[] _bounceHits = new RaycastHit2D[5];
         private readonly RaycastHit2D[] _groundHits = new RaycastHit2D[2];
         private readonly RaycastHit2D[] _ceilingHits = new RaycastHit2D[2];
@@ -285,9 +298,22 @@ namespace TarodevController
             // Hit a Ceiling
             if (_ceilingHitCount > 0)
             {
-                // prevent sticking to ceiling if we did an InAir jump after receiving external velocity w/ PlayerForce.Decay
-                _currentExternalVelocity.y = Mathf.Min(0f, _currentExternalVelocity.y);
-                _speed.y = Mathf.Min(0, _speed.y);
+                bool solidCeiling = false;
+                for (int i = 0; i < _ceilingHitCount; i++)
+                {
+                    var hit = _ceilingHits[i];
+                    if (hit.collider != null && hit.collider.GetComponent<OneWayPlatformBehaviour>() == null)
+                    {
+                        solidCeiling = true;
+                        break;
+                    }
+                }
+                if (solidCeiling)
+                {
+                    // prevent sticking to ceiling if we did an InAir jump after receiving external velocity w/ PlayerForce.Decay
+                    _currentExternalVelocity.y = Mathf.Min(0f, _currentExternalVelocity.y);
+                    _speed.y = Mathf.Min(0, _speed.y);
+                }
             }
 
             // Landed on the Ground
@@ -316,15 +342,19 @@ namespace TarodevController
         protected virtual bool CheckPos(Vector2 pos, CapsuleCollider2D col)
         {
             Physics2D.queriesHitTriggers = false;
-            var hit = Physics2D.OverlapCapsule(
+            int count = Physics2D.OverlapCapsuleNonAlloc(
                 pos + col.offset,
                 col.size - _skinWidth,
                 col.direction,
                 0,
+                _standCheckBuffer,
                 ~_stats.PlayerLayer
             );
             Physics2D.queriesHitTriggers = _cachedTriggerSetting;
-            return !hit;
+            for (int i = 0; i < count; i++)
+                if (_standCheckBuffer[i].GetComponent<OneWayPlatformBehaviour>() == null)
+                    return false;
+            return true;
         }
 
         #endregion
@@ -648,11 +678,8 @@ namespace TarodevController
             {
                 foreach (RaycastHit2D surface in _groundHits)
                 {
-                    if (surface.collider?.gameObject?.layer == LayerMask.NameToLayer("one-way")) {
-                        OneWayPlatformBehaviour platform =
-                            surface.collider.GetComponent<OneWayPlatformBehaviour>();
-                        platform.AllowObjectPassThrough(_col);
-                    }
+                    var platform = surface.collider?.GetComponent<OneWayPlatformBehaviour>();
+                    platform?.AllowObjectPassThrough(_col);
                 }
                 _droppingDown = false;
                 return;

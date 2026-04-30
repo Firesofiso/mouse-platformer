@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using Pathfinding;
 using TarodevController;
 using TarodevController.Trol;
 using UnityEngine;
@@ -11,6 +8,7 @@ namespace TarodevController
     {
         [SerializeField] private PathfindingBrain PathfindingBrain;
         public override PathfindingBrain Brain => PathfindingBrain;
+        public override TargetDetectionSensor Sensor => PathfindingBrain?.Sensor;
 
         public MobbTrolController controller;
     }
@@ -19,16 +17,15 @@ namespace TarodevController
 /*
 State Hierarchy
 
-Armed
+Armed (AI)  /  ArmedPlayer (player)
 ├─ Patrol (wander)
-├─ Chase (path to target)
-├─ Pursue (path to last seen target position)
-├─ Aim (stand still and prepare attack)
-└─ Throw (release spear projectile)
+├─ Chase (path to target)          [AI only — PathfinderState]
+├─ Aim (stand still, prepare)      [shared — State + IInputFilter]
+└─ Throw (release spear)           [shared]
 Spearless
 ├─ Recover (stand up after throw)
 ├─ Reclaim (path to spear)
 ├─ Cheer (spear recovered)
-└─ Dance (post-cheer, etc.)
+└─ Dance (post-cheer)
 
 */

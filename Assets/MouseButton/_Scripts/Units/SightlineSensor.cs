@@ -1,45 +1,59 @@
-using Pathfinding;
 using UnityEngine;
+
+public abstract class TargetDetectionSensor : PathfindingComponent
+{
+    [SerializeField] internal int _detectionRange = 200;
+    [SerializeField] internal float _perceivedDistanceToTarget = float.PositiveInfinity;
+    public float PerceivedDistanceToTarget => _perceivedDistanceToTarget;
+    public bool IsAwareOfTargetPosition => _perceivedDistanceToTarget != float.PositiveInfinity;
+
+    [SerializeField] internal float _targetPermanenceDuration = float.PositiveInfinity;
+    public bool HasTargetPermanence => _targetPermanenceDuration != float.PositiveInfinity;
+    protected float _targetPermanenceStart;
+    public bool TargetPermanenceNotElapsed => Time.time - _targetPermanenceStart < _targetPermanenceDuration;
+
+    // Set by PathfindingBrain.UpdateTarget() for AI, or by a targeting component for players
+    public Transform Target;
+
+    public void ResetTargetPermanence() {
+        _targetPermanenceStart = Time.time;
+    }
+
+    protected abstract void HandleTargetPermanence();
+}
 
 public class SightlineSensor : TargetDetectionSensor
 {
-    public bool HasSightline => isAwareOfTargetPosition;
     private int _obstacleLayerMask;
 
-    protected void Start()
-    {
+    protected void Start() {
         _obstacleLayerMask = LayerMask.GetMask("Ground", "climbable");
     }
 
     protected override void Think() {
-        _perceivedDistanceToTarget = ConfirmSightline();
-        // Debug.Log("perceived distance: " + _perceivedDistanceToTarget);
+        if (Target == null) return;
+        float newDistance = ConfirmSightline();
+
+        if (HasTargetPermanence && newDistance == float.PositiveInfinity)
+            HandleTargetPermanence();
+
+        _perceivedDistanceToTarget = newDistance;
     }
 
-    // returns perceived distance to target/point
-    public float ConfirmSightline(Vector2? nonTargetSeekingPoint = null)
+    public float ConfirmSightline(Vector2? seekingArbitraryPoint = null)
     {
-        if (nonTargetSeekingPoint == null && Brain.destination.target == null)
-            return float.PositiveInfinity;
-
-        // if we aren't seeking a point in space, seek target
-        Vector2 seekingPoint = nonTargetSeekingPoint ?? Brain.destination.target.position;
+        Vector2 seekingPoint = seekingArbitraryPoint ?? Target.position;
         float realDistanceToTarget = Vector2.Distance(Unit.Rb.position, seekingPoint);
 
-        // if out of range, cannot see
         if (realDistanceToTarget > _detectionRange)
-        {
             return float.PositiveInfinity;
-        }
 
         RaycastHit2D hit = Physics2D.Linecast(Unit.Rb.position, seekingPoint, _obstacleLayerMask);
+        return hit.collider == null ? realDistanceToTarget : float.PositiveInfinity;
+    }
 
-        // did not hit obstacle before target/point
-        if (hit.collider == null) {
-            Debug.Log("has sight");
-            return realDistanceToTarget;
-        } else {
-            return float.PositiveInfinity;
-        }
+    protected override void HandleTargetPermanence() {
+        if (IsAwareOfTargetPosition)
+            ResetTargetPermanence();
     }
 }

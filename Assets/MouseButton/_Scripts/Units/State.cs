@@ -1,17 +1,14 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using TarodevController;
-using TarodevController.Trol;
 using UnityEngine;
 
 public abstract class State : MonoBehaviour {
-    protected StateMachine _stateMachine;
-    public StatefulUnit _unit => _stateMachine._unit;
+    protected StatefulUnit _unit;
     public State Substate { get; protected set; }
     protected Rigidbody2D Rb => _unit?.Rb;
     protected Animator Animator => _unit?.Animator;
     protected UnitInput Input => _unit?.Input;
+    protected TargetDetectionSensor Sensor => _unit?.Sensor;
     public bool IsComplete { get; protected set; }
     protected float _startTime;
     public float TimeElapsed => Time.time - _startTime;
@@ -24,59 +21,48 @@ public abstract class State : MonoBehaviour {
 
         if (Substate == null) return;
 
-        Substate.Initialize(_stateMachine);
+        Substate.Initialize(_unit);
         Substate.Enter();
     }
 
-    public virtual void Enter() {
-        // Debug.LogWarning($"[{name}] Cannot execute Do() — unit reference is null.");
-    }
+    public virtual void Enter() { }
 
     public virtual void Do() {
-        if (_unit == null) {
+        if (_unit == null)
             Debug.LogWarning($"[{name}] Cannot execute Do() — unit reference is null.");
-            return;
-        }
-        // Existing logic...
     }
+
+    // Override for player-specific logic. Defaults to Do() so shared states need no changes.
+    public virtual void DoPlayer() => Do();
 
     public virtual void FixedDo() { }
 
     public virtual void Exit() { }
 
-    public void BuildCurrentStateHierarchy(List<State> h) {
-        h.Add(this);
-        if (Substate != null) {
-            Substate.BuildCurrentStateHierarchy(h);
-        }
-    }
-
-    public void Initialize(StateMachine parent) {
-        _stateMachine = parent;
+    public void Initialize(StatefulUnit unit) {
+        _unit = unit;
         IsComplete = false;
+        Substate = null;
         ResetTime();
     }
 
     public void ResetTime() {
         _startTime = Time.time;
     }
-    
+
+    public void BuildCurrentStateHierarchy(List<State> h) {
+        h.Add(this);
+        Substate?.BuildCurrentStateHierarchy(h);
+    }
+
     public List<State> GetActiveStateBranch(List<State> list = null) {
-        if (list == null) {
-            list = new List<State>();
-        }
-
+        list ??= new List<State>();
         list.Add(this);
-
-        if (Substate == null) {
-            return list;
-        } else {
-            return Substate.GetActiveStateBranch(list);
-        }
+        return Substate == null ? list : Substate.GetActiveStateBranch(list);
     }
 }
 
+// AI-only states that need direct pathfinding access extend this
 public abstract class PathfinderState : State {
     public PathfindingBrain Brain => _unit.Brain;
-    public TargetDetectionSensor Sensor => _unit.Brain.Sensor;
 }

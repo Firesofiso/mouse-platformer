@@ -1,4 +1,12 @@
-public class Cheer : PathfinderState
+using TarodevController;
+using TarodevController.Trol;
+
+public class Cheer : State
 {
-    public override void Do() { }
+    private MobbTrolController Controller => ((MobbTrolUnit)_unit).controller;
+
+    public override void Do()
+    {
+        if (Controller.IsGrounded) IsComplete = true;
+    }
 }
