@@ -10,7 +10,9 @@ public class OneWayPlatformBehaviour : MonoBehaviour
 
     private void Start()
     {
-        _platform = GetComponent<CompositeCollider2D>() ?? (Collider2D)GetComponent<TilemapCollider2D>();
+        _platform = GetComponent<CompositeCollider2D>()
+            ?? (Collider2D)GetComponent<TilemapCollider2D>()
+            ?? GetComponent<PolygonCollider2D>();
     }
 
     public void AllowObjectPassThrough(Collider2D other)

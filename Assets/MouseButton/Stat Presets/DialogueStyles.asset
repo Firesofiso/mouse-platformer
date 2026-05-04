@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c102277672c5e4c45ab8a115694b0fd0, type: 3}
+  m_Name: DialogueStyles
+  m_EditorClassIdentifier: 
+  entries:
+  - style: 0
+    bubbleSprite: {fileID: 0}
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    fontScale: 1
+    charsPerSecond: 30
+    shake: 0
+    shakeAmplitude: 0
+    overrideOffset: 0
+    bubbleOffset: {x: 0, y: 1}
+  - style: 1
+    bubbleSprite: {fileID: 0}
+    textColor: {r: 0.8, g: 0.1, b: 0.1, a: 1}
+    fontScale: 4
+    charsPerSecond: 50
+    shake: 1
+    shakeAmplitude: 0.3
+    overrideOffset: 0
+    bubbleOffset: {x: 0, y: 1}
+  - style: 2
+    bubbleSprite: {fileID: 0}
+    textColor: {r: 0.35, g: 0.45, b: 0.65, a: 1}
+    fontScale: 1
+    charsPerSecond: 18
+    shake: 0
+    shakeAmplitude: 0
+    overrideOffset: 0
+    bubbleOffset: {x: 0, y: 1}
+  - style: 3
+    bubbleSprite: {fileID: 0}
+    textColor: {r: 0.5849056, g: 0.5849056, b: 0.5849056, a: 1}
+    fontScale: 1
+    charsPerSecond: 12
+    shake: 0
+    shakeAmplitude: 0
+    overrideOffset: 0
+    bubbleOffset: {x: 0, y: 1}
+  - style: 4
+    bubbleSprite: {fileID: 0}
+    textColor: {r: 1, g: 0.75, b: 0.1, a: 1}
+    fontScale: 2
+    charsPerSecond: 80
+    shake: 1
+    shakeAmplitude: 0.25
+    overrideOffset: 0
+    bubbleOffset: {x: 0, y: 1}

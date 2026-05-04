@@ -11,6 +11,7 @@ namespace TarodevController
         public override TargetDetectionSensor Sensor => PathfindingBrain?.Sensor;
 
         public MobbTrolController controller;
+        public ITrolBrainContext Trol => controller;
     }
 }
 

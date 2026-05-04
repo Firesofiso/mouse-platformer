@@ -10,7 +10,7 @@ public class Spearless : State
     [SerializeField] State _dance;
     [SerializeField] State _armed;
 
-    private MobbTrolController Controller => ((MobbTrolUnit)_unit).controller;
+    private ITrolBrainContext Trol => ((MobbTrolUnit)_unit).Trol;
 
     public override void Enter()
     {
@@ -22,7 +22,7 @@ public class Spearless : State
     public override void Do()
     {
         // Spear reclaimed — celebrate before returning to Armed
-        if (!Controller.Spearless)
+        if (!Trol.Spearless)
         {
             if (!_cheer.IsComplete)
                 SetSubstate(_cheer);

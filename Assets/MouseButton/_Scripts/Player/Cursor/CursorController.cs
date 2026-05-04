@@ -6,9 +6,21 @@ public class CursorController : MonoBehaviour
 {
     public enum CursorMode { TrueCursor, Sidekick, FlyAway }
 
+    public static CursorController Instance { get; private set; }
     public static event Action OnClick;
     public static event Action OnRelease;
     public CursorMode Mode = CursorMode.TrueCursor;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
 
     [SerializeField] GameObject target;
     [SerializeField] GameObject cursorVisual;
@@ -82,8 +94,8 @@ public class CursorController : MonoBehaviour
 
         transform.position = new Vector3(Mathf.Round(_virtualCursorPos.x), Mathf.Round(_virtualCursorPos.y), 0f);
 
-        if (Input.GetMouseButtonDown(0)) OnClick?.Invoke();
-        if (Input.GetMouseButtonUp(0)) OnRelease?.Invoke();
+        if (Input.GetKeyDown(KeyCode.M)) OnClick?.Invoke();
+        if (Input.GetKeyUp(KeyCode.M)) OnRelease?.Invoke();
     }
 
     private void UpdateSidekick()
@@ -113,6 +125,9 @@ public class CursorController : MonoBehaviour
         }
 
         transform.position = nextPosition;
+
+        if (Input.GetKeyDown(KeyCode.M)) OnClick?.Invoke();
+        if (Input.GetKeyUp(KeyCode.M)) OnRelease?.Invoke();
     }
 
     private IEnumerator FlyAway()

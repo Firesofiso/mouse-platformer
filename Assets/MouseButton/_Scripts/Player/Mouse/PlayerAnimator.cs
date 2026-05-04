@@ -3,13 +3,13 @@ using UnityEngine;
 namespace TarodevController {
     [RequireComponent(typeof(Animator), typeof(SpriteRenderer))]
     public class PlayerAnimator : MonoBehaviour {
-        private PlayerController _player;
+        private MouseController _player;
         private Animator _anim;
         private SpriteRenderer _renderer;
         private AudioSource _source;
 
         private void Awake() {
-            _player = GetComponentInParent<PlayerController>();
+            _player = GetComponentInParent<MouseController>();
             _anim = GetComponent<Animator>();
             _renderer = GetComponent<SpriteRenderer>();
             _source = GetComponent<AudioSource>();
@@ -161,17 +161,17 @@ namespace TarodevController {
 
         // Called from AnimationEvent
         public void TeleportPlayerMidLedgeClimb() {
-            if (_player is PlayerController player) player.TeleportMidLedgeClimb();
+            if (_player is MouseController player) player.TeleportMidLedgeClimb();
         }
 
         // Called from AnimationEvent
         public void FinishLedgeClimbing() {
             _grounded = true;
-            if (_player is PlayerController player) player.FinishClimbingLedge();
+            if (_player is MouseController player) player.FinishClimbingLedge();
         }
 
         public void ShimmyComplete() {
-            GetComponentInParent<PlayerController>().shimmying = false;
+            GetComponentInParent<MouseController>().shimmying = false;
         }
 
         #endregion

@@ -11,7 +11,7 @@ public class Armed : State
     private SightlineSensor Vision => (SightlineSensor)Sensor;
     private bool WithinAimingRange => Vision.PerceivedDistanceToTarget < _spearRange;
 
-    public override void Enter() { Debug.Log("Armed"); }
+    public override void Enter() { }
 
     // AI: route based on sensor awareness
     public override void Do() {

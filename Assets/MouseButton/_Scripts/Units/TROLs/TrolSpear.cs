@@ -32,6 +32,7 @@ namespace Tarodev.Trol {
         // recursively disable after some time
         {
             foreach (Collider2D c in other) {
+                if (c == null) continue;
                 Physics2D.IgnoreCollision(_spearTip, c, ignore);
                 Physics2D.IgnoreCollision(_spearShaft, c, ignore);
             }
@@ -59,8 +60,8 @@ namespace Tarodev.Trol {
 
         // Update is called once per frame
         void Update() {
-            if (_rb.bodyType == RigidbodyType2D.Dynamic && Mathf.Abs(_rb.velocity.y) > 15)
-                transform.up = Vector2.MoveTowards(transform.up, _rb.velocity, Time.deltaTime);
+            if (_rb.bodyType == RigidbodyType2D.Dynamic && _rb.velocity.sqrMagnitude > 0.1f)
+                transform.up = _rb.velocity;
 
             // if (Mathf.Abs(transform.rotation.z % 90) > 22.5 && Mathf.Abs(transform.rotation.z % 90) < 67.5 && renderer.sprite == spear) {
             //     renderer.sprite = spear45deg;
@@ -78,12 +79,9 @@ namespace Tarodev.Trol {
         //todo spear velocity vector falls below some threshold : disable collisions
 
         private void OnCollisionEnter2D(Collision2D coll) {
+            Debug.Log($"[Spear] collision: otherCollider={coll.otherCollider?.name}({coll.otherCollider?.GetType().Name}) isTip={coll.otherCollider == _spearTip} isShaft={coll.otherCollider == _spearShaft} hitLayer={LayerMask.LayerToName(coll.gameObject.layer)}");
             if (coll.otherCollider == _spearTip) {
-                if (
-                    coll.gameObject.layer.IsInLayerMask(
-                        LayerMask.GetMask("Ground", "one-way", "climbable")
-                    )
-                ) {
+                if (coll.gameObject.layer.IsInLayerMask(LayerMask.GetMask("Ground", "one-way", "climbable"))) {
                     _rb.bodyType = RigidbodyType2D.Static;
                     transform.SetParent(coll.transform);
                     transform.position = new Vector3(
@@ -92,7 +90,7 @@ namespace Tarodev.Trol {
                         0
                     );
                     disableCollisions(true);
-                    anchorCollider = coll.collider;
+                    anchorCollider = coll.otherCollider;
                 } else if (coll.gameObject.layer.IsInLayerMask(LayerMask.GetMask("Entities"))) {
                     Debug.Log("hit!");
                 }

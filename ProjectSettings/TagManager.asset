@@ -8,6 +8,10 @@ TagManager:
   - TROL
   - spear
   - Cursor
+  - PrototypeHazard
+  - PrototypeCheckpoint
+  - PrototypeReward
+  - PrototypeSign
   layers:
   - Default
   - TransparentFX
@@ -24,7 +28,7 @@ TagManager:
   - projectiles
   - EntityCollisions
   - Background
-  - 
+  - Interactable
   - 
   - 
   - 

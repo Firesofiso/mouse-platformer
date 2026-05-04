@@ -1,27 +1,31 @@
 using TarodevController;
 using TarodevController.Trol;
+using UnityEngine;
 
 public class Dance : State, IInputFilter
 {
-    private MobbTrolController Controller => ((MobbTrolUnit)_unit).controller;
+    private static readonly int DanceAnim = Animator.StringToHash("Dance");
+
+    private ITrolBrainContext Trol => ((MobbTrolUnit)_unit).Trol;
 
     public override void Enter()
     {
-        Controller.SetDancing(3);
+        Trol.SetDancing(3);
+        PlayAnimation(DanceAnim);
     }
 
     public override void Do()
     {
-        if (!Controller.IsDancing)
+        if (!Trol.IsDancing)
         {
-            Controller.MustCelebrate = false;
+            Trol.MustCelebrate = false;
             IsComplete = true;
         }
     }
 
     public override void Exit()
     {
-        Controller.MustCelebrate = false;
+        Trol.MustCelebrate = false;
     }
 
     public void FilterInput(ref FrameInput input)

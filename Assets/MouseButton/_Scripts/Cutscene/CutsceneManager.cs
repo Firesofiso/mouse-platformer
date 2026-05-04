@@ -44,15 +44,27 @@ public class CutsceneManager : MonoBehaviour
         switch (beat.type)
         {
             case BeatType.Dialogue:
-                // TODO: show dialogue bubble UI with beat.text / beat.speakerId
-                Debug.Log($"[{beat.speakerId}]: {beat.text}");
-                if (beat.duration <= 0)
+                if (beat.faceListener && participant != null)
                 {
-                    _waitingForInput = true;
-                    yield return new WaitUntil(() => !_waitingForInput);
+                    var listener = Resolve(string.IsNullOrEmpty(beat.listenerId) ? "Player" : beat.listenerId);
+                    if (listener != null) participant.FaceTowards(listener.Transform.position);
                 }
-                else yield return new WaitForSeconds(beat.duration);
-                // TODO: hide dialogue bubble
+
+                if (DialogueBubbles.instance != null && participant != null)
+                {
+                    yield return DialogueBubbles.instance.SayAndWait(
+                        participant.Transform, beat.text, beat.style, beat.duration);
+                }
+                else
+                {
+                    Debug.Log($"[{beat.speakerId}]: {beat.text}");
+                    if (beat.duration <= 0)
+                    {
+                        _waitingForInput = true;
+                        yield return new WaitUntil(() => !_waitingForInput);
+                    }
+                    else yield return new WaitForSeconds(beat.duration);
+                }
                 break;
 
             case BeatType.Move:

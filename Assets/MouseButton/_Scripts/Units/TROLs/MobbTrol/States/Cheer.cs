@@ -1,12 +1,17 @@
 using TarodevController;
 using TarodevController.Trol;
+using UnityEngine;
 
 public class Cheer : State
 {
-    private MobbTrolController Controller => ((MobbTrolUnit)_unit).controller;
+    private static readonly int CheerAnim = Animator.StringToHash("ReclaimSpear");
+
+    private ITrolBrainContext Trol => ((MobbTrolUnit)_unit).Trol;
+
+    public override void Enter() => PlayAnimation(CheerAnim);
 
     public override void Do()
     {
-        if (Controller.IsGrounded) IsComplete = true;
+        if (Trol.IsGrounded) IsComplete = true;
     }
 }

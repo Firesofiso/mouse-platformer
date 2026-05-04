@@ -6,7 +6,7 @@ public class CharSelectController : MonoBehaviour
 {
     [SerializeField] MousePalette _palette;
     [SerializeField] UnitInput _playerInput;
-    [SerializeField] PlayerController _playerController;
+    [SerializeField] MouseController _playerController;
     [SerializeField] CursorController _cursor;
     [SerializeField] Fadeable _fadeable;
     [SerializeField] float _fadeDuration = 0.4f;

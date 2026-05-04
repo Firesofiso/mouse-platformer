@@ -1,31 +1,36 @@
 using TarodevController;
+using TarodevController.Trol;
 using UnityEngine;
 
 public class Aim : State, IInputFilter
 {
+    private static readonly int AimAnim = Animator.StringToHash("Aim");
+
     [SerializeField] State _spearless;
 
     private int _timeToAim = 2;
     private bool ShouldThrow => TimeElapsed > _timeToAim;
 
+    private ITrolBrainContext Trol => ((MobbTrolUnit)_unit).Trol;
+
+    public override void Enter() {
+        _unit.Brain?.StopGenerating();
+        Trol.IsAiming = true;
+        ResetTime();
+        PlayAnimation(AimAnim);
+    }
+
     public override void Do() {
         if (ShouldThrow) {
-            ((MobbTrolUnit)_unit).controller.LaunchSpear();
+            Trol.LaunchSpear();
             _unit.ChangeState(_spearless);
         }
     }
 
-    public override void Enter() {
-        _unit.Brain?.StopGenerating(); // no-op on player units
-        ((MobbTrolUnit)_unit).controller.IsAiming = true;
-        ResetTime();
-    }
-
     public override void Exit() {
-        ((MobbTrolUnit)_unit).controller.IsAiming = false;
+        Trol.IsAiming = false;
     }
 
-    // Blocks movement and jump for any unit while aiming
     public void FilterInput(ref FrameInput input) {
         input.Move.x = 0;
         input.JumpDown = false;
