@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CursorAnimator : MonoBehaviour
@@ -8,69 +6,61 @@ public class CursorAnimator : MonoBehaviour
     private CursorController _cursor;
     [SerializeField] GameObject _visual;
     private SpriteRenderer _renderer;
-    // private string currentEmote = {
-    //     {1: "smiling"},
-    //     {2: "surprised"},
-    //     {3: "frowning"}
-    // };
+    private Animator _anim;
 
-    private void Awake() {
+    private void Awake()
+    {
         _cursor = GetComponentInParent<CursorController>();
         _renderer = GetComponent<SpriteRenderer>();
+        _anim = GetComponent<Animator>();
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void OnEnable()
     {
-        
+        CursorController.OnClick += OnClick;
+        CursorController.OnRelease += OnRelease;
+        InteractionManager.OnTargetAcquired += OnTargetAcquired;
+        InteractionManager.OnTargetLost += OnTargetLost;
     }
 
-    // Update is called once per frame
+    private void OnDisable()
+    {
+        CursorController.OnClick -= OnClick;
+        CursorController.OnRelease -= OnRelease;
+        InteractionManager.OnTargetAcquired -= OnTargetAcquired;
+        InteractionManager.OnTargetLost -= OnTargetLost;
+    }
+
     void Update()
     {
         HandleSpriteFlipping();
-        // HandleAnimations();
     }
 
-    private void HandleSpriteFlipping() {
+    private void HandleSpriteFlipping()
+    {
         _renderer.flipX = _cursor.flipX;
-        if (_cursor.flipX) {
-            _visual.transform.localPosition = new Vector3(-0, 0, 0);
-        } else {
-            _visual.transform.localPosition = new Vector3(0, 0, 0);
-        }
+        _visual.transform.localPosition = _cursor.flipX ? new Vector3(-0, 0, 0) : new Vector3(0, 0, 0);
     }
 
-    // private void HandleAnimations() {
-    //     var state = GetState();
-    //     if (state == _currentState) return;
-        
-    //     //_anim.Play(state, 0); //_anim.CrossFade(state, 0, 0);
-    //     _currentState = state;
-
-    //     int GetState() {
-    //         if (currentEmote) {
-    //             return currentEmote;
-    //         }
-    //         return Idle;
-    //     }
-    // }
+    private void OnClick()           => _anim.SetBool(IsClicking, true);
+    private void OnRelease()         => _anim.SetBool(IsClicking, false);
+    private void OnTargetAcquired()  => _anim.SetBool(IsInteracting, true);
+    private void OnTargetLost()      => _anim.SetBool(IsInteracting, false);
 
     #region Cached Properties
 
-        private int _currentState;
+    private static readonly int Arrow       = Animator.StringToHash("Idle");
+    private static readonly int ResetToArrow = Animator.StringToHash("resetToArrow");
+    private static readonly int IsClicking  = Animator.StringToHash("IsClicking");
+    private static readonly int IsInteracting = Animator.StringToHash("IsInteracting");
 
-        private static readonly int Arrow = Animator.StringToHash("Idle");
-        private static readonly int ResetToArrow = Animator.StringToHash("ResetToArrow");
+    private static readonly int Smile      = Animator.StringToHash("Smile");
+    private static readonly int ToSmile    = Animator.StringToHash("toSmile");
+    private static readonly int Surprise   = Animator.StringToHash("Surprise");
+    private static readonly int ToSurprise = Animator.StringToHash("toSurprise");
+    private static readonly int Frown      = Animator.StringToHash("Frown");
+    private static readonly int ToFrown    = Animator.StringToHash("toFrown");
+    private static readonly int Talk       = Animator.StringToHash("Talk");
 
-        private static readonly int Smile = Animator.StringToHash("Smile");
-        private static readonly int ToSmile = Animator.StringToHash("ToSmile");
-        private static readonly int Surprise = Animator.StringToHash("Surprise");
-        private static readonly int ToSurprise = Animator.StringToHash("ToSurprise");
-        private static readonly int Frown = Animator.StringToHash("Frown");
-        private static readonly int ToFrown = Animator.StringToHash("ToFrown");
-
-        private static readonly int Talk = Animator.StringToHash("Talk");
-
-        #endregion
+    #endregion
 }

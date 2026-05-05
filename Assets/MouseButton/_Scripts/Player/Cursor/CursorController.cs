@@ -40,6 +40,9 @@ public class CursorController : MonoBehaviour
     [SerializeField] private Vector3 flyAwayControlOffset = new Vector3(4f, -10f, 0f);
     [SerializeField] [Range(1f, 5f)] private float flyAwayEasePower = 2f;
 
+    [Header("Grab")]
+    [SerializeField] CursorGrabber _grabber;
+
     private SpriteRenderer _targetRenderer;
 
     private Vector3 _offset = new Vector3(8, 3, 0);
@@ -79,6 +82,18 @@ public class CursorController : MonoBehaviour
         if (mode == CursorMode.FlyAway) StartCoroutine(FlyAway());
     }
 
+    // Sets TargetPosition on the grabber and pins the cursor visual to the held item.
+    // freePos is what the mode would set transform.position to when not grabbing.
+    void FinalizePosition(Vector3 freePos)
+    {
+        if (_grabber != null)
+            _grabber.TargetPosition = freePos;
+
+        transform.position = (_grabber != null && _grabber.HeldTransform != null)
+            ? new Vector3(Mathf.Round(_grabber.HeldTransform.position.x), Mathf.Round(_grabber.HeldTransform.position.y), 0f)
+            : freePos;
+    }
+
     private void UpdateTrueCursor()
     {
         float worldPerPixel = Camera.main.orthographicSize * 2f / Screen.height;
@@ -92,7 +107,7 @@ public class CursorController : MonoBehaviour
             _virtualCursorPos.y = Mathf.Clamp(_virtualCursorPos.y, b.min.y, b.max.y);
         }
 
-        transform.position = new Vector3(Mathf.Round(_virtualCursorPos.x), Mathf.Round(_virtualCursorPos.y), 0f);
+        FinalizePosition(new Vector3(Mathf.Round(_virtualCursorPos.x), Mathf.Round(_virtualCursorPos.y), 0f));
 
         if (Input.GetKeyDown(KeyCode.M)) OnClick?.Invoke();
         if (Input.GetKeyUp(KeyCode.M)) OnRelease?.Invoke();
@@ -124,7 +139,7 @@ public class CursorController : MonoBehaviour
             _offset.x = Mathf.MoveTowards(_offset.x, 8, Time.deltaTime * 20);
         }
 
-        transform.position = nextPosition;
+        FinalizePosition(nextPosition);
 
         if (Input.GetKeyDown(KeyCode.M)) OnClick?.Invoke();
         if (Input.GetKeyUp(KeyCode.M)) OnRelease?.Invoke();
@@ -132,6 +147,9 @@ public class CursorController : MonoBehaviour
 
     private IEnumerator FlyAway()
     {
+        if (_grabber != null && CursorGrabber.IsGrabbing)
+            OnRelease?.Invoke();
+
         yield return MotionUtils.BezierMove(transform, flyAwayControlOffset, flyAwayEndOffset, flyAwayDuration, flyAwayEasePower);
         gameObject.SetActive(false);
     }

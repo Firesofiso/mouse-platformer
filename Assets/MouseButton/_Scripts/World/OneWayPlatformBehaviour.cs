@@ -3,10 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(TilemapCollider2D))]
+[RequireComponent(typeof(CompositeCollider2D))]
+[RequireComponent(typeof(PlatformEffector2D))]
 public class OneWayPlatformBehaviour : MonoBehaviour
 {
     private Collider2D _platform;
     readonly List<Collider2D> _passingThrough = new();
+
+#if UNITY_EDITOR
+    private void Reset()
+    {
+        var rb = GetComponent<Rigidbody2D>();
+        rb.bodyType = RigidbodyType2D.Static;
+
+        var tilemap = GetComponent<TilemapCollider2D>();
+        tilemap.usedByComposite = true;
+        tilemap.usedByEffector = true;
+
+        var composite = GetComponent<CompositeCollider2D>();
+        composite.usedByEffector = true;
+        composite.geometryType = CompositeCollider2D.GeometryType.Outlines;
+        composite.generationType = CompositeCollider2D.GenerationType.Synchronous;
+
+        var effector = GetComponent<PlatformEffector2D>();
+        effector.useOneWay = true;
+        effector.surfaceArc = 90f;
+    }
+#endif
 
     private void Start()
     {
@@ -27,17 +52,8 @@ public class OneWayPlatformBehaviour : MonoBehaviour
 
     private IEnumerator ReenableCollisionAfterFall(Collider2D other)
     {
-        var buffer = new Collider2D[16];
-        var filter = new ContactFilter2D().NoFilter();
-        bool overlapping = true;
-        while (other != null && overlapping)
-        {
+        while (other != null && other.bounds.max.y > _platform.bounds.min.y)
             yield return null;
-            overlapping = false;
-            int count = Physics2D.OverlapCollider(_platform, filter, buffer);
-            for (int i = 0; i < count; i++)
-                if (buffer[i] == other) { overlapping = true; break; }
-        }
         if (other != null)
             Physics2D.IgnoreCollision(other, _platform, false);
         _passingThrough.Remove(other);

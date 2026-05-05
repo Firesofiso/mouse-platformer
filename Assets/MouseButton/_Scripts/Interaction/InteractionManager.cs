@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 // Place on the Player. Selects the nearest InteractionTarget within radius each frame.
@@ -6,6 +7,9 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class InteractionManager : MonoBehaviour
 {
+    public static event Action OnTargetAcquired;
+    public static event Action OnTargetLost;
+
     [SerializeField] float _radius = 2f;
     [SerializeField] LayerMask _interactableLayer;
     [SerializeField] Transform _cursor;
@@ -21,7 +25,7 @@ public class InteractionManager : MonoBehaviour
 
     void Update()
     {
-        if (ClickableElement.IsDragging)
+        if (ClickableElement.IsDragging || CursorGrabber.IsGrabbing)
         {
             _current = null;
         }
@@ -52,7 +56,10 @@ public class InteractionManager : MonoBehaviour
             if (dist < bestDist) { bestDist = dist; best = target; }
         }
 
+        if (best == _current) return;
         _current = best;
+        if (_current != null) OnTargetAcquired?.Invoke();
+        else OnTargetLost?.Invoke();
     }
 
     void MoveCursor()
