@@ -1,6 +1,8 @@
 # Architecture Index
 
 - [units.md](units.md) — StatefulUnit/UnitController split, MobbTrol hierarchy, TrolManager
+- [cursor.md](cursor.md) — CursorController modes (TrueCursor/Sidekick/FlyAway), CursorGrabber, InteractionManager/Target
+- [grab.md](grab.md) — CursorGrabber, FreeGrabbable, GrabConfig; cursor-grab-to-player mechanic
 - [state-machine.md](state-machine.md) — Hierarchical state machine powering all units (player and AI)
 - [physics.md](physics.md) — GroundedPhysicsBody, ScriptableStats, Tarodev UnitController
 - [ai.md](ai.md) — PathfindingBrain, SightlineSensor/TargetDetectionSensor, A* integration

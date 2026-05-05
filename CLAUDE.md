@@ -23,10 +23,10 @@ Always run `read_console` after creating or editing scripts before doing anythin
 
 ## Pixel Art Standards
 
-- **16 pixels per unit** throughout
+- **1 px = 1 world unit** (`pixelsPerUnit = 1` on all sprites). 1 tile = 8 × 8 units.
 - Point-filter enforced on font textures via `Assets/Editor/FontTexturePointFilter.cs`
 - Sprite sources are `.aseprite` files imported directly
-- Snap positions to `1/16` unit grid where precision matters
+- Snap positions to whole-unit (pixel) boundaries
 
 ## Architecture
 

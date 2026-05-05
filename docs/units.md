@@ -4,23 +4,23 @@
 
 ## Component split
 
-Each unit is a prefab with two sibling MonoBehaviours that divide responsibility:
+Each unit is a prefab with two sibling MonoBehaviours:
 
 | Component | Owns |
 |---|---|
 | `StatefulUnit` (abstract) | State machine, animator, input routing, `Think` event |
 | `UnitController` (Tarodev, abstract) | Physics: movement, jumping, collisions, velocity |
 
-`MobbTrolUnit : StatefulUnit` — concrete state-machine side. Holds `PathfindingBrain` and `MobbTrolController` references. Exposes `Brain`, `Sensor`, and `Trol` (the `ITrolBrainContext` interface into the controller).
+`MobbTrolUnit : StatefulUnit` — state-machine side. Holds `PathfindingBrain` and sensor references.
 
-`MobbTrolController : UnitController, ITrolBrainContext` — concrete physics side. Handles AI input gathering (`GatherAIInput` event), spear logic, bounce collisions, celebration state, and the `StateLocked` flag. Delegates velocity application to `GroundedPhysicsBody` when one is present.
+`MobbTrolController : UnitController` — physics side. Handles AI input, spear logic, and delegates to `GroundedPhysicsBody` when present.
 
 ## State hierarchy (MobbTrol)
 
 ```
 Armed
 ├─ Patrol
-├─ Chase       (AI only — PathfinderState)
+├─ Chase
 ├─ Aim
 └─ Throw
 Spearless
@@ -30,8 +30,8 @@ Spearless
 └─ Dance
 ```
 
-States live in `_Scripts/Units/TROLs/MobbTrol/States/`. Each is a `MonoBehaviour` on a child GameObject of the unit prefab.
+States live in `_Scripts/Units/TROLs/MobbTrol/States/`.
 
 ## TrolManager
 
-`TrolManager` (referenced via `GameManager.instance.trolManager`) maintains `activeTrols` and `activeSpears` lists used by spear reclaim logic and population-level coordination.
+Maintains `activeTrols` and `activeSpears` lists for spear reclaim and population-level coordination. Accessed via `GameManager.instance.trolManager`.
