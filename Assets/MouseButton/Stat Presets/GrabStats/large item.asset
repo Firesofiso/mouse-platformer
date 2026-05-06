@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b94e43cb98af6451faff0bb8ecb91b7e, type: 3}
   m_Name: large item
   m_EditorClassIdentifier: 
-  maxForce: 100000000
-  frequency: 1.5
-  dampingRatio: 0
+  maxForce: 300
+  frequency: 5
+  dampingRatio: 0.6
+  cursorCanLift: 0

@@ -12,27 +12,23 @@ public class InteractionManager : MonoBehaviour
 
     [SerializeField] float _radius = 2f;
     [SerializeField] LayerMask _interactableLayer;
-    [SerializeField] Transform _cursor;
-
-    [Header("Cursor Motion")]
-    [SerializeField] float _smoothTime = 0.08f;
 
     [Header("Input")]
     [SerializeField] KeyCode _interactKey = KeyCode.E;
 
     InteractionTarget _current;
-    Vector3 _cursorVelocity;
+
+    public InteractionTarget CurrentTarget => _current;
 
     void Update()
     {
-        if (ClickableElement.IsDragging || CursorGrabber.IsGrabbing)
+        if (CursorGrabber.IsGrabbing)
         {
             _current = null;
         }
         else
         {
             SelectNearest();
-            MoveCursor();
         }
 
         if (Input.GetKeyDown(_interactKey))
@@ -42,7 +38,7 @@ public class InteractionManager : MonoBehaviour
     void SelectNearest()
     {
         var hits = Physics2D.OverlapCircleAll(transform.position, _radius, _interactableLayer);
-        var draggedRoot = ClickableElement.CurrentDrag?.objectTransform;
+        var heldRoot = CursorGrabber.CurrentHeldTransform;
 
         InteractionTarget best = null;
         float bestDist = float.MaxValue;
@@ -51,7 +47,7 @@ public class InteractionManager : MonoBehaviour
         {
             var target = hit.GetComponent<InteractionTarget>();
             if (target == null) continue;
-            if (draggedRoot != null && target.transform.IsChildOf(draggedRoot)) continue;
+            if (heldRoot != null && target.transform.IsChildOf(heldRoot)) continue;
             float dist = Vector2.Distance(transform.position, target.transform.position);
             if (dist < bestDist) { bestDist = dist; best = target; }
         }
@@ -60,13 +56,6 @@ public class InteractionManager : MonoBehaviour
         _current = best;
         if (_current != null) OnTargetAcquired?.Invoke();
         else OnTargetLost?.Invoke();
-    }
-
-    void MoveCursor()
-    {
-        if (_cursor == null || _current == null) return;
-
-        _cursor.position = Vector3.SmoothDamp(_cursor.position, _current.IconWorldPosition, ref _cursorVelocity, _smoothTime);
     }
 
     void HandleInteractPress()

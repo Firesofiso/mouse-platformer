@@ -40,6 +40,10 @@ public class CursorController : MonoBehaviour
     [SerializeField] private Vector3 flyAwayControlOffset = new Vector3(4f, -10f, 0f);
     [SerializeField] [Range(1f, 5f)] private float flyAwayEasePower = 2f;
 
+    [Header("Interaction")]
+    [SerializeField] InteractionManager _interactionManager;
+    [SerializeField] float _interactSmoothTime = 0.08f;
+
     [Header("Grab")]
     [SerializeField] CursorGrabber _grabber;
 
@@ -48,10 +52,13 @@ public class CursorController : MonoBehaviour
     private Vector3 _offset = new Vector3(8, 3, 0);
     private float _offsetX = 8;
     private Vector2 _virtualCursorPos;
+    private Vector3 _sidekickHomePosition;
+    private Vector3 _cursorVelocity;
 
     void Start()
     {
         _targetRenderer = target.GetComponentInChildren<SpriteRenderer>();
+        _sidekickHomePosition = transform.position;
         SetMode(Mode);
     }
 
@@ -82,16 +89,35 @@ public class CursorController : MonoBehaviour
         if (mode == CursorMode.FlyAway) StartCoroutine(FlyAway());
     }
 
-    // Sets TargetPosition on the grabber and pins the cursor visual to the held item.
+    // Sets SidekickHomePosition on the grabber and pins the cursor visual to the held item.
     // freePos is what the mode would set transform.position to when not grabbing.
     void FinalizePosition(Vector3 freePos)
     {
-        if (_grabber != null)
-            _grabber.TargetPosition = freePos;
-
-        transform.position = (_grabber != null && _grabber.HeldTransform != null)
-            ? new Vector3(Mathf.Round(_grabber.HeldTransform.position.x), Mathf.Round(_grabber.HeldTransform.position.y), 0f)
-            : freePos;
+        if (_grabber != null && _grabber.HeldTransform != null)
+        {
+            var heldPos = new Vector3(
+                Mathf.Round(_grabber.HeldCursorPosition.x),
+                Mathf.Round(_grabber.HeldCursorPosition.y), 0f);
+            _sidekickHomePosition = heldPos;
+            _grabber.SidekickHomePosition = freePos;
+            _cursorVelocity = Vector3.zero;
+            transform.position = heldPos;
+        }
+        else if (_interactionManager != null && _interactionManager.CurrentTarget != null)
+        {
+            var targetPos = _interactionManager.CurrentTarget.IconWorldPosition;
+            var newPos = Vector3.SmoothDamp(transform.position, targetPos, ref _cursorVelocity, _interactSmoothTime);
+            _sidekickHomePosition = newPos;
+            if (_grabber != null) _grabber.SidekickHomePosition = newPos;
+            transform.position = newPos;
+        }
+        else
+        {
+            _cursorVelocity = Vector3.zero;
+            _sidekickHomePosition = freePos;
+            if (_grabber != null) _grabber.SidekickHomePosition = freePos;
+            transform.position = freePos;
+        }
     }
 
     private void UpdateTrueCursor()
@@ -116,8 +142,8 @@ public class CursorController : MonoBehaviour
     private void UpdateSidekick()
     {
         var targetPosition = target.transform.position;
-        var distance = Vector3.Distance(transform.position, targetPosition + _offset);
-        var nextPosition = Vector3.MoveTowards(transform.position, targetPosition + _offset, speed * Time.deltaTime * distance);
+        var distance = Vector3.Distance(_sidekickHomePosition, targetPosition + _offset);
+        var nextPosition = Vector3.MoveTowards(_sidekickHomePosition, targetPosition + _offset, speed * Time.deltaTime * distance);
 
         if (distance < proximityThreshold)
         {

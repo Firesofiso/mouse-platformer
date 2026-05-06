@@ -4,14 +4,19 @@ using UnityEngine;
 public class CursorGrabber : MonoBehaviour
 {
     public static bool IsGrabbing => _instance != null && _instance._held != null;
+    public static Transform CurrentHeldTransform => _instance?._held != null ? _instance.HeldTransform : null;
 
     static CursorGrabber _instance;
 
-    // Set each frame by CursorController.FinalizePosition — the cursor's free/home position.
-    public Vector2 TargetPosition { get; set; }
+    // Set each frame by CursorController.FinalizePosition — where grabbed objects should be pulled.
+    public Vector2 SidekickHomePosition { get; set; }
 
     // Transform of the held item. CursorController pins its visual here while grabbing.
-    public Transform HeldTransform { get; private set; }
+    public Transform HeldTransform { get; set; }
+    public Vector2 HeldCursorOffset { get; private set; }
+    public Vector2 HeldCursorPosition => HeldTransform != null
+        ? (Vector2)HeldTransform.position + HeldCursorOffset
+        : SidekickHomePosition;
 
     IGrabbable _held;
     Collider2D _collider;
@@ -56,8 +61,11 @@ public class CursorGrabber : MonoBehaviour
 
         _held = best;
         HeldTransform = (best as MonoBehaviour)?.transform;
-        TargetPosition = (Vector2)transform.position;
+        SidekickHomePosition = (Vector2)transform.position;
         best.OnGrabbed(this);
+        HeldCursorOffset = HeldTransform != null
+            ? (Vector2)transform.position - (Vector2)HeldTransform.position
+            : Vector2.zero;
     }
 
     void Release()
@@ -66,9 +74,10 @@ public class CursorGrabber : MonoBehaviour
         _held.OnReleased(this);
         _held = null;
         HeldTransform = null;
+        HeldCursorOffset = Vector2.zero;
     }
 
-    void FixedUpdate()
+    void LateUpdate()
     {
         _held?.WhileHeld(this);
     }
