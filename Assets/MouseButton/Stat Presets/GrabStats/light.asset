@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b94e43cb98af6451faff0bb8ecb91b7e, type: 3}
-  m_Name: window
+  m_Name: light
   m_EditorClassIdentifier: 
-  maxForce: 200
-  frequency: 5
-  dampingRatio: 0.6
+  maxForce: 20
+  frequency: 1
+  dampingRatio: 0.8
   cursorCanLift: 1

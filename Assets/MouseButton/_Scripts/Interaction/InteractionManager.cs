@@ -18,7 +18,12 @@ public class InteractionManager : MonoBehaviour
 
     InteractionTarget _current;
 
+    public static bool HasInteractionTarget => _instance != null && _instance._current != null;
     public InteractionTarget CurrentTarget => _current;
+
+    static InteractionManager _instance;
+    void Awake() => _instance = this;
+    void OnDestroy() { if (_instance == this) _instance = null; }
 
     void Update()
     {

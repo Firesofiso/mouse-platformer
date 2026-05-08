@@ -33,9 +33,6 @@ public class Fadeable : MonoBehaviour
         float fromSprite = _sprites.Length > 0 ? _sprites[0].color.a : to;
         float fromTilemap = _tilemaps.Length > 0 ? _tilemaps[0].color.a : to;
         float fromText = _textMeshes.Length > 0 ? _textMeshes[0].color.a : to;
-        Debug.Log("fading Sprites from " + fromSprite + " to " + to);
-        Debug.Log("fading Tilemaps from " + fromTilemap + " to " + to);
-        Debug.Log("fading Text from " + fromText + " to " + to);
         float elapsed = 0f;
         while (elapsed < duration)
         {

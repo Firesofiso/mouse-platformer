@@ -24,7 +24,7 @@ public class OneWayPlatformBehaviour : MonoBehaviour
 
         var composite = GetComponent<CompositeCollider2D>();
         composite.usedByEffector = true;
-        composite.geometryType = CompositeCollider2D.GeometryType.Outlines;
+        composite.geometryType = CompositeCollider2D.GeometryType.Polygons;
         composite.generationType = CompositeCollider2D.GenerationType.Synchronous;
 
         var effector = GetComponent<PlatformEffector2D>();

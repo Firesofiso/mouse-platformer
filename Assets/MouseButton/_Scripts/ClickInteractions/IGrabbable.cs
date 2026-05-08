@@ -1,7 +1,9 @@
+using UnityEngine;
+
 public interface IGrabbable
 {
-    GrabConfig Config { get; }
-    void OnGrabbed(CursorGrabber grabber);
-    void OnReleased(CursorGrabber grabber);
-    void WhileHeld(CursorGrabber grabber);
+    Transform GrabAnchor { get; }
+    void OnGrabbed(GrabContext ctx);
+    void OnReleased(GrabContext ctx);
+    void WhileHeld(GrabContext ctx);
 }

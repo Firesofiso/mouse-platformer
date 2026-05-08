@@ -11,7 +11,7 @@ The player has no `StatefulUnit`; it drives animation directly from `UnitControl
 | `MouseController` | Physics/movement — extends `UnitController` with player-specific overrides |
 | `UnitInput` | Gathers `FrameInput` from Input System (or legacy) each frame and exposes it to `UnitController` |
 | `PlayerAnimator` | Subscribes to `UnitController` events; drives Animator and particles |
-| `PlayerObject` | DontDestroyOnLoad singleton — provides player collider list to `ClickableElement` for collision exclusion while dragging |
+| `PlayerObject` | DontDestroyOnLoad singleton — placeholder; collision exclusion is now handled via `CursorGrabber._collisionIgnoreTargets` |
 
 ## MouseController
 
@@ -39,4 +39,4 @@ Notable: idle cycle randomly selects between `Idle`, `IdleWag`, and `IdleScritch
 
 ## PlayerObject
 
-Minimal singleton used by `ClickableElement.SetCollisionWithPlayer` to find the player's colliders. `FindObjectOfType` is intentionally disabled in the body — callers use the `Instance` property after the player self-registers in `Awake`.
+Minimal DontDestroyOnLoad singleton. No active functionality — collision exclusion during grab is now serialized directly on `CursorGrabber._collisionIgnoreTargets`.

@@ -1,13 +1,8 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "GrabConfig", menuName = "Mouse Platformer/Grab Config")]
-public class GrabConfig : ScriptableObject
+[CreateAssetMenu(fileName = "PhysicsGrabConfig", menuName = "Mouse Platformer/Physics Grab Config")]
+public class PhysicsGrabConfig : ScriptableObject
 {
-    public enum GrabMode { Physics, Direct }
-
-    public GrabMode mode = GrabMode.Physics;
-
-    [Header("Physics")]
     [Tooltip("Max force the cursor can apply. Determines what it can actually move.")]
     public float maxForce = 100f;
 
@@ -18,7 +13,6 @@ public class GrabConfig : ScriptableObject
     [Range(0f, 1f)]
     public float dampingRatio = 0.7f;
 
-    [Header("Constraints")]
-    [Tooltip("If false, the cursor cannot increase the object's y coordinate while grabbing.")]
+    [Tooltip("If false, the cursor cannot raise the object's y while grabbing.")]
     public bool cursorCanLift = true;
 }

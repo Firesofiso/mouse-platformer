@@ -11,31 +11,19 @@ public class PlatformCharSelectGridManager : MonoBehaviour
     [SerializeField] Vector2 _gutter = Vector2.zero;
     [SerializeField] Vector2 _gridOffset = new Vector2(0f, -4f);
 
-    [SerializeField] [Range(0f, 1f)] float _parallaxFactor = 0f;
-
     private Vector2 Stride => _cellSize + _gutter;
 
     private readonly Dictionary<(int, int), Coroutine> _activeSlots = new();
     private int _centerCol, _centerRow;
-    private Vector2 _lastCamPos;
 
     void Start()
     {
         _centerCol = 0;
         _centerRow = 0;
-        if (Camera.main != null)
-            _lastCamPos = Camera.main.transform.position;
     }
 
     void Update()
     {
-        if (Camera.main != null)
-        {
-            var camPos = (Vector2)Camera.main.transform.position;
-            transform.position += (Vector3)((camPos - _lastCamPos) * _parallaxFactor);
-            _lastCamPos = camPos;
-        }
-
         GetVisibleRange(out int minCol, out int maxCol, out int minRow, out int maxRow);
         for (int row = minRow; row <= maxRow; row++)
             for (int col = minCol; col <= maxCol; col++)

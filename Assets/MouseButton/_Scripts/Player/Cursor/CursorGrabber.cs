@@ -8,15 +8,13 @@ public class CursorGrabber : MonoBehaviour
 
     static CursorGrabber _instance;
 
-    // Set each frame by CursorController.FinalizePosition — where grabbed objects should be pulled.
-    public Vector2 SidekickHomePosition { get; set; }
+    public Transform HeldTransform { get; private set; }
+    public Vector2 GrabOffset { get; private set; }
+    public Vector2 GrabPoint => HeldTransform != null
+        ? (Vector2)HeldTransform.position + GrabOffset
+        : CursorController.CursorTargetPosition;
 
-    // Transform of the held item. CursorController pins its visual here while grabbing.
-    public Transform HeldTransform { get; set; }
-    public Vector2 HeldCursorOffset { get; private set; }
-    public Vector2 HeldCursorPosition => HeldTransform != null
-        ? (Vector2)HeldTransform.position + HeldCursorOffset
-        : SidekickHomePosition;
+    [SerializeField] Collider2D[] _collisionIgnoreTargets;
 
     IGrabbable _held;
     Collider2D _collider;
@@ -60,25 +58,32 @@ public class CursorGrabber : MonoBehaviour
         if (best == null) return;
 
         _held = best;
-        HeldTransform = (best as MonoBehaviour)?.transform;
-        SidekickHomePosition = (Vector2)transform.position;
-        best.OnGrabbed(this);
-        HeldCursorOffset = HeldTransform != null
+        HeldTransform = best.GrabAnchor;
+        GrabOffset = HeldTransform != null
             ? (Vector2)transform.position - (Vector2)HeldTransform.position
             : Vector2.zero;
+
+        best.OnGrabbed(BuildContext());
     }
 
     void Release()
     {
         if (_held == null) return;
-        _held.OnReleased(this);
+        _held.OnReleased(BuildContext());
         _held = null;
         HeldTransform = null;
-        HeldCursorOffset = Vector2.zero;
+        GrabOffset = Vector2.zero;
     }
 
     void LateUpdate()
     {
-        _held?.WhileHeld(this);
+        _held?.WhileHeld(BuildContext());
     }
+
+    GrabContext BuildContext() => new GrabContext
+    {
+        HomePosition = CursorController.CarryTargetPosition,
+        CursorPosition = transform.position,
+        IgnoreColliders = _collisionIgnoreTargets
+    };
 }

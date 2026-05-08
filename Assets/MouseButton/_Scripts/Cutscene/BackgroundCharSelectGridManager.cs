@@ -7,28 +7,12 @@ public class BackgroundCharSelectGridManager : MonoBehaviour
     [SerializeField] GameObject _prefab;
     [SerializeField] Vector2 _cellSize = new Vector2(32f, 28f);
     [SerializeField] Vector2 _gutter = Vector2.zero;
-    [SerializeField] [Range(0f, 1f)] float _parallaxFactor = 0.3f;
-
     private Vector2 Stride => _cellSize + _gutter;
 
     private readonly Dictionary<(int, int), Coroutine> _activeSlots = new();
-    private Vector2 _lastCamPos;
-
-    void Start()
-    {
-        if (Camera.main != null)
-            _lastCamPos = Camera.main.transform.position;
-    }
 
     void Update()
     {
-        if (Camera.main != null)
-        {
-            var camPos = (Vector2)Camera.main.transform.position;
-            transform.position += (Vector3)((camPos - _lastCamPos) * _parallaxFactor);
-            _lastCamPos = camPos;
-        }
-
         GetVisibleRange(out int minCol, out int maxCol, out int minRow, out int maxRow);
         for (int row = minRow; row <= maxRow; row++)
             for (int col = minCol; col <= maxCol; col++)

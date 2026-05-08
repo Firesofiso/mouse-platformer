@@ -20,26 +20,29 @@ The cursor always chases **home** — a position offset from the player, flippin
 
 ## Position pipeline
 
-Each mode computes its desired position independently, then calls `FinalizePosition(freePos)`:
+`CursorController.Update` resolves position in this priority order each frame:
 
-1. Writes `freePos` to `CursorGrabber.SidekickHomePosition` — the spring target for held objects.
-2. If grabbing: sets `transform.position` to `CursorGrabber.HeldCursorPosition` (item position + grab offset).
-3. Otherwise: sets `transform.position` to `freePos`.
+1. **Physics grab** (`IsGrabbing && CurrentHeldTransform != null`) — calls `PinToHeldItem`, which snaps `transform.position` to `CursorGrabber.GrabPoint` (held item position + grab offset). Skips all other logic.
+2. **Normal update** — each mode (`Sidekick`/`TrueCursor`) computes a `freePos`, then calls `FinalizePosition(freePos)`:
+   - Interaction target active → SmoothDamp toward `CurrentTarget.IconWorldPosition`
+   - No target → set `transform.position = freePos`
 
-This makes grab behavior identical across all modes — the grab system only reads `SidekickHomePosition` and `HeldCursorPosition`, never the mode.
+`CarryTargetPosition` (static on `CursorController`, = `sidekickTarget.position + _carryOffset`) is what `CursorGrabber.BuildContext` reads as `GrabContext.HomePosition` — the spring/move target passed to held objects each frame.
+
+**Direct grab note:** when `IsGrabbing` is true but `CurrentHeldTransform` is null (Direct mode), the cursor moves normally. `DirectGrabbable.WhileHeld` reads `GrabContext.CursorPosition` to track the cursor's position directly.
 
 ## Components
 
 | Component | Role |
 |---|---|
-| `CursorController` | Movement, mode switching, click/release events, `FinalizePosition` |
-| `CursorGrabber` | Grab detection and lifecycle (`IGrabbable`); exposes `SidekickHomePosition` and `HeldCursorPosition` |
+| `CursorController` | Movement, mode switching, click/release events, `PinToHeldItem`, `FinalizePosition` |
+| `CursorGrabber` | Grab detection and lifecycle (`IGrabbable`); exposes `GrabPoint`, `HeldTransform`, `IsGrabbing` |
 | `CursorAnimator` | Drives animator from controller + interaction events |
 | `InteractionManager` | Selects nearest `InteractionTarget`, overrides cursor position; handles E key |
 
 ### InteractionManager — E key behavior
 
-Lives on the Player. Each frame selects the nearest `InteractionTarget` within `_radius` on the interactable layer, suppressed while `ClickableElement.IsDragging` or `CursorGrabber.IsGrabbing`.
+Lives on the Player. Each frame selects the nearest `InteractionTarget` within `_radius` on the interactable layer, suppressed while `CursorGrabber.IsGrabbing`.
 
 E key press dispatches differently by context:
 - **Cutscene playing** — forwards to `DialogueInput.Fire()` to advance dialogue.

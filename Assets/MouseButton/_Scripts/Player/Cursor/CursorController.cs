@@ -9,6 +9,18 @@ public class CursorController : MonoBehaviour
     public static CursorController Instance { get; private set; }
     public static event Action OnClick;
     public static event Action OnRelease;
+    public static Vector2 CursorTargetPosition
+    {
+        get
+        {
+            if (Instance == null) return Vector2.zero;
+            if (Instance.Mode == CursorMode.TrueCursor) return Instance._virtualCursorPos;
+            return (Vector2)(Instance.sidekickTarget.transform.position + Instance._sidekickOffset);
+        }
+    }
+    public static Vector2 CarryTargetPosition => Instance != null
+        ? (Vector2)(Instance.sidekickTarget.transform.position + Instance._carryOffset)
+        : Vector2.zero;
     public CursorMode Mode = CursorMode.TrueCursor;
 
     void Awake()
@@ -22,7 +34,7 @@ public class CursorController : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
-    [SerializeField] GameObject target;
+    [SerializeField] GameObject sidekickTarget;
     [SerializeField] GameObject cursorVisual;
 
     [Header("True Cursor")]
@@ -46,24 +58,30 @@ public class CursorController : MonoBehaviour
 
     [Header("Grab")]
     [SerializeField] CursorGrabber _grabber;
+    [SerializeField] Vector3 _carryOffset = new Vector3(8, 3, 0);
 
     private SpriteRenderer _targetRenderer;
 
-    private Vector3 _offset = new Vector3(8, 3, 0);
-    private float _offsetX = 8;
+    private Vector3 _sidekickOffset = new Vector3(8, 3, 0);
+    private float _sidekickOffsetX = 8;
     private Vector2 _virtualCursorPos;
-    private Vector3 _sidekickHomePosition;
     private Vector3 _cursorVelocity;
 
     void Start()
     {
-        _targetRenderer = target.GetComponentInChildren<SpriteRenderer>();
-        _sidekickHomePosition = transform.position;
+        _targetRenderer = sidekickTarget.GetComponentInChildren<SpriteRenderer>();
         SetMode(Mode);
     }
 
     void Update()
     {
+        if (CursorGrabber.IsGrabbing && CursorGrabber.CurrentHeldTransform != null)
+        {
+            PinToHeldItem();
+            HandleInput();
+            return;
+        }
+
         switch (Mode)
         {
             case CursorMode.TrueCursor: UpdateTrueCursor(); break;
@@ -89,35 +107,35 @@ public class CursorController : MonoBehaviour
         if (mode == CursorMode.FlyAway) StartCoroutine(FlyAway());
     }
 
-    // Sets SidekickHomePosition on the grabber and pins the cursor visual to the held item.
-    // freePos is what the mode would set transform.position to when not grabbing.
+    void PinToHeldItem()
+    {
+        transform.position = new Vector3(
+            Mathf.Round(_grabber.GrabPoint.x),
+            Mathf.Round(_grabber.GrabPoint.y), 0f);
+        _cursorVelocity = Vector3.zero;
+    }
+
     void FinalizePosition(Vector3 freePos)
     {
-        if (_grabber != null && _grabber.HeldTransform != null)
-        {
-            var heldPos = new Vector3(
-                Mathf.Round(_grabber.HeldCursorPosition.x),
-                Mathf.Round(_grabber.HeldCursorPosition.y), 0f);
-            _sidekickHomePosition = heldPos;
-            _grabber.SidekickHomePosition = freePos;
-            _cursorVelocity = Vector3.zero;
-            transform.position = heldPos;
-        }
-        else if (_interactionManager != null && _interactionManager.CurrentTarget != null)
+        if (InteractionManager.HasInteractionTarget)
         {
             var targetPos = _interactionManager.CurrentTarget.IconWorldPosition;
             var newPos = Vector3.SmoothDamp(transform.position, targetPos, ref _cursorVelocity, _interactSmoothTime);
-            _sidekickHomePosition = newPos;
-            if (_grabber != null) _grabber.SidekickHomePosition = newPos;
             transform.position = newPos;
         }
         else
         {
             _cursorVelocity = Vector3.zero;
-            _sidekickHomePosition = freePos;
-            if (_grabber != null) _grabber.SidekickHomePosition = freePos;
             transform.position = freePos;
         }
+    }
+
+    void HandleInput()
+    {
+        bool click   = Mode == CursorMode.TrueCursor ? Input.GetMouseButtonDown(0) : Input.GetKeyDown(KeyCode.M);
+        bool release = Mode == CursorMode.TrueCursor ? Input.GetMouseButtonUp(0)   : Input.GetKeyUp(KeyCode.M);
+        if (click)   OnClick?.Invoke();
+        if (release) OnRelease?.Invoke();
     }
 
     private void UpdateTrueCursor()
@@ -134,41 +152,37 @@ public class CursorController : MonoBehaviour
         }
 
         FinalizePosition(new Vector3(Mathf.Round(_virtualCursorPos.x), Mathf.Round(_virtualCursorPos.y), 0f));
-
-        if (Input.GetKeyDown(KeyCode.M)) OnClick?.Invoke();
-        if (Input.GetKeyUp(KeyCode.M)) OnRelease?.Invoke();
+        HandleInput();
     }
 
     private void UpdateSidekick()
     {
-        var targetPosition = target.transform.position;
-        var distance = Vector3.Distance(_sidekickHomePosition, targetPosition + _offset);
-        var nextPosition = Vector3.MoveTowards(_sidekickHomePosition, targetPosition + _offset, speed * Time.deltaTime * distance);
+        var home = sidekickTarget.transform.position + _sidekickOffset;
+        var distance = Vector3.Distance(transform.position, home);
+        var nextPosition = Vector3.MoveTowards(transform.position, home, speed * Time.deltaTime * distance);
 
         if (distance < proximityThreshold)
         {
             if (flipX != _targetRenderer.flipX)
-                nextPosition.x += flipX ? _offsetX / 2 : -_offsetX / 2;
+                nextPosition.x += flipX ? _sidekickOffsetX / 2 : -_sidekickOffsetX / 2;
             flipX = _targetRenderer.flipX;
         }
-        else if (!flipX && nextPosition.x > target.transform.position.x + _offset.x) flipX = true;
-        else if (flipX && nextPosition.x < target.transform.position.x + _offset.x) flipX = false;
+        else if (!flipX && nextPosition.x > home.x) flipX = true;
+        else if (flipX && nextPosition.x < home.x) flipX = false;
 
-        if (flipX && _offset.x > -8)
+        if (flipX && _sidekickOffset.x > -8)
         {
-            if (_offset.x > 0) _offset.x = 0;
-            _offset.x = Mathf.MoveTowards(_offset.x, -8, Time.deltaTime * 20);
+            if (_sidekickOffset.x > 0) _sidekickOffset.x = 0;
+            _sidekickOffset.x = Mathf.MoveTowards(_sidekickOffset.x, -8, Time.deltaTime * 20);
         }
-        else if (!flipX && _offset.x < 8)
+        else if (!flipX && _sidekickOffset.x < 8)
         {
-            if (_offset.x < 0) _offset.x = 0;
-            _offset.x = Mathf.MoveTowards(_offset.x, 8, Time.deltaTime * 20);
+            if (_sidekickOffset.x < 0) _sidekickOffset.x = 0;
+            _sidekickOffset.x = Mathf.MoveTowards(_sidekickOffset.x, 8, Time.deltaTime * 20);
         }
 
         FinalizePosition(nextPosition);
-
-        if (Input.GetKeyDown(KeyCode.M)) OnClick?.Invoke();
-        if (Input.GetKeyUp(KeyCode.M)) OnRelease?.Invoke();
+        HandleInput();
     }
 
     private IEnumerator FlyAway()

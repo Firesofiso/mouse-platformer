@@ -1,11 +1,14 @@
 using UnityEngine;
 
+[ExecuteAlways]
 public class ButtonLabel : MonoBehaviour
 {
-    public enum Font { Sttuborrn, Odbball }
+    [SerializeField] TextMesh _textMesh;
+    [SerializeField] string _text;
 
-    [SerializeField] public Font font;
-    [SerializeField] public string text;
-    [SerializeField] public float gap = 1f;
-    [SerializeField] public Vector3 labelPosition;
+    private void OnValidate()
+    {
+        if (_textMesh != null)
+            _textMesh.text = _text;
+    }
 }
