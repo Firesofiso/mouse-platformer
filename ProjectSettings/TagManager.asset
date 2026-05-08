@@ -29,9 +29,9 @@ TagManager:
   - EntityCollisions
   - Background
   - Interactable
-  - 
+  - BG_Far
   - BG_Mid
-  - 
+  - BG_Near
   - 
   - Ground
   - Solid

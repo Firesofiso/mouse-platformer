@@ -5,6 +5,10 @@ using UnityEngine;
 public class BackgroundCharSelectGridManager : MonoBehaviour
 {
     [SerializeField] GameObject _prefab;
+    [SerializeField] string _layer = ""; // leave empty to use prefab's layer
+    [SerializeField] float _scale = 1f;
+    [SerializeField] float _maxRowOffsetX = 0f;
+    [SerializeField] Vector2 _maxCellOffset = Vector2.zero;
     [SerializeField] Vector2 _cellSize = new Vector2(32f, 28f);
     [SerializeField] Vector2 _gutter = Vector2.zero;
     [SerializeField] float _maxDistance = 0f; // 0 = unlimited
@@ -29,6 +33,10 @@ public class BackgroundCharSelectGridManager : MonoBehaviour
         while (true)
         {
             var instance = Instantiate(_prefab, SlotPosition(col, row), Quaternion.identity, transform);
+            if (!string.IsNullOrEmpty(_layer))
+                SetLayerRecursive(instance, LayerMask.NameToLayer(_layer));
+            if (_scale != 1f)
+                instance.transform.localScale = _prefab.transform.localScale * _scale;
             yield return new WaitUntil(() => instance == null || !IsVisible(col, row));
             if (instance != null) Destroy(instance);
             if (!IsVisible(col, row)) break;
@@ -66,8 +74,27 @@ public class BackgroundCharSelectGridManager : MonoBehaviour
         maxRow = Mathf.CeilToInt((camPos.y + h - origin.y) / Stride.y);
     }
 
-    private Vector3 SlotPosition(int col, int row) =>
-        transform.position + new Vector3(col * Stride.x, row * Stride.y, 0f);
+    private static void SetLayerRecursive(GameObject go, int layer)
+    {
+        go.layer = layer;
+        foreach (Transform child in go.transform)
+            SetLayerRecursive(child.gameObject, layer);
+    }
+
+    private Vector3 SlotPosition(int col, int row)
+    {
+        float rowX   = SeededRandom(row,                  _maxRowOffsetX);
+        float cellX  = SeededRandom(col * 10000 + row,    _maxCellOffset.x);
+        float cellY  = SeededRandom(col * 10000 + row + 50000, _maxCellOffset.y);
+        return transform.position + new Vector3(col * Stride.x + rowX + cellX, row * Stride.y + cellY, 0f);
+    }
+
+    private static float SeededRandom(int seed, float range)
+    {
+        if (range == 0f) return 0f;
+        var r = new System.Random(seed);
+        return ((float)r.NextDouble() * 2f - 1f) * range;
+    }
 
     void OnDrawGizmos()
     {

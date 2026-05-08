@@ -24,7 +24,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 8400000, guid: 35406eabfa4fb459f99a371214314933, type: 2}
+        m_Texture: {fileID: 8400000, guid: 4a3654b0fd14f4ce3b4ee2d634269501, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
@@ -32,7 +32,7 @@ Material:
     - _BlurStrength: 0.57
     - _ContrastAmount: 0
     - _DesatAmount: 0.493
-    - _FogStrength: 0.805
+    - _FogStrength: 0.558
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _FogColor: {r: 0.4862745, g: 0.49019608, b: 0.47058824, a: 1}

@@ -10,6 +10,8 @@ public class PlatformCharSelectGridManager : MonoBehaviour
     [SerializeField] Vector2 _cellSize = new Vector2(64f, 56f);
     [SerializeField] Vector2 _gutter = Vector2.zero;
     [SerializeField] Vector2 _gridOffset = new Vector2(0f, -4f);
+    [SerializeField] float _maxRowOffsetX = 0f;
+    [SerializeField] Vector2 _maxCellOffset = Vector2.zero;
 
     private Vector2 Stride => _cellSize + _gutter;
 
@@ -70,8 +72,20 @@ public class PlatformCharSelectGridManager : MonoBehaviour
         maxRow = Mathf.CeilToInt((camPos.y + h - origin.y) / Stride.y);
     }
 
-    private Vector3 SlotPosition(int col, int row) =>
-        transform.position + new Vector3(col * Stride.x, row * Stride.y, 0f);
+    private Vector3 SlotPosition(int col, int row)
+    {
+        float rowX  = SeededRandom(row,                  _maxRowOffsetX);
+        float cellX = SeededRandom(col * 10000 + row,    _maxCellOffset.x);
+        float cellY = SeededRandom(col * 10000 + row + 50000, _maxCellOffset.y);
+        return transform.position + new Vector3(col * Stride.x + rowX + cellX, row * Stride.y + cellY, 0f);
+    }
+
+    private static float SeededRandom(int seed, float range)
+    {
+        if (range == 0f) return 0f;
+        var r = new System.Random(seed);
+        return ((float)r.NextDouble() * 2f - 1f) * range;
+    }
 
     void OnDrawGizmos()
     {
