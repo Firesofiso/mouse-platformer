@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8030385014274318336}
   - component: {fileID: 1245906921163421390}
   - component: {fileID: 140209060001390523}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: WindowFrame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -748,7 +748,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9475296263423501}
   - component: {fileID: 7143981931884542143}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: odbball_14
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -832,7 +832,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4733643071954133490}
   - component: {fileID: 5766096241060742941}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: odbball_8
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -916,7 +916,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7617479942972445073}
   - component: {fileID: 1508308053031676355}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: odbball_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -999,7 +999,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 806531677312022342}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1046,7 +1046,7 @@ GameObject:
   - component: {fileID: 492294263925225962}
   - component: {fileID: 3845155655219565206}
   - component: {fileID: 2037006662434150848}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: Confirm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1115,10 +1115,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a004a4de972bc463fa8687fc6ea1d878, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  font: 1
-  text: CONFIRM
-  gap: 1
-  labelPosition: {x: 0, y: 1, z: 0}
+  _textMesh: {fileID: 0}
+  _text: 
 --- !u!1839735485 &6376431003844732417
 Tilemap:
   m_ObjectHideFlags: 0
@@ -1470,7 +1468,7 @@ GameObject:
   - component: {fileID: 7557564387840686551}
   - component: {fileID: 2773315104520405137}
   - component: {fileID: 3552180448820992755}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: Window
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1532,7 +1530,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7572413950511664022}
   - component: {fileID: 3303902719726136196}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: odbball_5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1616,7 +1614,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6018987028812726725}
   - component: {fileID: 7103104243046560347}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: Visual
   m_TagString: Cursor
   m_Icon: {fileID: 0}
@@ -1705,7 +1703,7 @@ GameObject:
   - component: {fileID: 1407115764325897738}
   - component: {fileID: 8808360716258132780}
   - component: {fileID: 733229159373785997}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: Mouse Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1875,7 +1873,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6243443635356709080}
   - component: {fileID: 7355233910199608708}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1959,7 +1957,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4677538416060512369}
   - component: {fileID: 2967878895234375080}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2049,7 +2047,7 @@ GameObject:
   - component: {fileID: 1274369004409014944}
   - component: {fileID: 7811864913346785878}
   - component: {fileID: 5533163340261571498}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: WindowHeader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2428,7 +2426,7 @@ GameObject:
   - component: {fileID: 1876975418591546592}
   - component: {fileID: 3710774760808909792}
   - component: {fileID: 539419002586950268}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2785,7 +2783,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7155750504971905755}
   - component: {fileID: 5336177660469519714}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: BackgroundCharSelect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2853,7 +2851,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6686503317983118140}
   - component: {fileID: 1426484483337412219}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: odbball_17
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2937,7 +2935,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2637172408172675515}
   - component: {fileID: 418872748292689951}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: odbball_12
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3021,7 +3019,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6174433828745467694}
   - component: {fileID: 5079203273467320839}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: Cursor
   m_TagString: Cursor
   m_Icon: {fileID: 0}
@@ -3074,7 +3072,7 @@ GameObject:
   - component: {fileID: 5569735054878737654}
   - component: {fileID: 2232438253371601142}
   - component: {fileID: 5486510384598985658}
-  m_Layer: 5
+  m_Layer: 17
   m_Name: Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3431,7 +3429,7 @@ GameObject:
   m_Component:
   - component: {fileID: 579745647180064422}
   - component: {fileID: 1005107174720106148}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: odbball_13
   m_TagString: Untagged
   m_Icon: {fileID: 0}

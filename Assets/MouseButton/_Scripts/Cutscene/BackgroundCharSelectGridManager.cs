@@ -7,6 +7,7 @@ public class BackgroundCharSelectGridManager : MonoBehaviour
     [SerializeField] GameObject _prefab;
     [SerializeField] Vector2 _cellSize = new Vector2(32f, 28f);
     [SerializeField] Vector2 _gutter = Vector2.zero;
+    [SerializeField] float _maxDistance = 0f; // 0 = unlimited
     private Vector2 Stride => _cellSize + _gutter;
 
     private readonly Dictionary<(int, int), Coroutine> _activeSlots = new();
@@ -18,7 +19,7 @@ public class BackgroundCharSelectGridManager : MonoBehaviour
             for (int col = minCol; col <= maxCol; col++)
             {
                 var key = (col, row);
-                if (!_activeSlots.ContainsKey(key))
+                if (!_activeSlots.ContainsKey(key) && IsWithinDistance(col, row))
                     _activeSlots[key] = StartCoroutine(ManageSlot(col, row));
             }
     }
@@ -28,7 +29,8 @@ public class BackgroundCharSelectGridManager : MonoBehaviour
         while (true)
         {
             var instance = Instantiate(_prefab, SlotPosition(col, row), Quaternion.identity, transform);
-            yield return new WaitUntil(() => instance == null);
+            yield return new WaitUntil(() => instance == null || !IsVisible(col, row));
+            if (instance != null) Destroy(instance);
             if (!IsVisible(col, row)) break;
         }
         _activeSlots.Remove((col, row));
@@ -37,7 +39,16 @@ public class BackgroundCharSelectGridManager : MonoBehaviour
     private bool IsVisible(int col, int row)
     {
         GetVisibleRange(out int minCol, out int maxCol, out int minRow, out int maxRow);
-        return col >= minCol && col <= maxCol && row >= minRow && row <= maxRow;
+        if (col < minCol || col > maxCol || row < minRow || row > maxRow) return false;
+        return IsWithinDistance(col, row);
+    }
+
+    private bool IsWithinDistance(int col, int row)
+    {
+        if (_maxDistance <= 0f || Camera.main == null) return true;
+        var slotPos = (Vector2)SlotPosition(col, row);
+        var camPos  = (Vector2)Camera.main.transform.position;
+        return Vector2.Distance(slotPos, camPos) <= _maxDistance;
     }
 
     private void GetVisibleRange(out int minCol, out int maxCol, out int minRow, out int maxRow)
