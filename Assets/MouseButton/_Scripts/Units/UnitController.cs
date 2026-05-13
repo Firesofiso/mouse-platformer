@@ -77,6 +77,7 @@ namespace TarodevController
         public bool Crouching { get; protected set; }
         public bool ClimbingLadder { get; protected set; }
         public bool GrabbingLedge { get; protected set; }
+        public bool JumpHeld => _frameInput.JumpHeld;
         public bool ClimbingLedge { get; protected set; }
         public bool IsGrounded => _grounded;
 

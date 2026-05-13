@@ -1,8 +1,9 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class CursorController : MonoBehaviour
+public class CursorController : MonoBehaviour, ICutsceneParticipant
 {
     public enum CursorMode { TrueCursor, Sidekick, FlyAway }
 
@@ -23,15 +24,48 @@ public class CursorController : MonoBehaviour
         : Vector2.zero;
     public CursorMode Mode = CursorMode.TrueCursor;
 
+    #region ICutsceneParticipant
+
+    public string ParticipantId => "Cursor";
+    public Transform Transform => transform;
+
+    public IEnumerator MoveTo(Vector2 worldPosition)
+    {
+        while (Vector2.Distance(transform.position, worldPosition) > 0.5f)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, worldPosition, speed * Time.deltaTime);
+            yield return null;
+        }
+    }
+
+    public void PlayEmote(string emoteId) => _cursorAnimator.PlayEmote(emoteId);
+
+    public void FaceTowards(Vector2 worldPosition) => _cursorAnimator.FaceTowards(worldPosition);
+
+    public void Stop() { }
+
+    #endregion
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        if (_cursorAnimator == null) _cursorAnimator = GetComponentInChildren<CursorAnimator>();
     }
 
     void OnDestroy()
     {
         if (Instance == this) Instance = null;
+    }
+
+    void OnEnable()
+    {
+        if (CutsceneManager.instance != null) CutsceneManager.instance.Register(this);
+    }
+
+    void OnDisable()
+    {
+        if (CutsceneManager.instance != null) CutsceneManager.instance.Unregister(this);
     }
 
     [SerializeField] GameObject sidekickTarget;
@@ -47,10 +81,8 @@ public class CursorController : MonoBehaviour
     public bool flipX = false;
 
     [Header("Fly Away")]
-    [SerializeField] private float flyAwayDuration = 1.0f;
-    [SerializeField] private Vector3 flyAwayEndOffset = new Vector3(18f, 28f, 0f);
-    [SerializeField] private Vector3 flyAwayControlOffset = new Vector3(4f, -10f, 0f);
-    [SerializeField] [Range(1f, 5f)] private float flyAwayEasePower = 2f;
+    [SerializeField] private CursorAnimator _cursorAnimator;
+    [SerializeField] private CutsceneSequence _flyAwaySequence;
 
     [Header("Interaction")]
     [SerializeField] InteractionManager _interactionManager;
@@ -62,6 +94,7 @@ public class CursorController : MonoBehaviour
 
     private SpriteRenderer _targetRenderer;
 
+    [SerializeField]
     private Vector3 _sidekickOffset = new Vector3(8, 3, 0);
     private float _sidekickOffsetX = 8;
     private Vector2 _virtualCursorPos;
@@ -190,7 +223,81 @@ public class CursorController : MonoBehaviour
         if (_grabber != null && CursorGrabber.IsGrabbing)
             OnRelease?.Invoke();
 
-        yield return MotionUtils.BezierMove(transform, flyAwayControlOffset, flyAwayEndOffset, flyAwayDuration, flyAwayEasePower);
-        gameObject.SetActive(false);
+        var sequence = _flyAwaySequence;
+        if (sequence == null) sequence = BuildDefaultFlyAway();
+
+        if (CutsceneManager.instance != null)
+        {
+            CutsceneManager.instance.Register(this);
+            yield return CutsceneManager.instance.PlayAndReturn(sequence);
+        }
+        else
+            Debug.LogWarning("CursorController: No CutsceneManager in scene — fly-away skipped.");
+    }
+
+    private static CutsceneSequence BuildDefaultFlyAway()
+    {
+        var seq = ScriptableObject.CreateInstance<CutsceneSequence>();
+        seq.beats = new List<CutsceneBeat>
+        {
+            // Follow player from a distance (async — runs alongside emotes)
+            new CutsceneBeat
+            {
+                type = BeatType.FollowTarget,
+                speakerId = "Cursor",
+                followTargetId = "Player",
+                followOffset = new Vector3(12f, 10f, 0f),
+                followSpeed = 5f,
+                duration = 4.0f,
+                async = true,
+            },
+            // Drift for a bit before emoting
+            new CutsceneBeat
+            {
+                type = BeatType.Wait,
+                duration = 2.0f,
+            },
+            // Surprise — realizing it's time to go
+            new CutsceneBeat
+            {
+                type = BeatType.Emote,
+                speakerId = "Cursor",
+                emoteId = "surprise",
+                duration = 0.6f,
+            },
+            // Frown — sad to leave
+            new CutsceneBeat
+            {
+                type = BeatType.Emote,
+                speakerId = "Cursor",
+                emoteId = "frown",
+                duration = 1.0f,
+            },
+            // Back to idle
+            new CutsceneBeat
+            {
+                type = BeatType.Emote,
+                speakerId = "Cursor",
+                emoteId = "idle",
+            },
+            // Fly away
+            new CutsceneBeat
+            {
+                type = BeatType.BezierMove,
+                speakerId = "Cursor",
+                bezierControlOffset = new Vector3(-6f, 12f, 0f),
+                bezierEndOffset = new Vector3(30f, 40f, 0f),
+                bezierEasePower = 2f,
+                duration = 2.0f,
+            },
+            // Deactivate
+            new CutsceneBeat
+            {
+                type = BeatType.SetActive,
+                speakerId = "Cursor",
+                activeState = false,
+            },
+        };
+        return seq;
     }
 }

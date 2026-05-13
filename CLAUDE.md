@@ -1,32 +1,35 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code (claude.ai/code) when working in this repo.
 
 ## Project
 
-Unity **2022.3 LTS** 2D pixel-art platformer. All game code lives under `Assets/MouseButton/`. Third-party code is under `Assets/External/` — don't modify it.
+Unity **2022.3 LTS** 2D pixel-art platformer. Game code under `Assets/MouseButton/`. Third-party under `Assets/External/` — don't modify.
 
 ## Session Start
 
-Run the `unity-session-start` skill before anything else in every session.
+Run `unity-session-start` skill before anything else every session.
 
 ## Editor Workflow
 
-There are no CLI build or test commands. All editor operations go through the **Unity MCP** (`mcp__UnityMCP__*` tools):
+No CLI build/test commands. All editor ops via **Unity MCP** (`mcp__UnityMCP__*` tools):
 
 - **Inspect scene state / runtime values** → `execute_code`
 - **Check for compile errors after script changes** → `read_console`
 - **Modify prefabs** → `manage_prefabs` (prefer over runtime code workarounds)
 - **Run in editor** → `manage_editor` (play/pause/stop)
 
-Always run `read_console` after creating or editing scripts before doing anything else.
+Always run `read_console` after creating or editing scripts before anything else.
 
-## Pixel Art Standards
+## Before non-trivial edits
 
-- **1 px = 1 world unit** (`pixelsPerUnit = 1` on all sprites). 1 tile = 8 × 8 units.
-- Point-filter enforced on font textures via `Assets/Editor/FontTexturePointFilter.cs`
-- Sprite sources are `.aseprite` files imported directly
-- Snap positions to whole-unit (pixel) boundaries
+For changes bigger than one-file fix, or any re-attempt after failed step, answer three checks before writing code:
+
+1. **Measured?** Inspected failing state (logged values, RT contents, aspect, configs) — or guessing?
+2. **Fallback?** What proves step worked, what proves it failed, plan B if it fails?
+3. **Surprise signal?** Papering over asymmetric clue (e.g. one config works, another doesn't)?
+
+Any answer "no" or "don't know" — stop and resolve before editing.
 
 ## Architecture
 

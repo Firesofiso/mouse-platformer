@@ -288,6 +288,7 @@ namespace TarodevController {
         private void HandleAnimations() {
             var state = GetState();
             ResetFlags();
+
             if (state == _currentState) return;
             _anim.Play(state, 0); //_anim.CrossFade(state, 0, 0);
             _currentState = state;
@@ -355,7 +356,9 @@ namespace TarodevController {
                         return Run;
                     }
                 if (_player.Speed.y > 0) return _wallJumped ? WallJump : Jump;
-                return _dismountedWall && _player.Input.x != 0 ? LockState(WallDismount, 0.1f) : Fall;
+                if (_dismountedWall && _player.Input.x != 0) return LockState(WallDismount, 0.1f);
+                return (_player.JumpHeld && _player.Speed.y > 0) ? JumpHold : Fall;
+
                 // TODO: If WallDismount looks/feels good enough to keep, we should add clip duration (0.167f) to Stats
 
                 int LockState(int s, float t) {
@@ -389,6 +392,7 @@ namespace TarodevController {
         private static readonly int Crawl = Animator.StringToHash("Crawl");
 
         private static readonly int Jump = Animator.StringToHash("Jump");
+        private static readonly int JumpHold = Animator.StringToHash("JumpHold");
         private static readonly int Fall = Animator.StringToHash("Fall");
         private static readonly int Land = Animator.StringToHash("Land");
         

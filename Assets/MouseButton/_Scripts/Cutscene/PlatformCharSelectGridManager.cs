@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class PlatformCharSelectGridManager : MonoBehaviour
 {
@@ -12,11 +15,22 @@ public class PlatformCharSelectGridManager : MonoBehaviour
     [SerializeField] Vector2 _gridOffset = new Vector2(0f, -4f);
     [SerializeField] float _maxRowOffsetX = 0f;
     [SerializeField] Vector2 _maxCellOffset = Vector2.zero;
+    [SerializeField] float _fadeDuration = 0.4f;
+    [SerializeField] bool _showEditPreview = false;
+    [SerializeField] int _updateEveryNFrames = 4;
 
     private Vector2 Stride => _cellSize + _gutter;
 
     private readonly Dictionary<(int, int), Coroutine> _activeSlots = new();
+    private readonly Queue<GameObject> _pool = new();
     private int _centerCol, _centerRow;
+    private Camera _mainCam;
+    private int _rangeFrame = -1;
+    private int _cMinCol, _cMaxCol, _cMinRow, _cMaxRow;
+
+#if UNITY_EDITOR
+    private readonly Dictionary<(int, int), GameObject> _editInstances = new();
+#endif
 
     void Start()
     {
@@ -26,6 +40,10 @@ public class PlatformCharSelectGridManager : MonoBehaviour
 
     void Update()
     {
+#if UNITY_EDITOR
+        if (!Application.isPlaying) { EditModeUpdate(); return; }
+#endif
+        if (_updateEveryNFrames > 1 && Time.frameCount % _updateEveryNFrames != 0) return;
         GetVisibleRange(out int minCol, out int maxCol, out int minRow, out int maxRow);
         for (int row = minRow; row <= maxRow; row++)
             for (int col = minCol; col <= maxCol; col++)
@@ -37,18 +55,134 @@ public class PlatformCharSelectGridManager : MonoBehaviour
             }
     }
 
-    public void StartCenterSlot() =>
-        _activeSlots[(0, 0)] = StartCoroutine(ManageSlot(0, 0));
-
-    private IEnumerator ManageSlot(int col, int row)
+#if UNITY_EDITOR
+    void EditModeUpdate()
     {
+        if (!_showEditPreview || _prefab == null) { ClearEditInstances(); return; }
+        GetVisibleRange(out int minCol, out int maxCol, out int minRow, out int maxRow);
+
+        var toRemove = new List<(int, int)>();
+        foreach (var kv in _editInstances)
+        {
+            var (c, r) = kv.Key;
+            if (c < minCol || c > maxCol || r < minRow || r > maxRow)
+            {
+                if (kv.Value != null) DestroyImmediate(kv.Value);
+                toRemove.Add(kv.Key);
+            }
+        }
+        foreach (var k in toRemove) _editInstances.Remove(k);
+
+        for (int row = minRow; row <= maxRow; row++)
+            for (int col = minCol; col <= maxCol; col++)
+            {
+                var key = (col, row);
+                bool isCenter = col == _centerCol && row == _centerRow;
+                if (!isCenter && !_editInstances.ContainsKey(key))
+                {
+                    var inst = (GameObject)PrefabUtility.InstantiatePrefab(_prefab, transform);
+                    inst.transform.position = SlotPosition(col, row);
+                    inst.hideFlags = HideFlags.DontSave;
+                    _editInstances[key] = inst;
+                }
+            }
+    }
+
+    void OnDisable() => ClearEditInstances();
+
+    void ClearEditInstances()
+    {
+        foreach (var kv in _editInstances)
+            if (kv.Value != null) DestroyImmediate(kv.Value);
+        _editInstances.Clear();
+    }
+#endif
+
+    public void StartCenterSlot() =>
+        _activeSlots[(0, 0)] = StartCoroutine(ManageSlot(0, 0, startFresh: true));
+
+    private GameObject SpawnFromPool(Vector3 pos)
+    {
+        GameObject go;
+        if (_pool.Count > 0)
+        {
+            go = _pool.Dequeue();
+            if (go == null) return SpawnFromPool(pos);
+            go.transform.position = pos;
+            go.SetActive(true);
+        }
+        else
+        {
+            go = Instantiate(_prefab, pos, Quaternion.identity, transform);
+            go.name = _prefab.name;
+        }
+        return go;
+    }
+
+    private void ReturnToPool(GameObject go)
+    {
+        if (go == null) return;
+        var seq = go.GetComponentInChildren<BackgroundCharSelectSequence>(true);
+        if (seq != null) seq.ResetForReuse();
+        go.SetActive(false);
+        _pool.Enqueue(go);
+    }
+
+    private IEnumerator ManageSlot(int col, int row, bool startFresh = false)
+    {
+        bool firstSpawn = true;
         while (true)
         {
-            var instance = Instantiate(_prefab, SlotPosition(col, row), Quaternion.identity, transform);
-            yield return new WaitUntil(() => instance == null);
-            if (!IsVisible(col, row)) break;
+            var instance = SpawnFromPool(SlotPosition(col, row));
+            var fadeables = instance.GetComponentsInChildren<Fadeable>();
+            if (firstSpawn)
+            {
+                foreach (var f in fadeables) f.SetAlpha(1f);
+            }
+            else
+            {
+                foreach (var f in fadeables)
+                {
+                    f.SetAlpha(0f);
+                    StartCoroutine(f.FadeTo(1f, _fadeDuration));
+                }
+            }
+            var seq = instance.GetComponentInChildren<BackgroundCharSelectSequence>();
+            if (seq != null)
+            {
+                if (firstSpawn && !startFresh) seq.StartAtRandomProgress();
+                else seq.StartFresh();
+            }
+            firstSpawn = false;
+
+            while (instance != null
+                   && (seq == null || !seq.IsComplete)
+                   && IsVisible(col, row))
+                yield return null;
+
+            bool scrolledOff = !IsVisible(col, row);
+            if (scrolledOff)
+            {
+                if (seq != null) seq.StopActiveSequence();
+                var scrollFadeable = instance.GetComponentInChildren<Fadeable>();
+                if (scrollFadeable != null)
+                    StartCoroutine(FadeOutAndPool(scrollFadeable, instance, _fadeDuration));
+                else
+                    ReturnToPool(instance);
+                break;
+            }
+            else
+            {
+                ReturnToPool(instance);
+            }
         }
         _activeSlots.Remove((col, row));
+    }
+
+    private IEnumerator FadeOutAndPool(Fadeable fadeable, GameObject go, float dur)
+    {
+        yield return StartCoroutine(fadeable.FadeTo(0f, dur));
+        ReturnToPool(go);
     }
 
     private bool IsVisible(int col, int row)
@@ -59,17 +193,23 @@ public class PlatformCharSelectGridManager : MonoBehaviour
 
     private void GetVisibleRange(out int minCol, out int maxCol, out int minRow, out int maxRow)
     {
-        minCol = maxCol = minRow = maxRow = 0;
-        if (Camera.main == null) return;
-        var cam = Camera.main;
-        float h = cam.orthographicSize;
-        float w = h * cam.aspect;
-        var camPos = cam.transform.position;
+        if (_rangeFrame == Time.frameCount)
+        {
+            minCol = _cMinCol; maxCol = _cMaxCol; minRow = _cMinRow; maxRow = _cMaxRow;
+            return;
+        }
+        if (_mainCam == null) _mainCam = Camera.main;
+        if (_mainCam == null) { minCol = maxCol = minRow = maxRow = 0; return; }
+        float h = _mainCam.orthographicSize;
+        float w = h * _mainCam.aspect;
+        var camPos = _mainCam.transform.position;
         var origin = (Vector2)transform.position;
         minCol = Mathf.FloorToInt((camPos.x - w - origin.x) / Stride.x);
         maxCol = Mathf.CeilToInt((camPos.x + w - origin.x) / Stride.x);
         minRow = Mathf.FloorToInt((camPos.y - h - origin.y) / Stride.y);
         maxRow = Mathf.CeilToInt((camPos.y + h - origin.y) / Stride.y);
+        _rangeFrame = Time.frameCount;
+        _cMinCol = minCol; _cMaxCol = maxCol; _cMinRow = minRow; _cMaxRow = maxRow;
     }
 
     private Vector3 SlotPosition(int col, int row)
@@ -87,18 +227,4 @@ public class PlatformCharSelectGridManager : MonoBehaviour
         return ((float)r.NextDouble() * 2f - 1f) * range;
     }
 
-    void OnDrawGizmos()
-    {
-        var gizmoShift = new Vector3(_gridOffset.x, _gridOffset.y, 0f);
-        for (int row = 0; row < _rows; row++)
-            for (int col = 0; col < _columns; col++)
-            {
-                var pos = SlotPosition(col, row) + gizmoShift;
-                bool isCenter = col == _columns / 2 && row == _rows / 2;
-                Gizmos.color = isCenter ? new Color(1f, 1f, 0f, 0.3f) : new Color(1f, 1f, 1f, 0.15f);
-                Gizmos.DrawCube(pos, new Vector3(_cellSize.x, _cellSize.y, 0f));
-                Gizmos.color = isCenter ? new Color(1f, 1f, 0f, 0.8f) : new Color(1f, 1f, 1f, 0.5f);
-                Gizmos.DrawWireCube(pos, new Vector3(Stride.x, Stride.y, 0f));
-            }
-    }
 }

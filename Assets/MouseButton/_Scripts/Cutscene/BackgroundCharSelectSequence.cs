@@ -27,9 +27,73 @@ public class BackgroundCharSelectSequence : MonoBehaviour
     [SerializeField] Vector3 _flyAwayControlVariance = new Vector3(6f, 4f, 0f);
     [SerializeField] [Range(1f, 5f)] float _flyAwayEasePower = 2f;
 
-    void OnEnable() => StartCoroutine(Sequence());
+    public bool IsComplete { get; private set; }
 
-    private IEnumerator Sequence()
+    private Transform _charOriginalParent;
+    private Vector3 _charOriginalLocalPos;
+    private Quaternion _charOriginalLocalRot;
+    private RigidbodyType2D _charOriginalBodyType;
+    private Vector3 _cursorOriginalLocalPos;
+    private Fadeable[] _allFadeables;
+    private Collider2D[] _allColliders;
+
+    void Awake()
+    {
+        if (_character != null)
+        {
+            _charOriginalParent = _character.transform.parent;
+            _charOriginalLocalPos = _character.transform.localPosition;
+            _charOriginalLocalRot = _character.transform.localRotation;
+        }
+        if (_characterBody != null) _charOriginalBodyType = _characterBody.bodyType;
+        if (_cursor != null) _cursorOriginalLocalPos = _cursor.transform.localPosition;
+        _allFadeables = GetComponentsInChildren<Fadeable>(true);
+        _allColliders = GetComponentsInChildren<Collider2D>(true);
+    }
+
+    public void StopActiveSequence() => StopAllCoroutines();
+
+    public void ResetForReuse()
+    {
+        StopAllCoroutines();
+        IsComplete = false;
+
+        if (_character != null)
+        {
+            _character.transform.SetParent(_charOriginalParent, false);
+            _character.transform.localPosition = _charOriginalLocalPos;
+            _character.transform.localRotation = _charOriginalLocalRot;
+        }
+        if (_characterBody != null)
+        {
+            _characterBody.bodyType = _charOriginalBodyType;
+            _characterBody.velocity = Vector2.zero;
+            _characterBody.angularVelocity = 0f;
+        }
+        if (_cursor != null) _cursor.transform.localPosition = _cursorOriginalLocalPos;
+
+        if (_allFadeables != null)
+            foreach (var f in _allFadeables) if (f != null) f.SetAlpha(0f);
+        if (_allColliders != null)
+            foreach (var c in _allColliders) if (c != null) c.enabled = true;
+    }
+
+    public void StartFresh() { ResetForReuse(); StartCoroutine(FullSequence()); }
+
+    public void StartAtRandomProgress()
+    {
+        float r = Random.value;
+        if (r < 0.25f)
+            StartCoroutine(FullSequence());
+        else if (r < 0.75f)
+            StartCoroutine(SequenceFromSelect());
+        else if (r < 0.90f)
+            StartCoroutine(SequenceFromConfirm());
+        else
+            StartCoroutine(SequenceFromFlyAway());
+    }
+
+    private IEnumerator FullSequence()
     {
         yield return null;
         _cursor.SetAlpha(0f);
@@ -49,9 +113,62 @@ public class BackgroundCharSelectSequence : MonoBehaviour
             }
         }
 
+        yield return ConfirmAndFlyAway();
+    }
+
+    private IEnumerator SequenceFromSelect()
+    {
+        yield return null;
+        _cursor.SetAlpha(1f);
+        int idx = Random.Range(0, _selectionButtons.Length);
+        var button = _selectionButtons[idx];
+        var pos = ButtonCenter(button);
+        pos.z = _cursor.transform.position.z;
+        _cursor.transform.position = pos;
+        int presses = Random.Range(0, 9);
+        for (int i = 0; i < presses; i++)
+        {
+            button.SimulatePress();
+            if (idx == 0) _palette.Prev(); else _palette.Next();
+            yield return new WaitForSeconds(Random.Range(_pressPauseMin, _pressPauseMax));
+        }
+        yield return ConfirmAndFlyAway();
+    }
+
+    private IEnumerator SequenceFromConfirm()
+    {
+        yield return null;
+        _cursor.SetAlpha(1f);
+        int presses = Random.Range(0, 11);
+        for (int i = 0; i < presses; i++) _palette.Next();
+        var pos = ButtonCenter(_selectionButtons[Random.Range(0, _selectionButtons.Length)]);
+        pos.z = _cursor.transform.position.z;
+        _cursor.transform.position = pos;
+        yield return ConfirmAndFlyAway();
+    }
+
+    private IEnumerator SequenceFromFlyAway()
+    {
+        yield return null;
+        _cursor.SetAlpha(1f);
+        int presses = Random.Range(0, 11);
+        for (int i = 0; i < presses; i++) _palette.Next();
+        var pos = ButtonCenter(_confirmButton);
+        pos.z = _cursor.transform.position.z;
+        _cursor.transform.position = pos;
+        _confirmButton.SimulatePress();
+        yield return FlyAwayPhase();
+    }
+
+    private IEnumerator ConfirmAndFlyAway()
+    {
         yield return MoveCursorTo(ButtonCenter(_confirmButton));
         _confirmButton.SimulatePress();
+        yield return FlyAwayPhase();
+    }
 
+    private IEnumerator FlyAwayPhase()
+    {
         _character.transform.SetParent(transform.parent);
         _characterBody.bodyType = RigidbodyType2D.Dynamic;
         _character.PlayFall();
@@ -69,8 +186,7 @@ public class BackgroundCharSelectSequence : MonoBehaviour
         yield return cursorFade;
         yield return characterFade;
 
-        Destroy(_character.gameObject);
-        Destroy(gameObject);
+        IsComplete = true;
     }
 
     private static Vector3 Randomize(Vector3 offset, Vector3 variance) => offset + new Vector3(

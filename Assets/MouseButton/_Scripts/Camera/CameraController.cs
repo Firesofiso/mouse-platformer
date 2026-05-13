@@ -28,6 +28,7 @@ public class CameraController : MonoBehaviour
 
     public void PanTo(CameraRoom room)
     {
+        Debug.Log("panning!!!");
         if (_isPanning || room == _currentRoom) return;
 
         _currentRoom = room;
@@ -57,6 +58,7 @@ public class CameraController : MonoBehaviour
     private void Update()
     {
         if (!_isPanning) return;
+        Debug.Log("is panning");
 
         transform.position = Vector3.MoveTowards(transform.position, _panTarget, _resolvedPanSpeed * Time.unscaledDeltaTime);
 

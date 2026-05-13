@@ -31,6 +31,7 @@ ExportedObj/
 *.csproj
 *.unityproj
 *.sln
+!mouse-platformer.sln
 *.suo
 *.tmp
 *.user

@@ -5,10 +5,11 @@ using UnityEngine.Tilemaps;
 public class Fadeable : MonoBehaviour
 {
     [SerializeField] public float duration = 0.4f;
+    [SerializeField] AnimationCurve _ease = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     private SpriteRenderer[] _sprites;
-    private Tilemap[] _tilemaps;
-    private TextMesh[] _textMeshes;
+    private Tilemap[]        _tilemaps;
+    private TextMesh[]       _textMeshes;
 
     void Awake() => Collect();
 
@@ -19,28 +20,25 @@ public class Fadeable : MonoBehaviour
         _textMeshes ??= GetComponentsInChildren<TextMesh>();
     }
 
-    public IEnumerator FadeTo(float to) => FadeTo(to, duration);
-    public IEnumerator FadeTo(float to, float duration)
+    // ── Public API ────────────────────────────────────────────────────
+
+    public IEnumerator FadeTo(float to)              => FadeTo(to, duration);
+    public IEnumerator FadeTo(float to, float dur)
     {
         Collect();
+        if (dur <= 0f) { SetAlpha(to); yield break; }
 
-        if (duration <= 0f)
-        {
-            SetAlpha(to);
-            yield break;
-        }
-
-        float fromSprite = _sprites.Length > 0 ? _sprites[0].color.a : to;
-        float fromTilemap = _tilemaps.Length > 0 ? _tilemaps[0].color.a : to;
-        float fromText = _textMeshes.Length > 0 ? _textMeshes[0].color.a : to;
+        float fromSprite  = _sprites.Length    > 0 ? _sprites[0].color.a    : to;
+        float fromTilemap = _tilemaps.Length   > 0 ? _tilemaps[0].color.a   : to;
+        float fromText    = _textMeshes.Length > 0 ? _textMeshes[0].color.a : to;
         float elapsed = 0f;
-        while (elapsed < duration)
+        while (elapsed < dur)
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / duration);
-            SetSpriteAlpha(Mathf.Lerp(fromSprite, to, t));
+            float t = _ease.Evaluate(Mathf.Clamp01(elapsed / dur));
+            SetSpriteAlpha (Mathf.Lerp(fromSprite,  to, t));
             SetTilemapAlpha(Mathf.Lerp(fromTilemap, to, t));
-            SetTextAlpha(Mathf.Lerp(fromText, to, t));
+            SetTextAlpha   (Mathf.Lerp(fromText,    to, t));
             yield return null;
         }
         SetAlpha(to);
@@ -54,21 +52,23 @@ public class Fadeable : MonoBehaviour
         SetTextAlpha(a);
     }
 
+    // ── Alpha helpers ─────────────────────────────────────────────────
+
     public void SetSpriteAlpha(float a)
     {
         Collect();
-        foreach (var sr in _sprites)  { var c = sr.color; c.a = a; sr.color = c; }
+        foreach (var sr in _sprites)   { if (sr == null) continue; var c = sr.color; c.a = a; sr.color = c; }
     }
 
     public void SetTilemapAlpha(float a)
     {
         Collect();
-        foreach (var tm in _tilemaps) { var c = tm.color; c.a = a; tm.color = c; }
+        foreach (var tm in _tilemaps)  { if (tm == null) continue; var c = tm.color; c.a = a; tm.color = c; }
     }
 
     public void SetTextAlpha(float a)
     {
         Collect();
-        foreach (var t in _textMeshes) { var c = t.color; c.a = a; t.color = c; }
+        foreach (var t in _textMeshes) { if (t == null) continue; var c = t.color; c.a = a; t.color = c; }
     }
 }

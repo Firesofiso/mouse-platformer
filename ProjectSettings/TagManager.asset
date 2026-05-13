@@ -46,7 +46,7 @@ TagManager:
   - 
   - post
   m_SortingLayers:
-  - name: Background 1
+  - name: Background
     uniqueID: 194564831
     locked: 0
   - name: Default

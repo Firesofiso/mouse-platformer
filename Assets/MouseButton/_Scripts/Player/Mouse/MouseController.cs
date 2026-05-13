@@ -1,9 +1,37 @@
+using System.Collections;
 using UnityEngine;
 
 namespace TarodevController
 {
-    public class MouseController : UnitController
+    public class MouseController : UnitController, ICutsceneParticipant
     {
+        public string ParticipantId => "Player";
+        Transform ICutsceneParticipant.Transform => transform;
+
+        public IEnumerator MoveTo(Vector2 worldPosition)
+        {
+            while (Vector2.Distance(transform.position, worldPosition) > 0.5f)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, worldPosition, Speed.magnitude * Time.deltaTime);
+                yield return null;
+            }
+        }
+
+        public void PlayEmote(string emoteId) { }
+        public void FaceTowards(Vector2 worldPosition) { }
+        public void Stop() { }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            if (CutsceneManager.instance != null) CutsceneManager.instance.Register(this);
+        }
+
+        protected void OnDisable()
+        {
+            if (CutsceneManager.instance != null) CutsceneManager.instance.Unregister(this);
+        }
+
         public bool IsInCharacterSelect { get; set; }
 
         protected override void Update()
