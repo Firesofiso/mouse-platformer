@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(TilemapCollider2D))]
-[RequireComponent(typeof(CompositeCollider2D))]
 [RequireComponent(typeof(PlatformEffector2D))]
 public class OneWayPlatformBehaviour : MonoBehaviour
 {
@@ -19,13 +17,19 @@ public class OneWayPlatformBehaviour : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Static;
 
         var tilemap = GetComponent<TilemapCollider2D>();
-        tilemap.usedByComposite = true;
-        tilemap.usedByEffector = true;
+        if (tilemap != null)
+        {
+            tilemap.usedByComposite = true;
+            tilemap.usedByEffector = true;
+        }
 
         var composite = GetComponent<CompositeCollider2D>();
-        composite.usedByEffector = true;
-        composite.geometryType = CompositeCollider2D.GeometryType.Polygons;
-        composite.generationType = CompositeCollider2D.GenerationType.Synchronous;
+        if (composite != null)
+        {
+            composite.usedByEffector = true;
+            composite.geometryType = CompositeCollider2D.GeometryType.Polygons;
+            composite.generationType = CompositeCollider2D.GenerationType.Synchronous;
+        }
 
         var effector = GetComponent<PlatformEffector2D>();
         effector.useOneWay = true;
@@ -35,9 +39,11 @@ public class OneWayPlatformBehaviour : MonoBehaviour
 
     private void Start()
     {
-        _platform = GetComponent<CompositeCollider2D>()
-            ?? (Collider2D)GetComponent<TilemapCollider2D>()
-            ?? GetComponent<PolygonCollider2D>();
+        Collider2D c = GetComponent<CompositeCollider2D>();
+        if (c == null) c = GetComponent<TilemapCollider2D>();
+        if (c == null) c = GetComponent<BoxCollider2D>();
+        if (c == null) c = GetComponent<PolygonCollider2D>();
+        _platform = c;
     }
 
     public void AllowObjectPassThrough(Collider2D other)

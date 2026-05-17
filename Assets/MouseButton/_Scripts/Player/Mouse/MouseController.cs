@@ -1,10 +1,13 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TarodevController
 {
     public class MouseController : UnitController, ICutsceneParticipant
     {
+        private readonly List<Collider2D> _ignoredPlatforms = new();
+        private static readonly Collider2D[] _platformOverlapBuffer = new Collider2D[8];
         public string ParticipantId => "Player";
         Transform ICutsceneParticipant.Transform => transform;
 
@@ -53,16 +56,37 @@ namespace TarodevController
                 _droppingDown = true;
         }
 
-        // Pass through one-way platforms when dropping down
         protected override void HandleDropDown()
         {
             if (!_droppingDown) return;
-            foreach (RaycastHit2D surface in _groundHits)
+
+            int count = Physics2D.OverlapCapsuleNonAlloc(
+                _standingCollider.bounds.center, _standingCollider.size,
+                _standingCollider.direction, 0, _platformOverlapBuffer, ~_stats.PlayerLayer);
+
+            bool touchingAny = false;
+            for (int i = 0; i < count; i++)
             {
-                var platform = surface.collider?.GetComponent<OneWayPlatformBehaviour>();
-                platform?.AllowObjectPassThrough(_col);
+                var col = _platformOverlapBuffer[i];
+                if (col.GetComponent<OneWayPlatformBehaviour>() == null) continue;
+                touchingAny = true;
+                if (_ignoredPlatforms.Contains(col)) continue;
+                _ignoredPlatforms.Add(col);
+                Physics2D.IgnoreCollision(_standingCollider, col);
+                Physics2D.IgnoreCollision(_crouchingCollider, col);
             }
-            _droppingDown = false;
+
+            if (!touchingAny && _ignoredPlatforms.Count > 0)
+            {
+                foreach (var col in _ignoredPlatforms)
+                {
+                    if (col == null) continue;
+                    Physics2D.IgnoreCollision(_standingCollider, col, false);
+                    Physics2D.IgnoreCollision(_crouchingCollider, col, false);
+                }
+                _ignoredPlatforms.Clear();
+                _droppingDown = false;
+            }
         }
 
         // Solid ceilings only — one-way platforms overhead don't kill upward velocity

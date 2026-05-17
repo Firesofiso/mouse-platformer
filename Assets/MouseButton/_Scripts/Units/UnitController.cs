@@ -80,6 +80,7 @@ namespace TarodevController
         public bool JumpHeld => _frameInput.JumpHeld;
         public bool ClimbingLedge { get; protected set; }
         public bool IsGrounded => _grounded;
+        public bool DroppingDown => _droppingDown;
 
         public virtual void ApplyVelocity(Vector2 vel, EntityForce forceType)
         {

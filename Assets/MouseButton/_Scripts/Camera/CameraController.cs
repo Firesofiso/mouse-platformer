@@ -1,8 +1,11 @@
+using System;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
     public static CameraController Instance { get; private set; }
+
+    public static event Action<CameraRoom, CameraRoom> RoomChanged;
 
     public CameraRoom startRoom;
 
@@ -26,12 +29,16 @@ public class CameraController : MonoBehaviour
             SnapTo(startRoom);
     }
 
+    public CameraRoom CurrentRoom => _currentRoom;
+
     public void PanTo(CameraRoom room)
     {
         Debug.Log("panning!!!");
         if (_isPanning || room == _currentRoom) return;
 
+        var previous = _currentRoom;
         _currentRoom = room;
+        RoomChanged?.Invoke(previous, room);
         _panTarget = new Vector3(
             Mathf.Round(room.transform.position.x),
             Mathf.Round(room.transform.position.y),
@@ -48,7 +55,9 @@ public class CameraController : MonoBehaviour
 
     private void SnapTo(CameraRoom room)
     {
+        var previous = _currentRoom;
         _currentRoom = room;
+        RoomChanged?.Invoke(previous, room);
         transform.position = new Vector3(
             Mathf.Round(room.transform.position.x),
             Mathf.Round(room.transform.position.y),

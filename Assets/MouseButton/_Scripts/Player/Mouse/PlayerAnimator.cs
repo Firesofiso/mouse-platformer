@@ -334,7 +334,7 @@ namespace TarodevController {
                 }
 
                 if (_player.Crouching) return _player.Input.x == 0 || !_grounded ? Crouch : Crawl;
-                if (_landed) return LockState(Land, _landAnimDuration);
+                if (_landed && !_player.DroppingDown) return LockState(Land, _landAnimDuration);
                 if (_jumpTriggered) return _wallJumped ? WallJump : Jump;
 
                 if (_grounded)
