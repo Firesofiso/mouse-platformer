@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
   m_Name: factoryPfBridge
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: -1429558580, guid: d04947b4f58354acd97b177793a1b545, type: 3}
+  m_DefaultSprite: {fileID: 103597655, guid: d04947b4f58354acd97b177793a1b545, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 0
   m_TilingRules:
@@ -26,12 +26,13 @@ MonoBehaviour:
     m_Output: 0
     m_ColliderType: 0
     m_RandomTransform: 0
-    m_Neighbors: 010000000200000002000000
+    m_Neighbors: 01000000020000000200000002000000
     m_NeighborPositions:
     - {x: -1, y: 0, z: 0}
-    - {x: 1, y: 0, z: 0}
     - {x: 0, y: 1, z: 0}
-    m_RuleTransform: 0
+    - {x: 1, y: 1, z: 0}
+    - {x: -1, y: 1, z: 0}
+    m_RuleTransform: 2
   - m_Id: 1
     m_Sprites:
     - {fileID: -432767993, guid: d04947b4f58354acd97b177793a1b545, type: 3}
@@ -45,7 +46,7 @@ MonoBehaviour:
     m_Neighbors: 0200000001000000
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
-    - {x: 1, y: 0, z: 0}
+    - {x: 0, y: -1, z: 0}
     m_RuleTransform: 0
   - m_Id: 2
     m_Sprites:
@@ -57,7 +58,6 @@ MonoBehaviour:
     m_Output: 0
     m_ColliderType: 0
     m_RandomTransform: 0
-    m_Neighbors: 01000000
-    m_NeighborPositions:
-    - {x: 0, y: 1, z: 0}
+    m_Neighbors: 
+    m_NeighborPositions: []
     m_RuleTransform: 0

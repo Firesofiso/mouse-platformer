@@ -55,8 +55,14 @@ TagManager:
   - name: Character
     uniqueID: 1888885309
     locked: 0
+  - name: Terrain
+    uniqueID: 1418716889
+    locked: 0
   - name: Cursor
     uniqueID: 1996616663
+    locked: 0
+  - name: Scene FX
+    uniqueID: 412334969
     locked: 0
   - name: Foreground
     uniqueID: 714442767

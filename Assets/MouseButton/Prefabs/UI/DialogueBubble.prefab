@@ -60,6 +60,8 @@ MonoBehaviour:
   _pointerBaseHalfWidth: 3
   _pointerTipY: 3
   _leashDistance: 12
+  _cameraPadding: {x: 8, y: 8}
+  _maxCharsPerLine: 24
 --- !u!1 &2207373824137286448
 GameObject:
   m_ObjectHideFlags: 0
@@ -139,9 +141,9 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 100
+  m_SortingLayerID: 1996616663
+  m_SortingLayer: 2
+  m_SortingOrder: 10
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5567007939733849418
 GameObject:
@@ -5043,9 +5045,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 100
+  m_SortingLayerID: 1996616663
+  m_SortingLayer: 2
+  m_SortingOrder: 10
   m_Sprite: {fileID: 21300000, guid: 9d6e211fec5374082acf285dc8de7828, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -5128,9 +5130,9 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 101
+  m_SortingLayerID: 1996616663
+  m_SortingLayer: 2
+  m_SortingOrder: 11
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!102 &4071556992002609386
 TextMesh:
@@ -5143,7 +5145,7 @@ TextMesh:
   m_Text: Text
   m_OffsetZ: 0
   m_CharacterSize: 10
-  m_LineSpacing: 0.4
+  m_LineSpacing: 0.44
   m_Anchor: 6
   m_Alignment: 0
   m_TabSize: 4

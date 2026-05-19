@@ -11,3 +11,4 @@
 - [dialogue.md](dialogue.md) — DialogueBubbles singleton, styles, bubble rendering
 - [cutscenes.md](cutscenes.md) — CutsceneManager, CutsceneSequence, ICutsceneParticipant
 - [scenes.md](scenes.md) — Scene layout, ZoneLoader, GameManager singleton
+- [lighting.md](lighting.md) — 2D lighting, shadow casters, decoration shadow paint system, room toggling

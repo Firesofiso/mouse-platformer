@@ -88,12 +88,25 @@ public class DialogueBubbles : MonoBehaviour
         Close(speaker);
     }
 
+    public void CompleteReveal(Transform speaker)
+    {
+        if (_sessions.TryGetValue(speaker, out var session) && session.bubble != null)
+            session.bubble.CompleteReveal();
+    }
+
+    public void SetSpeed(Transform speaker, float charsPerSecond)
+    {
+        if (_sessions.TryGetValue(speaker, out var session) && session.bubble != null)
+            session.bubble.SetSpeed(charsPerSecond);
+    }
+
     public void Close(Transform speaker)
     {
         if (speaker == null) return;
         if (!_sessions.TryGetValue(speaker, out var session)) return;
         if (session.autoClose != null) StopCoroutine(session.autoClose);
         if (session.bubble != null) session.bubble.Hide();
+        session.handle?.Invalidate();
         _sessions.Remove(speaker);
     }
 

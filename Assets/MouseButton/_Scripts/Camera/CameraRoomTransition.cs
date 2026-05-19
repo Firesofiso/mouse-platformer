@@ -4,6 +4,7 @@ using UnityEngine;
 public class CameraRoomTransition : MonoBehaviour
 {
     public CameraRoom destination;
+    [SerializeField] Transform _respawnPoint;
 
     private void Reset()
     {
@@ -13,7 +14,9 @@ public class CameraRoomTransition : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (destination == null || !other.CompareTag("Player")) return;
-        Debug.Log("pan to");
         CameraController.Instance.PanTo(destination);
+
+        if (_respawnPoint != null && RespawnManager.Instance != null)
+            RespawnManager.Instance.SetRespawnPoint(_respawnPoint);
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Text;
 using UnityEngine;
 
 [ExecuteAlways]
@@ -18,6 +19,9 @@ public class DialogueBubble : MonoBehaviour
     [SerializeField] float _pointerBaseHalfWidth = 3f;
     [SerializeField] float _pointerTipY = 0.5f;
     [SerializeField] float _leashDistance = 8f;
+    [SerializeField] Vector2 _cameraPadding = Vector2.zero;
+    [Tooltip("Max chars per line. 0 = no wrap.")]
+    [SerializeField] int _maxCharsPerLine = 0;
 
     Transform _speaker;
     DialogueStyleConfig.StyleEntry _styleEntry = new();
@@ -28,12 +32,15 @@ public class DialogueBubble : MonoBehaviour
     int _revealedChars;
     Vector2 _pinnedPos;
     Vector2 _currentBubblePos;
+    bool _needsFit;
 
     MeshFilter _pointerFilter;
     MeshRenderer _pointerRenderer;
     Mesh _pointerMesh;
 
     public bool IsRevealing => _revealedChars < (_full?.Length ?? 0);
+
+    public void SetSpeed(float charsPerSecond) => _styleEntry.charsPerSecond = charsPerSecond;
 
     void Awake()
     {
@@ -85,8 +92,9 @@ public class DialogueBubble : MonoBehaviour
             Mathf.Round(rawPos.x / snap) * snap,
             Mathf.Round(rawPos.y / snap) * snap);
         _currentBubblePos = _pinnedPos;
+        transform.position = _currentBubblePos;
         _styleEntry = styleEntry;
-        _full = text ?? "";
+        _full = WordWrap(text ?? "", _maxCharsPerLine);
         _revealedChars = 0;
         _revealTimer = 0f;
         _text.text = "";
@@ -110,7 +118,9 @@ public class DialogueBubble : MonoBehaviour
     {
         _revealedChars = _full.Length;
         _text.text = _full;
-        FitBubble();
+        if (_scaleCoroutine != null) StopCoroutine(_scaleCoroutine);
+        transform.localScale = Vector3.one;
+        _needsFit = true;
     }
 
     public void Hide()
@@ -153,7 +163,28 @@ public class DialogueBubble : MonoBehaviour
                 _currentBubblePos += toSpeaker - toSpeaker.normalized * _leashDistance;
             _currentBubblePos.y = _speaker.position.y + _offsetFromSpeaker.y;
         }
+
+        if (Camera.main != null && _bubble != null)
+        {
+            float camZ = Mathf.Abs(Camera.main.transform.position.z);
+            Vector2 botLeft  = (Vector2)Camera.main.ViewportToWorldPoint(new Vector3(0, 0, camZ)) + _cameraPadding;
+            Vector2 topRight = (Vector2)Camera.main.ViewportToWorldPoint(new Vector3(1, 1, camZ)) - _cameraPadding;
+            Bounds b = _bubble.bounds;
+            float clampedMinX = Mathf.Max(b.min.x, botLeft.x);
+            float clampedMaxX = Mathf.Min(b.max.x, topRight.x);
+            float clampedMinY = Mathf.Max(b.min.y, botLeft.y);
+            float clampedMaxY = Mathf.Min(b.max.y, topRight.y);
+            _currentBubblePos.x += (clampedMinX - b.min.x) + (clampedMaxX - b.max.x);
+            _currentBubblePos.y += (clampedMinY - b.min.y) + (clampedMaxY - b.max.y);
+        }
+
         transform.position = _currentBubblePos;
+
+        if (_needsFit)
+        {
+            FitBubble();
+            _needsFit = false;
+        }
 
         if (IsRevealing && _styleEntry != null && _styleEntry.charsPerSecond > 0f)
         {
@@ -234,6 +265,33 @@ public class DialogueBubble : MonoBehaviour
             _bubble.size = new Vector2(fitW, fitH);
             _bubble.transform.localPosition = bubblePos;
         }
+    }
+
+    static string WordWrap(string text, int maxChars)
+    {
+        if (maxChars <= 0 || string.IsNullOrEmpty(text)) return text;
+        var sb = new StringBuilder(text.Length + 16);
+        int lineLen = 0;
+        foreach (var rawLine in text.Split('\n'))
+        {
+            if (lineLen > 0) { sb.Append('\n'); lineLen = 0; }
+            var words = rawLine.Split(' ');
+            for (int i = 0; i < words.Length; i++)
+            {
+                var word = words[i];
+                int addLen = word.Length + (lineLen > 0 ? 1 : 0);
+                if (lineLen > 0 && lineLen + addLen > maxChars)
+                {
+                    sb.Append('\n');
+                    lineLen = 0;
+                    addLen = word.Length;
+                }
+                if (lineLen > 0) sb.Append(' ');
+                sb.Append(word);
+                lineLen += addLen;
+            }
+        }
+        return sb.ToString();
     }
 
     void ApplyRendererSorting()
