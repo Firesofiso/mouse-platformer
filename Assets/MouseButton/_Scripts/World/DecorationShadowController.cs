@@ -74,153 +74,49 @@ namespace MouseButton.World
                 var sprite = entry.tilemap.GetSprite(entry.cell);
                 if (sprite == null) continue;
 
+                var rects = BuildSpriteRects(sprite);
+                if (rects == null || rects.Count == 0) continue;
+
                 var worldCenter = entry.tilemap.GetCellCenterWorld(entry.cell);
-                var shape = BuildSilhouetteShape(sprite, worldCenter);
-                if (shape == null || shape.Length < 3) continue;
+                float ppu = sprite.pixelsPerUnit;
+                var pivot = sprite.pivot;
 
-                var localShape = new Vector3[shape.Length];
-                for (int i = 0; i < shape.Length; i++)
-                    localShape[i] = transform.InverseTransformPoint(shape[i]);
+                foreach (var rect in rects)
+                {
+                    float x0 = worldCenter.x + (rect.x - pivot.x) / ppu;
+                    float y0 = worldCenter.y + (rect.y - pivot.y) / ppu;
+                    float x1 = worldCenter.x + (rect.xMax - pivot.x) / ppu;
+                    float y1 = worldCenter.y + (rect.yMax - pivot.y) / ppu;
 
-                var shadowObj = new GameObject("BakedShadow");
-                shadowObj.transform.SetParent(transform, false);
-                shadowObj.transform.localPosition = Vector3.zero;
+                    var localShape = new Vector3[]
+                    {
+                        transform.InverseTransformPoint(new Vector3(x0, y1, 0)),
+                        transform.InverseTransformPoint(new Vector3(x1, y1, 0)),
+                        transform.InverseTransformPoint(new Vector3(x1, y0, 0)),
+                        transform.InverseTransformPoint(new Vector3(x0, y0, 0)),
+                    };
 
-                var caster = shadowObj.AddComponent<ShadowCaster2D>();
-                caster.selfShadows = _selfShadows;
-                caster.castsShadows = true;
+                    var shadowObj = new GameObject("BakedShadow");
+                    shadowObj.transform.SetParent(transform, false);
+                    shadowObj.transform.localPosition = Vector3.zero;
 
-                s_shapePathField.SetValue(caster, localShape);
-                s_shapePathHashField.SetValue(caster, UnityEngine.Random.Range(int.MinValue, int.MaxValue));
+                    var caster = shadowObj.AddComponent<ShadowCaster2D>();
+                    caster.selfShadows = _selfShadows;
+                    caster.castsShadows = true;
 
-                caster.enabled = false;
-                caster.enabled = true;
-                count++;
+                    s_shapePathField.SetValue(caster, localShape);
+                    s_shapePathHashField.SetValue(caster, UnityEngine.Random.Range(int.MinValue, int.MaxValue));
+
+                    caster.enabled = false;
+                    caster.enabled = true;
+                    count++;
+                }
             }
 
             return count;
         }
 
-        Vector3[] BuildSilhouetteShape(Sprite sprite, Vector3 worldCenter)
-        {
-            var tex = sprite.texture;
-            var texRect = sprite.textureRect;
-            int w = (int)texRect.width;
-            int h = (int)texRect.height;
-            int ox = (int)texRect.x;
-            int oy = (int)texRect.y;
-            float ppu = sprite.pixelsPerUnit;
-            var pivot = sprite.pivot;
-            byte threshold = (byte)(_alphaThreshold * 255f);
-
-            if (!tex.isReadable)
-            {
-                // Fallback: full tile box
-                float bx0 = worldCenter.x + (0 - pivot.x) / ppu;
-                float by0 = worldCenter.y + (0 - pivot.y) / ppu;
-                float bx1 = worldCenter.x + (w - pivot.x) / ppu;
-                float by1 = worldCenter.y + (h - pivot.y) / ppu;
-                return new Vector3[]
-                {
-                    new(bx0, by1, 0), new(bx1, by1, 0),
-                    new(bx1, by0, 0), new(bx0, by0, 0),
-                };
-            }
-
-            var pixels = tex.GetPixels32(0);
-            int texWidth = tex.width;
-
-            // Per-column: find topmost and bottommost opaque pixel
-            int[] topY = new int[w];
-            int[] bottomY = new int[w];
-            bool[] hasOpaque = new bool[w];
-
-            for (int x = 0; x < w; x++)
-            {
-                topY[x] = -1;
-                bottomY[x] = -1;
-                for (int y = h - 1; y >= 0; y--)
-                {
-                    if (pixels[(oy + y) * texWidth + ox + x].a >= threshold)
-                    {
-                        if (topY[x] == -1) topY[x] = y;
-                        bottomY[x] = y;
-                        hasOpaque[x] = true;
-                    }
-                }
-            }
-
-            // Find leftmost and rightmost opaque columns
-            int left = -1, right = -1;
-            for (int x = 0; x < w; x++)
-            {
-                if (!hasOpaque[x]) continue;
-                if (left == -1) left = x;
-                right = x;
-            }
-
-            if (left == -1) return null;
-
-            // Build polygon: bottom edge L→R, then top edge R→L
-            var verts = new List<Vector3>();
-
-            // Bottom edge (left to right)
-            for (int x = left; x <= right; x++)
-            {
-                if (!hasOpaque[x]) continue;
-                float wx = worldCenter.x + (x - pivot.x) / ppu;
-                float wy = worldCenter.y + (bottomY[x] - pivot.y) / ppu;
-                verts.Add(new Vector3(wx, wy, 0));
-            }
-            // Add bottom-right corner (right edge of rightmost pixel)
-            {
-                float wx = worldCenter.x + (right + 1 - pivot.x) / ppu;
-                float wy = worldCenter.y + (bottomY[right] - pivot.y) / ppu;
-                verts.Add(new Vector3(wx, wy, 0));
-            }
-
-            // Top edge (right to left)
-            for (int x = right; x >= left; x--)
-            {
-                if (!hasOpaque[x]) continue;
-                float wx = worldCenter.x + (x + 1 - pivot.x) / ppu;
-                float wy = worldCenter.y + (topY[x] + 1 - pivot.y) / ppu;
-                verts.Add(new Vector3(wx, wy, 0));
-            }
-            // Add top-left corner (left edge of leftmost pixel)
-            {
-                float wx = worldCenter.x + (left - pivot.x) / ppu;
-                float wy = worldCenter.y + (topY[left] + 1 - pivot.y) / ppu;
-                verts.Add(new Vector3(wx, wy, 0));
-            }
-
-            return SimplifyPolygon(verts);
-        }
-
-        static Vector3[] SimplifyPolygon(List<Vector3> verts)
-        {
-            if (verts.Count < 3) return verts.ToArray();
-
-            var result = new List<Vector3>();
-            int n = verts.Count;
-
-            for (int i = 0; i < n; i++)
-            {
-                var prev = verts[(i - 1 + n) % n];
-                var curr = verts[i];
-                var next = verts[(i + 1) % n];
-
-                // Skip collinear points
-                var d1 = (curr - prev).normalized;
-                var d2 = (next - curr).normalized;
-                if (Vector3.Cross(d1, d2).sqrMagnitude > 0.0001f)
-                    result.Add(curr);
-            }
-
-            return result.Count >= 3 ? result.ToArray() : verts.ToArray();
-        }
-
-        // ── Sprite rect analysis (same logic as TileSpriteShadowCaster) ──
+        // ── Sprite rect analysis ──
 
         List<RectInt> BuildSpriteRects(Sprite sprite)
         {
@@ -342,7 +238,6 @@ namespace MouseButton.World
 
             for (int x = 0; x < w; x++)
             {
-                // All-opaque column vote: any transparent pixel disqualifies
                 bool opaque = true;
                 for (int cy = 0; cy < h; cy++)
                 {
@@ -363,58 +258,6 @@ namespace MouseButton.World
                     runStart = -1;
                 }
             }
-        }
-
-        // ── World-space rect merging ──
-
-        static List<Rect> MergeWorldRects(List<Rect> rects)
-        {
-            if (rects.Count == 0) return rects;
-
-            const float eps = 0.01f;
-            bool changed = true;
-
-            while (changed)
-            {
-                changed = false;
-                for (int i = 0; i < rects.Count; i++)
-                {
-                    for (int j = i + 1; j < rects.Count; j++)
-                    {
-                        var a = rects[i];
-                        var b = rects[j];
-
-                        // Same y-range, horizontally adjacent
-                        if (Mathf.Abs(a.yMin - b.yMin) < eps &&
-                            Mathf.Abs(a.yMax - b.yMax) < eps &&
-                            (Mathf.Abs(a.xMax - b.xMin) < eps || Mathf.Abs(b.xMax - a.xMin) < eps))
-                        {
-                            rects[i] = new Rect(
-                                Mathf.Min(a.xMin, b.xMin), a.yMin,
-                                Mathf.Max(a.xMax, b.xMax) - Mathf.Min(a.xMin, b.xMin), a.height);
-                            rects.RemoveAt(j);
-                            changed = true;
-                            break;
-                        }
-
-                        // Same x-range, vertically adjacent
-                        if (Mathf.Abs(a.xMin - b.xMin) < eps &&
-                            Mathf.Abs(a.xMax - b.xMax) < eps &&
-                            (Mathf.Abs(a.yMax - b.yMin) < eps || Mathf.Abs(b.yMax - a.yMin) < eps))
-                        {
-                            rects[i] = new Rect(
-                                a.xMin, Mathf.Min(a.yMin, b.yMin),
-                                a.width, Mathf.Max(a.yMax, b.yMax) - Mathf.Min(a.yMin, b.yMin));
-                            rects.RemoveAt(j);
-                            changed = true;
-                            break;
-                        }
-                    }
-                    if (changed) break;
-                }
-            }
-
-            return rects;
         }
 
         // ── Cell management ──
