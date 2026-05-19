@@ -21,6 +21,8 @@ namespace MouseButton.World
         [SerializeField] GameObject _shadowPrefab;
         [SerializeField] bool _selfShadows;
         [SerializeField] float _alphaThreshold = 0.5f;
+        [SerializeField] bool _includeTopEdge = true;
+        [SerializeField] bool _includeBottomEdge = true;
 
         static FieldInfo s_shapePathField;
         static FieldInfo s_shapePathHashField;
@@ -65,7 +67,7 @@ namespace MouseButton.World
         {
             EnsureReflectionCache();
 
-            int count = 0;
+            var worldRects = new List<Rect>();
 
             foreach (var entry in _shadowCells)
             {
@@ -87,30 +89,37 @@ namespace MouseButton.World
                     float y0 = worldCenter.y + (rect.y - pivot.y) / ppu;
                     float x1 = worldCenter.x + (rect.xMax - pivot.x) / ppu;
                     float y1 = worldCenter.y + (rect.yMax - pivot.y) / ppu;
-
-                    var localShape = new Vector3[]
-                    {
-                        transform.InverseTransformPoint(new Vector3(x0, y1, 0)),
-                        transform.InverseTransformPoint(new Vector3(x1, y1, 0)),
-                        transform.InverseTransformPoint(new Vector3(x1, y0, 0)),
-                        transform.InverseTransformPoint(new Vector3(x0, y0, 0)),
-                    };
-
-                    var shadowObj = new GameObject("BakedShadow");
-                    shadowObj.transform.SetParent(transform, false);
-                    shadowObj.transform.localPosition = Vector3.zero;
-
-                    var caster = shadowObj.AddComponent<ShadowCaster2D>();
-                    caster.selfShadows = _selfShadows;
-                    caster.castsShadows = true;
-
-                    s_shapePathField.SetValue(caster, localShape);
-                    s_shapePathHashField.SetValue(caster, UnityEngine.Random.Range(int.MinValue, int.MaxValue));
-
-                    caster.enabled = false;
-                    caster.enabled = true;
-                    count++;
+                    worldRects.Add(new Rect(x0, y0, x1 - x0, y1 - y0));
                 }
+            }
+
+            worldRects = MergeWorldRects(worldRects);
+
+            int count = 0;
+            foreach (var wr in worldRects)
+            {
+                var localShape = new Vector3[]
+                {
+                    transform.InverseTransformPoint(new Vector3(wr.xMin, wr.yMax, 0)),
+                    transform.InverseTransformPoint(new Vector3(wr.xMax, wr.yMax, 0)),
+                    transform.InverseTransformPoint(new Vector3(wr.xMax, wr.yMin, 0)),
+                    transform.InverseTransformPoint(new Vector3(wr.xMin, wr.yMin, 0)),
+                };
+
+                var shadowObj = new GameObject("BakedShadow");
+                shadowObj.transform.SetParent(transform, false);
+                shadowObj.transform.localPosition = Vector3.zero;
+
+                var caster = shadowObj.AddComponent<ShadowCaster2D>();
+                caster.selfShadows = _selfShadows;
+                caster.castsShadows = true;
+
+                s_shapePathField.SetValue(caster, localShape);
+                s_shapePathHashField.SetValue(caster, UnityEngine.Random.Range(int.MinValue, int.MaxValue));
+
+                caster.enabled = false;
+                caster.enabled = true;
+                count++;
             }
 
             return count;
@@ -218,14 +227,16 @@ namespace MouseButton.World
             foreach (var r in candidates)
             {
                 if (r.x != 0 || r.xMax != w) continue;
+                if (r.y == 0 && !_includeBottomEdge) continue;
+                if (r.yMax == h && !_includeTopEdge) continue;
                 result.Add(r);
                 if (r.y == 0) hasBottomFullWidth = true;
                 if (r.yMax == h) hasTopFullWidth = true;
             }
 
-            if (!hasBottomFullWidth)
+            if (_includeBottomEdge && !hasBottomFullWidth)
                 BuildEdgeSpans(result, 0, h, pixels, texWidth, ox, oy, w, threshold);
-            if (!hasTopFullWidth)
+            if (_includeTopEdge && !hasTopFullWidth)
                 BuildEdgeSpans(result, h - 1, h, pixels, texWidth, ox, oy, w, threshold);
 
             return result;
@@ -258,6 +269,56 @@ namespace MouseButton.World
                     runStart = -1;
                 }
             }
+        }
+
+        // ── World-space rect merging ──
+
+        static List<Rect> MergeWorldRects(List<Rect> rects)
+        {
+            if (rects.Count == 0) return rects;
+
+            const float eps = 0.01f;
+            bool changed = true;
+
+            while (changed)
+            {
+                changed = false;
+                for (int i = 0; i < rects.Count; i++)
+                {
+                    for (int j = i + 1; j < rects.Count; j++)
+                    {
+                        var a = rects[i];
+                        var b = rects[j];
+
+                        if (Mathf.Abs(a.yMin - b.yMin) < eps &&
+                            Mathf.Abs(a.yMax - b.yMax) < eps &&
+                            (Mathf.Abs(a.xMax - b.xMin) < eps || Mathf.Abs(b.xMax - a.xMin) < eps))
+                        {
+                            rects[i] = new Rect(
+                                Mathf.Min(a.xMin, b.xMin), a.yMin,
+                                Mathf.Max(a.xMax, b.xMax) - Mathf.Min(a.xMin, b.xMin), a.height);
+                            rects.RemoveAt(j);
+                            changed = true;
+                            break;
+                        }
+
+                        if (Mathf.Abs(a.xMin - b.xMin) < eps &&
+                            Mathf.Abs(a.xMax - b.xMax) < eps &&
+                            (Mathf.Abs(a.yMax - b.yMin) < eps || Mathf.Abs(b.yMax - a.yMin) < eps))
+                        {
+                            rects[i] = new Rect(
+                                a.xMin, Mathf.Min(a.yMin, b.yMin),
+                                a.width, Mathf.Max(a.yMax, b.yMax) - Mathf.Min(a.yMin, b.yMin));
+                            rects.RemoveAt(j);
+                            changed = true;
+                            break;
+                        }
+                    }
+                    if (changed) break;
+                }
+            }
+
+            return rects;
         }
 
         // ── Cell management ──

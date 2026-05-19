@@ -4,7 +4,7 @@ Shader "MouseButton/DustParticleLitAdditive"
     {
         _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
-        _Intensity ("Light Intensity", Range(0, 10)) = 1
+        _Intensity ("Light Intensity", Float) = 1
         [Toggle] _DebugThreshold ("Debug Threshold View", Float) = 0
         _Threshold ("Visibility Threshold", Range(0, 1)) = 0.1
     }
@@ -81,7 +81,7 @@ Shader "MouseButton/DustParticleLitAdditive"
                 o.positionCS = TransformObjectToHClip(v.positionOS);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.color = v.color * _Color;
-                o.lightingUV = half2(ComputeScreenPos(o.positionCS / o.positionCS.w).xy);
+                o.lightingUV = half2(ComputeScreenPos(o.positionCS).xy);
                 return o;
             }
 
