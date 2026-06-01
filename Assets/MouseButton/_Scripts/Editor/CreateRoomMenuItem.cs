@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEditor;
+using MouseButton.World;
 
 public static class CreateRoomMenuItem
 {
@@ -15,26 +16,51 @@ public static class CreateRoomMenuItem
         root.AddComponent<CameraRoom>();
         root.AddComponent<RoomController>();
 
-        // Transition placeholder
-        var transition = new GameObject("To -");
-        transition.transform.SetParent(root.transform, false);
-        transition.AddComponent<BoxCollider2D>();
-        transition.AddComponent<CameraRoomTransition>();
-
-        CreateTilemapChild(root, "bgBackdrop", "Background", 0, 0);
+        CreateTilemapChild(root, "bgBackdrop", "Background", -100, 0);
         CreateTilemapChild(root, "bgDecoration", "Background", 10, 0);
 
-        var platforms = CreateTilemapChild(root, "Platforms", "Cursor", 0, LayerMask.NameToLayer("Ground"));
+        var platforms = CreateTilemapChild(root, "Platforms", "Terrain", 0, LayerMask.NameToLayer("Ground"));
         platforms.AddComponent<TilemapCollider2D>();
 
         CreateTilemapChild(root, "fgDecoration", "Background", 10, 0);
 
-        var fgFadeable = CreateTilemapChild(root, "fgFadeable", "Foreground", 0, 0);
-        fgFadeable.AddComponent<Fadeable>();
-        fgFadeable.AddComponent<BoxCollider2D>();
-        fgFadeable.AddComponent<TilemapFadeTrigger>();
+        CreateEmptyChild(root, "Fadeables");
+        CreateEmptyChild(root, "Hazards");
+
+        var decorShadows = CreateEmptyChild(root, "DecorationShadows");
+        decorShadows.AddComponent<TilemapShadowController>();
+
+        CreateEmptyChild(root, "Transitions");
 
         Selection.activeGameObject = root;
+    }
+
+    [MenuItem("GameObject/2D Object/New Transition", false, 11)]
+    static void CreateNewTransition()
+    {
+        var parent = Selection.activeGameObject;
+
+        if (parent == null || parent.GetComponentInParent<CameraRoom>() == null)
+        {
+            EditorUtility.DisplayDialog("New Transition",
+                "Select a GameObject inside a room (e.g. the Transitions container).", "OK");
+            return;
+        }
+
+        var transition = new GameObject("To_");
+        Undo.RegisterCreatedObjectUndo(transition, "Create Transition");
+        transition.transform.SetParent(parent.transform, false);
+
+        var collider = transition.AddComponent<BoxCollider2D>();
+        collider.isTrigger = true;
+        collider.size = new Vector2(32f, 180f);
+        transition.AddComponent<CameraRoomTransition>();
+
+        var checkpoint = new GameObject("Checkpoint");
+        checkpoint.transform.SetParent(transition.transform, false);
+        checkpoint.AddComponent<Checkpoint>();
+
+        Selection.activeGameObject = transition;
     }
 
     static GameObject CreateTilemapChild(GameObject parent, string name, string sortingLayer, int sortingOrder, int layer)
@@ -46,6 +72,13 @@ public static class CreateRoomMenuItem
         var renderer = go.AddComponent<TilemapRenderer>();
         renderer.sortingLayerName = sortingLayer;
         renderer.sortingOrder = sortingOrder;
+        return go;
+    }
+
+    static GameObject CreateEmptyChild(GameObject parent, string name)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(parent.transform, false);
         return go;
     }
 }

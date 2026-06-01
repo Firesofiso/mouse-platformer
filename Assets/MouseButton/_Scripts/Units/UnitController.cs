@@ -167,6 +167,7 @@ namespace TarodevController
             HandleDash();
             HandleAttacking();
             HandleClicking();
+            TryCornerCorrection();
             HandleHorizontal();
             HandleVertical();
             ApplyMovement();
@@ -218,8 +219,11 @@ namespace TarodevController
         {
             if (_ceilingHitCount > 0 && IsCeilingHitSolid())
             {
-                _currentExternalVelocity.y = Mathf.Min(0f, _currentExternalVelocity.y);
-                _speed.y = Mathf.Min(0, _speed.y);
+                if (!TryHeadCorrection())
+                {
+                    _currentExternalVelocity.y = Mathf.Min(0f, _currentExternalVelocity.y);
+                    _speed.y = Mathf.Min(0, _speed.y);
+                }
             }
 
             if (!_grounded && _groundHitCount > 0)
@@ -733,6 +737,93 @@ namespace TarodevController
 
         #endregion
 
+        protected virtual bool TryHeadCorrection()
+        {
+            if (ClimbingLadder || ClimbingLedge) return false;
+            if (_speed.y <= 0f) return false;
+            if (_stats.HeadCorrectionMax <= 0f) return false;
+
+            GetHeadRays(out var leftOrigin, out var rightOrigin, out var rayLength);
+
+            Physics2D.queriesHitTriggers = false;
+            var leftHit = Physics2D.Raycast(leftOrigin, Vector2.up, rayLength, ~_stats.PlayerLayer);
+            var rightHit = Physics2D.Raycast(rightOrigin, Vector2.up, rayLength, ~_stats.PlayerLayer);
+            Physics2D.queriesHitTriggers = _cachedTriggerSetting;
+
+            bool leftBlocked = leftHit.collider != null;
+            bool rightBlocked = rightHit.collider != null;
+
+            if (leftBlocked == rightBlocked) return false;
+
+            var blockedHit = leftBlocked ? leftHit : rightHit;
+            if (blockedHit.collider.GetComponent<OneWayPlatformBehaviour>() != null) return false;
+
+            var blockedOrigin = leftBlocked ? leftOrigin : rightOrigin;
+            float nudgeSign = leftBlocked ? +1f : -1f;
+
+            for (float nudge = _stats.HeadCorrectionStep; nudge <= _stats.HeadCorrectionMax; nudge += _stats.HeadCorrectionStep)
+            {
+                var testOrigin = blockedOrigin + Vector2.right * (nudgeSign * nudge);
+                Physics2D.queriesHitTriggers = false;
+                var testHit = Physics2D.Raycast(testOrigin, Vector2.up, rayLength, ~_stats.PlayerLayer);
+                Physics2D.queriesHitTriggers = _cachedTriggerSetting;
+                if (testHit.collider != null) continue;
+                _rb.position += Vector2.right * (nudgeSign * nudge);
+                return true;
+            }
+            return false;
+        }
+
+        private void GetHeadRays(out Vector2 leftOrigin, out Vector2 rightOrigin, out float rayLength)
+        {
+            var centerX = _col.bounds.center.x;
+            var originY = _col.bounds.min.y + _stats.HeadRayY;
+            leftOrigin = new Vector2(centerX - _stats.HeadRayXOffset, originY);
+            rightOrigin = new Vector2(centerX + _stats.HeadRayXOffset, originY);
+            rayLength = _stats.HeadRayLength;
+        }
+
+        protected virtual bool TryCornerCorrection()
+        {
+            if (IsOnWall || ClimbingLadder || ClimbingLedge) return false;
+            if (Mathf.Abs(_frameInput.Move.x) < _stats.HorizontalDeadzoneThreshold) return false;
+            if (_stats.CornerCorrectionMax <= 0f) return false;
+
+            var dir = Mathf.Sign(_frameInput.Move.x);
+            GetCornerRays(dir, out var bottomOrigin, out var topOrigin, out var rayDistance);
+
+            Physics2D.queriesHitTriggers = false;
+            var bottomHit = Physics2D.Raycast(bottomOrigin, new Vector2(dir, 0), rayDistance, ~_stats.PlayerLayer);
+            var topHit = Physics2D.Raycast(topOrigin, new Vector2(dir, 0), rayDistance, ~_stats.PlayerLayer);
+            Physics2D.queriesHitTriggers = _cachedTriggerSetting;
+
+            if (topHit.collider != null) return false;
+            if (bottomHit.collider == null) return false;
+            if (bottomHit.collider.GetComponent<OneWayPlatformBehaviour>() != null) return false;
+
+            for (float nudge = _stats.CornerCorrectionStep; nudge <= _stats.CornerCorrectionMax; nudge += _stats.CornerCorrectionStep)
+            {
+                var testOrigin = bottomOrigin + Vector2.up * nudge;
+                Physics2D.queriesHitTriggers = false;
+                var testHit = Physics2D.Raycast(testOrigin, new Vector2(dir, 0), rayDistance, ~_stats.PlayerLayer);
+                Physics2D.queriesHitTriggers = _cachedTriggerSetting;
+                if (testHit.collider != null) continue;
+                _rb.position += Vector2.up * nudge;
+                _hittingWall = default;
+                return true;
+            }
+            return false;
+        }
+
+        private void GetCornerRays(float dir, out Vector2 bottomOrigin, out Vector2 topOrigin, out float rayDistance)
+        {
+            var originX = _col.bounds.center.x;
+            var footY = _col.bounds.min.y;
+            bottomOrigin = new Vector2(originX, footY + _stats.CornerRayBottomY);
+            topOrigin = new Vector2(originX, footY + _stats.CornerRayTopY);
+            rayDistance = _stats.CornerRayLength;
+        }
+
         protected virtual void ApplyMovement()
         {
             if (!_hasControl) return;
@@ -751,6 +842,11 @@ namespace TarodevController
                 var bounds = GetWallDetectionBounds();
                 Gizmos.DrawWireCube(bounds.center, bounds.size);
             }
+            if (_stats.ShowCornerCorrection && _col != null && Application.isPlaying)
+                DrawCornerCorrectionGizmos();
+            if (_stats.ShowHeadCorrection && _col != null && Application.isPlaying)
+                DrawHeadCorrectionGizmos();
+
             if (_stats.AllowLedges && _stats.ShowLedgeDetection)
             {
                 Gizmos.color = Color.red;
@@ -762,6 +858,52 @@ namespace TarodevController
                 Gizmos.DrawRay(grabHeight + _stats.LedgeRaycastSpacing * Vector3.down, 0.5f * facingDir * Vector3.right);
                 Gizmos.DrawRay(grabHeight + _stats.LedgeRaycastSpacing * Vector3.up, 0.5f * facingDir * Vector3.right);
             }
+        }
+
+        private void DrawCornerCorrectionGizmos()
+        {
+            if (_stats.CornerCorrectionMax <= 0f) return;
+
+            GetCornerRays(1f, out var bottomOrigin, out var topOrigin, out var rayDistance);
+
+            DrawCornerRayPair(bottomOrigin, topOrigin, rayDistance, +1f);
+            DrawCornerRayPair(bottomOrigin, topOrigin, rayDistance, -1f);
+        }
+
+        private void DrawCornerRayPair(Vector2 bottomOrigin, Vector2 topOrigin, float rayDistance, float dir)
+        {
+            var dir3 = new Vector3(dir, 0, 0);
+            var rayVec = new Vector2(dir, 0);
+
+            var prevTriggers = Physics2D.queriesHitTriggers;
+            Physics2D.queriesHitTriggers = false;
+            var bottomHit = Physics2D.Raycast(bottomOrigin, rayVec, rayDistance, ~_stats.PlayerLayer);
+            var topHit = Physics2D.Raycast(topOrigin, rayVec, rayDistance, ~_stats.PlayerLayer);
+            Physics2D.queriesHitTriggers = prevTriggers;
+
+            Gizmos.color = bottomHit.collider != null ? Color.red : Color.green;
+            Gizmos.DrawRay(bottomOrigin, dir3 * rayDistance);
+            Gizmos.color = topHit.collider != null ? Color.red : Color.green;
+            Gizmos.DrawRay(topOrigin, dir3 * rayDistance);
+        }
+
+        private void DrawHeadCorrectionGizmos()
+        {
+            if (_stats.HeadCorrectionMax <= 0f) return;
+
+            GetHeadRays(out var leftOrigin, out var rightOrigin, out var rayLength);
+
+            var prevTriggers = Physics2D.queriesHitTriggers;
+            Physics2D.queriesHitTriggers = false;
+            var leftHit = Physics2D.Raycast(leftOrigin, Vector2.up, rayLength, ~_stats.PlayerLayer);
+            var rightHit = Physics2D.Raycast(rightOrigin, Vector2.up, rayLength, ~_stats.PlayerLayer);
+            Physics2D.queriesHitTriggers = prevTriggers;
+
+            var rayVec = Vector3.up * rayLength;
+            Gizmos.color = leftHit.collider != null ? Color.red : Color.green;
+            Gizmos.DrawRay(leftOrigin, rayVec);
+            Gizmos.color = rightHit.collider != null ? Color.red : Color.green;
+            Gizmos.DrawRay(rightOrigin, rayVec);
         }
 
         protected virtual void OnEnable()

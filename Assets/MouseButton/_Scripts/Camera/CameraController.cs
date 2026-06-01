@@ -30,6 +30,7 @@ public class CameraController : MonoBehaviour
     }
 
     public CameraRoom CurrentRoom => _currentRoom;
+    public bool IsPanning => _isPanning;
 
     public void PanTo(CameraRoom room)
     {
@@ -53,7 +54,7 @@ public class CameraController : MonoBehaviour
         Time.timeScale = 0f;
     }
 
-    private void SnapTo(CameraRoom room)
+    public void SnapTo(CameraRoom room)
     {
         var previous = _currentRoom;
         _currentRoom = room;

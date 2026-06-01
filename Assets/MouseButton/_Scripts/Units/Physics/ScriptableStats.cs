@@ -45,6 +45,52 @@ namespace TarodevController {
         [Tooltip("The detection distance for grounding and roof detection"), Range(0f, 0.5f)]
         public float GrounderDistance = 0.05f;
 
+        [Tooltip("Max vertical pixels to nudge the player up when their feet snag a ledge corner during a horizontal jump. 0 disables. Game uses PPU=1 so units = pixels.")]
+        [Range(0f, 8f)]
+        public float CornerCorrectionMax = 4f;
+
+        [Tooltip("Step size in pixels for corner-correction sampling. 1 = pixel-perfect.")]
+        [Range(0.25f, 4f)]
+        public float CornerCorrectionStep = 1f;
+
+        [Tooltip("Bottom ray Y, in pixels above the collider's bottom edge.")]
+        [Range(0f, 16f)]
+        public float CornerRayBottomY = 0.5f;
+
+        [Tooltip("Top ray Y, in pixels above the collider's bottom edge. Should be > Bottom.")]
+        [Range(0f, 16f)]
+        public float CornerRayTopY = 4f;
+
+        [Tooltip("Horizontal length of each corner ray, in pixels (from the collider edge outward).")]
+        [Range(0.25f, 16f)]
+        public float CornerRayLength = 2f;
+
+        [Tooltip("Draw corner-correction rays in Scene view. Green = clear, Red = blocked.")]
+        public bool ShowCornerCorrection = true;
+
+        [Tooltip("Max horizontal pixels to nudge the player sideways when head bonks a ceiling corner during a jump. 0 disables.")]
+        [Range(0f, 8f)]
+        public float HeadCorrectionMax = 4f;
+
+        [Tooltip("Step size in pixels for head-correction sampling. 1 = pixel-perfect.")]
+        [Range(0.25f, 4f)]
+        public float HeadCorrectionStep = 1f;
+
+        [Tooltip("Distance in pixels from collider center X to each head ray (left and right).")]
+        [Range(0f, 16f)]
+        public float HeadRayXOffset = 3f;
+
+        [Tooltip("Y position of head ray origins, in pixels above the collider's bottom edge.")]
+        [Range(0f, 64f)]
+        public float HeadRayY = 8f;
+
+        [Tooltip("Length in pixels of each head ray (cast upward from origin Y).")]
+        [Range(0.25f, 16f)]
+        public float HeadRayLength = 2f;
+
+        [Tooltip("Draw head-correction rays in Scene view. Green = clear, Red = blocked.")]
+        public bool ShowHeadCorrection = true;
+
         [Header("AI")]
         [Tooltip("The distance at which ledges become scary")]
         public float AfraidOfHeight = 10f;

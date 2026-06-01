@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Tilemaps;
 
 [DefaultExecutionOrder(100)]
 [RequireComponent(typeof(CameraRoom))]
@@ -10,6 +11,7 @@ public class RoomController : MonoBehaviour
     private ShadowCaster2D[] _shadowCasters;
 
     private bool _active;
+    private bool _tilemapsRefreshed;
 
     private void Awake()
     {
@@ -21,8 +23,18 @@ public class RoomController : MonoBehaviour
     private System.Collections.IEnumerator Start()
     {
         yield return null;
+        RefreshTilemapsIfNeeded();
         CacheComponents();
         SetLightingActive(_active);
+    }
+
+    private void RefreshTilemapsIfNeeded()
+    {
+        if (_tilemapsRefreshed) return;
+        _tilemapsRefreshed = true;
+
+        foreach (var tilemap in GetComponentsInChildren<Tilemap>(true))
+            tilemap.RefreshAllTiles();
     }
 
     private void CacheComponents()

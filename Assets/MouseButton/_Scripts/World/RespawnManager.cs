@@ -10,7 +10,7 @@ public class RespawnManager : MonoBehaviour
     [SerializeField] float _fadeOutDuration = 0.3f;
     [SerializeField] float _fadeInDuration = 0.4f;
     [SerializeField] float _holdBlackDuration = 0.15f;
-    [SerializeField] Transform _activeRespawnPoint;
+    [SerializeField] Checkpoint _activeCheckpoint;
 
     bool _dying;
 
@@ -23,9 +23,9 @@ public class RespawnManager : MonoBehaviour
         Instance = this;
     }
 
-    public void SetRespawnPoint(Transform point)
+    public void SetRespawnPoint(Checkpoint checkpoint)
     {
-        _activeRespawnPoint = point;
+        _activeCheckpoint = checkpoint;
     }
 
     public void Kill()
@@ -55,7 +55,7 @@ public class RespawnManager : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(_holdBlackDuration);
 
-        var respawnPos = _activeRespawnPoint.position;
+        var respawnPos = _activeCheckpoint.transform.position;
         respawnPos.z = player.position.z;
         controller._rb.velocity = Vector2.zero;
         controller._rb.position = respawnPos;
@@ -66,17 +66,17 @@ public class RespawnManager : MonoBehaviour
         if (cursor != null)
             cursor.position = respawnPos;
 
-        if (CameraController.Instance != null && CameraController.Instance.CurrentRoom != null)
+        var checkpointRoom = _activeCheckpoint.GetRoom();
+        bool willPan = checkpointRoom != null
+            && CameraController.Instance != null
+            && CameraController.Instance.CurrentRoom != checkpointRoom;
+
+        if (checkpointRoom != null && CameraController.Instance != null)
         {
-            var cam = Camera.main;
-            if (cam != null)
-            {
-                var room = CameraController.Instance.CurrentRoom;
-                cam.transform.position = new Vector3(
-                    Mathf.Round(room.transform.position.x),
-                    Mathf.Round(room.transform.position.y),
-                    cam.transform.position.z);
-            }
+            if (willPan)
+                CameraController.Instance.PanTo(checkpointRoom);
+            else
+                CameraController.Instance.SnapTo(checkpointRoom);
         }
 
         yield return null;
@@ -90,6 +90,9 @@ public class RespawnManager : MonoBehaviour
             PixelDissolveController.Instance.FadeIn(_fadeInDuration);
             yield return new WaitForSecondsRealtime(_fadeInDuration + 0.05f);
         }
+
+        while (CameraController.Instance != null && CameraController.Instance.IsPanning)
+            yield return null;
 
         _dying = false;
     }
