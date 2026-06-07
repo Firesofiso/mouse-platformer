@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: factoryWindowLight
   m_EditorClassIdentifier: 
   m_DefaultSprite: {fileID: 808456050, guid: d04947b4f58354acd97b177793a1b545, type: 3}
-  m_DefaultGameObject: {fileID: 5068861179065973883, guid: d30f51902a5ff41298460e6e7f86bc85, type: 3}
+  m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules:
   - m_Id: 0

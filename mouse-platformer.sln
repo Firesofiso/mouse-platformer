@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AstarPathfindingProject", "AstarPathfindingProject.csproj", "{3a969dc1-90c5-fe6b-bd4a-3bdc2669ecd4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MouseButton", "MouseButton.csproj", "{043e07f4-c005-4b52-6197-715c2e770977}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AstarPathfindingProjectEditor", "AstarPathfindingProjectEditor.csproj", "{472141d7-f608-09e2-0941-a640b4806231}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageToolsEditor", "PackageToolsEditor.csproj", "{f25b35e8-f4c1-ac55-d1ae-f72c02c5cf4f}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{27d3dbdd-6e99-979f-bf22-0292f57b5e5f}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{067f1c7e-b545-c3cd-bb14-945657363b23}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3a969dc1-90c5-fe6b-bd4a-3bdc2669ecd4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3a969dc1-90c5-fe6b-bd4a-3bdc2669ecd4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{043e07f4-c005-4b52-6197-715c2e770977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{043e07f4-c005-4b52-6197-715c2e770977}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{472141d7-f608-09e2-0941-a640b4806231}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{472141d7-f608-09e2-0941-a640b4806231}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{f25b35e8-f4c1-ac55-d1ae-f72c02c5cf4f}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{f25b35e8-f4c1-ac55-d1ae-f72c02c5cf4f}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27d3dbdd-6e99-979f-bf22-0292f57b5e5f}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27d3dbdd-6e99-979f-bf22-0292f57b5e5f}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{067f1c7e-b545-c3cd-bb14-945657363b23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{067f1c7e-b545-c3cd-bb14-945657363b23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
